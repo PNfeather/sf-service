@@ -1,5 +1,5 @@
 const getters = {
-  name: state => state.user.name,
-  orgId: state => state.user.orgId
+  userInfo: state => state.user.userInfo,
+  serviceList: state => state.user.serviceList
 };
 export default getters;

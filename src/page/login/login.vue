@@ -49,7 +49,6 @@
 </template>
 
 <script type='text/babel'>
-  import {login} from '@/api/user';
   export default {
     name: 'login',
     data () {
@@ -81,18 +80,7 @@
         e.preventDefault();
         this.form.validateFields((err, values) => {
           if (!err) {
-            login({
-              account: values.account,
-              password: values.password
-            }).then(res => {
-              let data = res.data;
-              if (data.code == '0') {
-                this.$message.success('登录成功');
-                this.$router.push('/manage');
-              } else {
-                this.$message.error(data.message);
-              }
-            });
+            this.$store.dispatch('login', values);
           }
         });
       }

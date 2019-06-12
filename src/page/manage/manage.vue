@@ -37,7 +37,7 @@
             </a-menu-item>
           </a-menu>
         </a-layout-sider>
-        <a-layout-content  :style="{ margin: '.3rem', background: '#fff', minHeight: '280px' }">
+        <a-layout-content class="layout-content">
           <keep-alive>
             <router-view></router-view>
           </keep-alive>
@@ -48,6 +48,7 @@
 </template>
 
 <script type='text/babel'>
+  // import {logout} from '@/api/user';
   export default {
     data () {
       return {
@@ -109,5 +110,12 @@
       }
     }
     .iconfont{margin-right: .14rem}
+    .layout-content{
+      margin: .3rem;
+      background: #fff;
+      min-height: 280px;
+      box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
+      border-radius: 2px;
+    }
   }
 </style>
