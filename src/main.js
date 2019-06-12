@@ -6,6 +6,7 @@ import router from './router';
 import http from '@/plugins/http';
 import store from './store/';
 import Antd from 'ant-design-vue';
+import HeadTop from '@C/headTop';
 import 'ant-design-vue/dist/antd.css';
 import VueLazyload from 'vue-lazyload';
 
@@ -22,6 +23,8 @@ Vue.use(VueLazyload, {
 Vue.use(http.install);
 
 Vue.use(Antd);
+
+Vue.component(HeadTop.name, HeadTop);
 
 let setHtmlFontSize = () => {
   // 1366是设计稿的宽度，当大于1366时采用1366宽度，比例也是除以13.66

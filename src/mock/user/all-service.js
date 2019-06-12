@@ -10,7 +10,7 @@ for (let i = 0; i < total; i++) { // 可自定义生成的个数
   let template = {
     'account': '14566663',
     'avatarUrl': require('@IMG/default.jpg'),
-    'id': 123123,
+    'id': Random.integer(10000, 99999),
     'mobile': '13812345678',
     'name': Random.cname(),
     'nickName': '紫羽',
