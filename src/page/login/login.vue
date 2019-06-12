@@ -88,7 +88,7 @@
               let data = res.data;
               if (data.code == '0') {
                 this.$message.success('登录成功');
-                this.$router.push('manage');
+                this.$router.push('/manage');
               } else {
                 this.$message.error(data.message);
               }
@@ -106,24 +106,24 @@
     background-size: 100% 100%;
     position: relative;
     .login-wrapper{
-      .wh(13.6rem, 7.6rem);
-      .ctp(13.6rem, 7.6rem);
+      .wh(12rem, 6.75rem);
+      .ctp(12rem, 6.75rem);
       background: #FFFFFF;
       box-shadow: 0 0.09rem 0.22rem 0.2rem rgba(76,103,185,0.30);
       border-radius: 10px;
       display: flex;
       .loginArea{
-        flex: 7.8rem 0 0;
+        flex: 6.45rem 0 0;
         .fac();
         img{
-          .wh(6.7rem, 4.4rem);
+          .wh(5.45rem, 3.74rem);
         }
       }
       .handleArea{
-        flex: 5.2rem 0 0;
+        flex: 5.05rem 0 0;
         .fac();
         .form{
-          padding-top: 1.03rem;
+          padding-top: 1.08rem;
           .title{
             margin-bottom: .3rem;
             .title-text{
@@ -133,13 +133,13 @@
           }
           .input-item{
             margin-bottom: 0;
-            height: 1.32rem;
+            height: 1.2rem;
             .input{
               background: rgba(182,206,250,0.10);
               border: 1px solid rgba(61,120,238,0.20);
               border-radius: 4px;
-              line-height: .9rem;
-              height: .9rem;
+              line-height: .8rem;
+              height: .8rem;
               font-size: .24rem;
             }
           }
@@ -149,9 +149,10 @@
             border-radius: 4px;
             color: #FFFFFF;
             text-align: center;
-            height: .9rem;
+            height: .8rem;
+            line-height: .8rem;
             width: 100%;
-            margin-top: .86rem;
+            margin-top: .6rem;
           }
         }
       }

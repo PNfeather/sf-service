@@ -1,14 +1,14 @@
 <template>
-  <div name='home'>
-    <head-top></head-top>
+  <div name='missionList'>
     <section class="">
+      作业管理
     </section>
   </div>
 </template>
 
 <script type='text/babel'>
   export default {
-    name: 'home',
+    name: 'missionList',
     data () {
       return {
       };
@@ -23,6 +23,6 @@
   };
 </script>
 <style scoped lang="less">
-  [name = 'home']{
+  [name = 'missionList']{
   }
 </style>

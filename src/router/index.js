@@ -5,7 +5,9 @@ Vue.use(Router);
 
 const login = r => require.ensure([], () => r(require('@/page/login/login')), 'login');
 const manage = r => require.ensure([], () => r(require('@/page/manage/manage')), 'manage');
-const home = r => require.ensure([], () => r(require('@/page/home/home')), 'home');
+const missionList = r => require.ensure([], () => r(require('@/page/missionList/missionList')), 'missionList');
+const resource = r => require.ensure([], () => r(require('@/page/resource/resource')), 'resource');
+const taskManage = r => require.ensure([], () => r(require('@/page/taskManage/taskManage')), 'taskManage');
 
 const routes = [
   {
@@ -19,8 +21,13 @@ const routes = [
     children: [
       {
         path: '',
-        component: home,
-        meta: []
+        component: missionList
+      }, {
+        path: '/resource',
+        component: resource
+      }, {
+        path: '/taskManage',
+        component: taskManage
       }
     ]
   }
