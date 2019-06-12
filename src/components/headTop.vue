@@ -23,9 +23,53 @@
       v-model="visible"
       centered
       @ok="handleOk">
-      <p>Some contents...</p>
-      <p>Some contents...</p>
-      <p>Some contents...</p>
+      <a-form
+        :form="form"
+        class="form fillcontain"
+        @submit="handleSubmit">
+        <a-form-item
+          class="input-item"
+          label="旧密码"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }"
+          :validate-status="accountError() ? 'error' : ''"
+          :help="accountError() || ''">
+          <a-input
+            class="input"
+            v-decorator="rules.oldPassword"
+            type="password"
+            placeholder="请输入密码">
+          </a-input>
+        </a-form-item>
+        <a-form-item
+          class="input-item"
+          label="新密码"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }"
+          :validate-status="accountError() ? 'error' : ''"
+          :help="accountError() || ''">
+          <a-input
+            class="input"
+            v-decorator="rules.newPassword"
+            type="password"
+            placeholder="输入6-20位新密码">
+          </a-input>
+        </a-form-item>
+        <a-form-item
+          class="input-item"
+          label="确认密码"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }"
+          :validate-status="accountError() ? 'error' : ''"
+          :help="accountError() || ''">
+          <a-input
+            class="input"
+            v-decorator="rules.reNewPassword"
+            type="password"
+            placeholder="再次输入新密码以验证">
+          </a-input>
+        </a-form-item>
+      </a-form>
     </a-modal>
   </section>
 </template>
@@ -37,7 +81,22 @@
     data () {
       return {
         defaultImg: require('@IMG/default.jpg'),
-        visible: false
+        visible: false,
+        form: this.$form.createForm(this),
+        rules: {
+          oldPassword: [
+            'oldPassword',
+            {rules: [{ required: true, message: '请输入旧密码' }]}
+          ],
+          newPassword: [
+            'newPassword',
+            {rules: [{ required: true, message: '请输入新密码' }]}
+          ],
+          reNewPassword: [
+            'reNewPassword',
+            {rules: [{ required: true, message: '请输入新密码验证' }]}
+          ]
+        }
       };
     },
     computed: {
@@ -64,7 +123,26 @@
         this.visible = true;
       },
       handleOk () {
-        console.log('提交修改');
+        this.handleSubmit().then(res => {
+          res && (this.visible = false);
+        });
+      },
+      accountError () {
+        const { getFieldError, isFieldTouched } = this.form;
+        return isFieldTouched('account') && getFieldError('account');
+      },
+      passwordError () {
+        const { getFieldError, isFieldTouched } = this.form;
+        return isFieldTouched('password') && getFieldError('password');
+      },
+      handleSubmit  () {
+        return new Promise(resolve => {
+          this.form.validateFields((err, values) => {
+            if (!err) {
+              resolve(true);
+            }
+          });
+        });
       }
     }
   };
