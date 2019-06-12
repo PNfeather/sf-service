@@ -1,13 +1,13 @@
 import {config} from './data';
 
-let pre = 'myApp_';
+let pre = 'SF_';
 
 function setItem (name, value) {
-  return window.localStorage.setItem(pre + name, value);
+  return window.localStorage.setItem(pre + name, JSON.stringify(value));
 }
 
 function getItem (name) {
-  return window.localStorage.getItem(pre + name);
+  return JSON.parse(window.localStorage.getItem(pre + name));
 }
 
 let storageConfig = [...config];

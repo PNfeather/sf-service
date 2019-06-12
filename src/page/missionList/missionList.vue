@@ -14,10 +14,10 @@
         </a-select>
       </div>
       <div class="btn">
-        <a-button type="primary" class="refresh">刷新</a-button>
+        <a-button type="primary" class="refresh" @click="refresh">刷新</a-button>
       </div>
     </div>
-    <a-table :style="{width: '101%', marginLeft: '-2px'}" :columns="columns" :dataSource="tableData" rowKey="workId" :pagination="false" :scroll="{y: 560}" bordered>
+    <a-table :style="{width: '101%', marginLeft: '-2px', flex: '1'}" :columns="columns" :dataSource="tableData" rowKey="workId" :pagination="false" :scroll="{y: 560}" bordered>
       <template slot="name" slot-scope="text">
         <a href="javascript:;">{{text}}</a>
       </template>
@@ -28,7 +28,7 @@
       </template>
     </a-table>
     <a-pagination
-      :style="{display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: '60px', left: '0', right: '0'}"
+      :style="{flex: '100px 0 0', paddingTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'flexStart'}"
       :pageSizeOptions="pageSizeOptions"
       :total="count"
       :showTotal="total => `共 ${total} 条记录`"
@@ -57,15 +57,15 @@
         ],
         tableData: [],
         columns: [
-          {title: '作业名称', dataIndex: 'workName', width: '16.6%'},
-          {title: '布置教师', dataIndex: 'assignTeacher', width: '16.7%'},
-          {title: '班级', dataIndex: 'className', width: '21.8%'},
-          {title: '布置时间', dataIndex: 'assignTime', width: '12.9%'},
-          {title: '状态', dataIndex: 'status', width: '10%'},
-          {title: '操作客服', dataIndex: 'serviceName', width: '10%'},
-          {title: '操作', dataIndex: 'deal', width: '12%', scopedSlots: { customRender: 'operation' }}
+          {className: 'tablePadding', title: '作业名称', dataIndex: 'workName', width: '16.6%'},
+          {className: 'tablePadding', title: '布置教师', dataIndex: 'assignTeacher', width: '16.7%'},
+          {className: 'tablePadding', title: '班级', dataIndex: 'className', width: '21.8%'},
+          {className: 'tablePadding', title: '布置时间', dataIndex: 'assignTime', width: '12.9%'},
+          {className: 'tablePadding', title: '状态', dataIndex: 'status', width: '10%'},
+          {className: 'tablePadding', title: '操作客服', dataIndex: 'serviceName', width: '10%'},
+          {className: 'tablePadding', title: '操作', dataIndex: 'deal', width: '12%', scopedSlots: { customRender: 'operation' }}
         ],
-        pageSizeOptions: ['10', '20', '30', '40', '50'],
+        pageSizeOptions: ['5', '10', '20', '30', '40', '50'],
         skip: 0,
         limit: 10,
         currentPage: 1,
@@ -86,12 +86,6 @@
       }
     },
     methods: {
-      changeStatus (value) {
-        this.status = value;
-      },
-      changeService (value) {
-        this.serviceId = value;
-      },
       getList () {
         taskList({
           limit: this.limit,
@@ -105,6 +99,17 @@
             this.tableData = data.data;
           }
         });
+      },
+      refresh () {
+        this.getList();
+      },
+      changeStatus (value) {
+        this.status = value;
+        this.getList();
+      },
+      changeService (value) {
+        this.serviceId = value;
+        this.getList();
       },
       handleTask (workId) {
         let data = [...this.tableData];
@@ -125,14 +130,23 @@
     }
   };
 </script>
+<style>
+  th.tablePadding,
+  td.tablePadding {
+    padding-left: 30px !important;
+  }
+</style>
 <style scoped lang="less">
   @import '~@/style/mixin';
   [name = 'missionList']{
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     position: relative;
+    display: flex;
+    flex-direction: column;
     .search{
-      height: 60px;
-      padding: 0 .3rem;
+      flex: 60px 0 0;
+      padding: 0 30px 0 10px;
       .fj(flex-start);
       .status{
         flex: 180px 0 0;

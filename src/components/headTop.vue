@@ -18,6 +18,15 @@
         </a-menu-item>
       </a-menu>
     </a-dropdown>
+    <a-modal
+      title="修改密码"
+      v-model="visible"
+      centered
+      @ok="handleOk">
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+      <p>Some contents...</p>
+    </a-modal>
   </section>
 </template>
 
@@ -27,7 +36,8 @@
     name: 'headTop',
     data () {
       return {
-        defaultImg: require('@IMG/default.jpg')
+        defaultImg: require('@IMG/default.jpg'),
+        visible: false
       };
     },
     computed: {
@@ -51,7 +61,10 @@
         });
       },
       changePsw () {
-        console.log('修改密码');
+        this.visible = true;
+      },
+      handleOk () {
+        console.log('提交修改');
       }
     }
   };
