@@ -5,8 +5,8 @@ import storage from '@/tools/storage';
 
 const user = {
   state: {
-    userInfo: storage.get.userInfo() || {},
-    serviceList: storage.get.serviceList() || []
+    userInfo: storage.get('userInfo') || {},
+    serviceList: storage.get('serviceList') || []
   },
 
   mutations: {
@@ -27,12 +27,12 @@ const user = {
       }).then(res => {
         let data = res.data;
         if (data.code == '0') {
-          storage.set.userInfo(data.data);
+          storage.set('userInfo', data.data);
           commit('SET_USERINFO', data.data);
           serviceList().then(response => {
             let reData = response.data;
             if (reData.code == '0') {
-              storage.set.serviceList(reData.data);
+              storage.set('serviceList', reData.data);
               commit('SET_SERVICELIST', reData.data);
             } else {
               message.error(data.message);

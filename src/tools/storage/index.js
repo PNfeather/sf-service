@@ -13,17 +13,16 @@ function getItem (name) {
 let storageConfig = [...config];
 
 let storage = {
-  get: {},
-  set: {}
+  get (name) {
+    if (storageConfig.includes(name)) {
+      return getItem(name);
+    }
+  },
+  set (name, value) {
+    if (storageConfig.includes(name)) {
+      return setItem(name, value);
+    }
+  }
 };
-
-storageConfig.map((item) => {
-  storage.get[item] = () => {
-    return getItem(item);
-  };
-  storage.set[item] = (val) => {
-    return setItem(item, val);
-  };
-});
 
 export default storage;
