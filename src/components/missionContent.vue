@@ -65,12 +65,13 @@
 <script type='text/babel'>
   export default {
     name: 'missionContent',
-    // props: {
-    //   key: {
-    //     type: String,
-    //     default: ''
-    //   }
-    // },
+    props: {
+      workId: {
+        type: String,
+        default: '',
+        required: true
+      }
+    },
     data () {
       return {
         testMp3: require('@/assets/mp3/test.mp3'),

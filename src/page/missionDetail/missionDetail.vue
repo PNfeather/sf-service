@@ -1,7 +1,14 @@
 <template>
-  <div name='missionDetail'>
-    <titleBack title="返回任务列表"></titleBack>
-    <missionContent></missionContent>
+  <div name='missionDetail' class="fillcontain">
+    <div class="title">
+      <titleBack title="返回任务列表"></titleBack>
+    </div>
+    <div class="detail">
+      <missionContent :workId="workId"></missionContent>
+    </div>
+    <div class="submitBtn">
+      <a-button type="primary" class="submit">开始制作</a-button>
+    </div>
   </div>
 </template>
 
@@ -11,7 +18,9 @@
   export default {
     name: 'missionDetail',
     data () {
+      let query = this.$route.query;
       return {
+        workId: query.workId
       };
     },
     created () {},
@@ -26,5 +35,27 @@
   };
 </script>
 <style scoped lang="less">
-  [name = 'missionDetail']{}
+  @import '~@/style/mixin';
+  [name = 'missionDetail']{
+    display: flex;
+    flex-direction: column;
+    .title{
+      flex: 60px 0 0;
+    }
+    .detail{
+      flex: 1;
+      overflow: scroll;
+    }
+    .submitBtn{
+      width: 100%;
+      flex: 100px 0 0;
+      .fac();
+      .submit{
+        width: 240px;
+        height: 50px;
+        line-height: 50px;
+        font-size: 16px;
+      }
+    }
+  }
 </style>
