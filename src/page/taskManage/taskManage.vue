@@ -17,7 +17,7 @@
       </template>
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
-          <a-popconfirm title="你确定要删除该作业?" @confirm="deleteTask(record.workId)" >
+          <a-popconfirm placement="topRight" title="你确定要删除该作业?" @confirm="deleteTask(record.workId)" >
             <a style="text-decoration: underline; color: #E98469;">删除</a>
           </a-popconfirm>
         </div>
