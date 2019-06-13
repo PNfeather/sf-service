@@ -69,7 +69,8 @@
         skip: 0,
         limit: 10,
         currentPage: 1,
-        count: 0
+        count: 0,
+        getListTimer: 0
       };
     },
     created () {
@@ -85,20 +86,26 @@
         return result;
       }
     },
+    activated () {
+      this.getList();
+    },
     methods: {
       getList () {
-        taskList({
-          limit: this.limit,
-          skip: this.skip,
-          serviceId: this.serviceId,
-          status: this.status
-        }).then(res => {
-          let data = res.data;
-          this.count = data.total;
-          if (data.code == 0) {
-            this.tableData = data.data;
-          }
-        });
+        if (this.getListTimer) clearTimeout(this.getListTimer);
+        this.getListTimer = setTimeout(() => {
+          taskList({
+            limit: this.limit,
+            skip: this.skip,
+            serviceId: this.serviceId,
+            status: this.status
+          }).then(res => {
+            let data = res.data;
+            this.count = data.total;
+            if (data.code == 0) {
+              this.tableData = data.data;
+            }
+          });
+        }, 300);
       },
       refresh () {
         this.getList();
