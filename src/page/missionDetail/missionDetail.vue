@@ -1,10 +1,11 @@
 <template>
   <div name='missionDetail'>
-    作业详情
+    <titleBack title="返回任务列表"></titleBack>
   </div>
 </template>
 
 <script type='text/babel'>
+  import titleBack from '@C/titleBack.vue';
   export default {
     name: 'missionDetail',
     data () {
@@ -16,7 +17,9 @@
     computed: {},
     watch: {},
     methods: {},
-    components: {}
+    components: {
+      titleBack
+    }
   };
 </script>
 <style scoped lang="less">
