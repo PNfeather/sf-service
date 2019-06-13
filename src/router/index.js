@@ -8,6 +8,7 @@ const manage = r => require.ensure([], () => r(require('@/page/manage/manage')),
 const home = r => require.ensure([], () => r(require('@/page/home/home')), 'home');
 const missionList = r => require.ensure([], () => r(require('@/page/missionList/missionList')), 'missionList');
 const missionDetail = r => require.ensure([], () => r(require('@/page/missionDetail/missionDetail')), 'missionDetail');
+const taskStart = r => require.ensure([], () => r(require('@/page/taskStart/taskStart')), 'taskStart');
 const resource = r => require.ensure([], () => r(require('@/page/resource/resource')), 'resource');
 const taskManage = r => require.ensure([], () => r(require('@/page/taskManage/taskManage')), 'taskManage');
 
@@ -30,6 +31,9 @@ const routes = [
       }, {
         path: '/missionDetail',
         component: missionDetail
+      }, {
+        path: '/taskStart',
+        component: taskStart
       }, {
         path: '/resource',
         component: resource

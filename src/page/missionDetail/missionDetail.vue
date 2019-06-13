@@ -7,7 +7,7 @@
       <missionContent :workId="workId"></missionContent>
     </div>
     <div class="submitBtn">
-      <a-button type="primary" class="submit">开始制作</a-button>
+      <a-button type="primary" class="submit" @click="goStart">开始制作</a-button>
     </div>
   </div>
 </template>
@@ -23,11 +23,11 @@
         workId: query.workId
       };
     },
-    created () {},
-    mounted () {},
-    computed: {},
-    watch: {},
-    methods: {},
+    methods: {
+      goStart () {
+        this.$router.push('taskStart');
+      }
+    },
     components: {
       titleBack,
       missionContent
