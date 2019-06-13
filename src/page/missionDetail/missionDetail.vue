@@ -1,11 +1,13 @@
 <template>
   <div name='missionDetail'>
     <titleBack title="返回任务列表"></titleBack>
+    <missionContent></missionContent>
   </div>
 </template>
 
 <script type='text/babel'>
   import titleBack from '@C/titleBack.vue';
+  import missionContent from '@C/missionContent.vue';
   export default {
     name: 'missionDetail',
     data () {
@@ -18,7 +20,8 @@
     watch: {},
     methods: {},
     components: {
-      titleBack
+      titleBack,
+      missionContent
     }
   };
 </script>
