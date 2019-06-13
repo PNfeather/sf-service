@@ -67,7 +67,7 @@
     name: 'missionContent',
     props: {
       workId: {
-        type: String,
+        type: String || Number,
         default: '',
         required: true
       }

@@ -25,7 +25,7 @@
     },
     methods: {
       goStart () {
-        this.$router.push('taskStart');
+        this.$router.push({path: 'taskStart', query: {workId: this.workId}});
       }
     },
     components: {

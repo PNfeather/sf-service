@@ -27,18 +27,32 @@
         </div>
       </section>
       <section class="submitBtn">
-        <a-button type="primary" class="submit" @click="submit">发布</a-button>
+        <a-button type="primary" class="submit" @click="submit" :disabled="submitToggle">发布</a-button>
       </section>
     </div>
+    <a-modal
+      title="查看作业"
+      v-model="visible"
+      centered
+      class="missionModal"
+      width="88%"
+      :footer="null">
+      <missionContent :workId="workId" class="fillcontain"></missionContent>
+    </a-modal>
   </div>
 </template>
 
 <script type='text/babel'>
   import titleBack from '@C/titleBack.vue';
+  import missionContent from '@C/missionContent.vue';
   export default {
     name: 'taskStart',
     data () {
+      let query = this.$route.query;
       return {
+        submitToggle: false,
+        workId: query.workId,
+        visible: false,
         templateList: new Array(20)
       };
     },
@@ -51,7 +65,7 @@
         this.$router.push('missionList');
       },
       checkTask () {
-        console.log('查看作业');
+        this.visible = true;
       },
       goResource () {
         console.log('资源库');
@@ -64,10 +78,30 @@
       }
     },
     components: {
-      titleBack
+      titleBack,
+      missionContent
     }
   };
 </script>
+<style lang="less">
+  .missionModal{
+    width: 88%;
+    height: 88%;
+    .ant-modal-content{
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      .ant-modal-header{
+        flex: 55px 0 0;
+      }
+      .ant-modal-body{
+        flex: 1;
+        overflow-y: scroll;
+      }
+    }
+  }
+</style>
 <style scoped lang="less">
   @import '~@/style/mixin';
   [name = 'taskStart']{
@@ -103,7 +137,7 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
-        padding: 10px 0;
+        margin-top: 30px;
         .noContent{
           .fac();
           flex-direction: column;
@@ -119,7 +153,7 @@
           }
         }
         .item{
-          margin-top: 20px;
+          margin-bottom: 20px;
           flex: 190px 0 0;
           height: 274px;
           display: flex;
