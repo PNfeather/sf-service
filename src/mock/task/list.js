@@ -26,6 +26,7 @@ Mock.mock(baseUrl + '/task/list', 'post', (options) => {
     let tem = item.split('=');
     params[tem[0]] = tem[1];
   });
+  console.log(params);
   let skip = params.skip;
   let limit = params.limit;
   let start = skip;
