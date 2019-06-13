@@ -7,7 +7,7 @@
           :trigger="null"
           collapsible>
           <a-menu theme="dark" mode="inline" :defaultSelectedKeys="[defaultActive]" :style="{paddingTop: '.18rem'}" @click="changePage">
-            <a-menu-item key="manage">
+            <a-menu-item key="missionList">
               <i class="iconfont iconMissionList"></i>
               <span>任务列表</span>
             </a-menu-item>
@@ -35,7 +35,9 @@
   export default {
     computed: {
       defaultActive () {
-        return this.$route.path.replace('/', '');
+        let active = this.$route.path.replace('/', '');
+        (active == 'manage') && (active = 'missionList');
+        return active;
       }
     },
     methods: {

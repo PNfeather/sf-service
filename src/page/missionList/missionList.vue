@@ -119,9 +119,7 @@
         this.getList();
       },
       handleTask (workId) {
-        let data = [...this.tableData];
-        let target = data.filter(item => { return (item.workId == workId); })[0];
-        console.log(target);
+        this.$router.push({path: '/missionDetail', query: {workId: workId}});
       },
       onShowSizeChange (current, pageSize) {
         this.currentPage = current;
