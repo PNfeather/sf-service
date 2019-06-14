@@ -104,17 +104,16 @@
         this.startUploadToggle = true;
       },
       beforeUpload (info) {
-        // getBase64(info, (imageUrl) => {
-        //   this.templateList.push({
-        //     imgSrc: imageUrl
-        //   });
-        // });
-        console.log(info);
-        // return false;
+        getBase64(info, (imageUrl) => {
+          this.templateList.push({
+            imgSrc: imageUrl
+          });
+        });
+        return false;
       },
       leadImg (info) {
         if (info.file.status !== 'uploading') {
-          this.startUploadToggle && (this.totalUpload = info.fileList.length) && (this.uploadModal = true) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开,手动关闭后，后续上传不渲染
+          // this.startUploadToggle && (this.totalUpload = info.fileList.length) && (this.uploadModal = true) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开,手动关闭后，后续上传不渲染
           console.log(info.file, info.fileList);
         }
         if (info.file.status === 'done') {
