@@ -28,7 +28,7 @@
           <p>请导入或者从资源库选择作业图片</p>
           <p>（单次导入最多99张图片）</p>
         </div>
-        <div class="item" v-for="(item, index) in templateList" :key="index">
+        <div class="item" v-for="(item, index) in templateList" :key="index" @click="goMake">
           <div class="delete">
             <i class="iconfont iconClose"></i>
           </div>
@@ -103,7 +103,7 @@
       startUpload () {
         this.startUploadToggle = true;
       },
-      beforeUpload (info) {
+      beforeUpload (info) { // 只导入
         getBase64(info, (imageUrl) => {
           this.templateList.push({
             imgSrc: imageUrl
@@ -111,7 +111,7 @@
         });
         return false;
       },
-      leadImg (info) {
+      leadImg (info) { // 导入后直接上传
         if (info.file.status !== 'uploading') {
           // this.startUploadToggle && (this.totalUpload = info.fileList.length) && (this.uploadModal = true) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开,手动关闭后，后续上传不渲染
           console.log(info.file, info.fileList);
@@ -128,6 +128,9 @@
         } else if (info.file.status === 'error') {
           this.$message.error(`${info.file.name} 上传失败`);
         }
+      },
+      goMake () {
+        this.$router.push('imgAdjust');
       },
       submit () {
         console.log('发布');
