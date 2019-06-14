@@ -9,7 +9,17 @@
         <div class="btnGroup">
           <a-button type="primary" class="funBtn" @click="checkTask">查看作业</a-button>
           <a-button type="primary" class="funBtn" @click="goResource">资源库</a-button>
-          <a-button type="primary" class="funBtn" @click="leadImg">导入图片</a-button>
+          <a-upload
+            name="file"
+            :multiple="true"
+            accept="image/*"
+            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+            class="taskStart-upload"
+            :showUploadList='false'
+            :beforeUpload="beforeUpload"
+            @change="leadImg">
+            <a-button type="primary" class="funBtn" @click="startUpload">导入图片</a-button>
+          </a-upload>
         </div>
       </section>
       <section class="imgArea">
@@ -18,11 +28,11 @@
           <p>请导入或者从资源库选择作业图片</p>
           <p>（单次导入最多99张图片）</p>
         </div>
-        <div class="item" v-for="(item, index) in templateList" :key="item">
+        <div class="item" v-for="(item, index) in templateList" :key="index">
           <div class="delete">
             <i class="iconfont iconClose"></i>
           </div>
-          <img src="~@IMG/loginBack.png" alt="">
+          <img :src="item.imgSrc" alt="">
           <p>第{{index + 1}}页</p>
         </div>
       </section>
@@ -39,26 +49,46 @@
       :footer="null">
       <missionContent :workId="workId" class="fillcontain"></missionContent>
     </a-modal>
+    <a-modal
+      v-model="uploadModal"
+      centered
+      width="450px"
+      class="taskStart-uploadModal"
+      :footer="null">
+      <div class="uploadInfo">
+        <a-progress :percent="uploadPercent" status="active" />
+        <p>图片上传中（{{doneUpload}}/{{totalUpload}}）…</p>
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script type='text/babel'>
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
+  import getBase64 from '@/tools/getBase64';
   export default {
     name: 'taskStart',
     data () {
       let query = this.$route.query;
       return {
+        startUploadToggle: false,
+        uploadModal: false,
+        totalUpload: 0, // 总上传图片数
+        doneUpload: 0, // 已完成上传图片数
         submitToggle: false,
         workId: query.workId,
         visible: false,
-        templateList: new Array(20)
+        templateList: []
       };
     },
     created () {},
     mounted () {},
-    computed: {},
+    computed: {
+      uploadPercent () {
+        return Math.floor(100 * this.doneUpload / this.totalUpload);
+      }
+    },
     watch: {},
     methods: {
       backTaskList () {
@@ -70,8 +100,35 @@
       goResource () {
         console.log('资源库');
       },
-      leadImg () {
-        console.log('导入图片');
+      startUpload () {
+        this.startUploadToggle = true;
+      },
+      beforeUpload (info) {
+        // getBase64(info, (imageUrl) => {
+        //   this.templateList.push({
+        //     imgSrc: imageUrl
+        //   });
+        // });
+        console.log(info);
+        // return false;
+      },
+      leadImg (info) {
+        if (info.file.status !== 'uploading') {
+          this.startUploadToggle && (this.totalUpload = info.fileList.length) && (this.uploadModal = true) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开,手动关闭后，后续上传不渲染
+          console.log(info.file, info.fileList);
+        }
+        if (info.file.status === 'done') {
+          this.doneUpload += 1;
+          getBase64(info.file.originFileObj, (imageUrl) => {
+            this.templateList.push({
+              imgSrc: imageUrl
+            });
+          });
+          this.uploadModal && (this.$message.success(`${info.file.name} 上传成功`));
+          (this.doneUpload === this.totalUpload) && (this.uploadModal = false);
+        } else if (info.file.status === 'error') {
+          this.$message.error(`${info.file.name} 上传失败`);
+        }
       },
       submit () {
         console.log('发布');
@@ -98,6 +155,22 @@
       .ant-modal-body{
         flex: 1;
         overflow-y: scroll;
+      }
+    }
+  }
+  .taskStart-uploadModal{
+    .uploadInfo{
+      height: 190px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 80%;
+      margin: 0 auto;
+      p{
+        margin-top: 36px;
+        font-size: 14px;
+        color: #333333;
       }
     }
   }
@@ -136,7 +209,7 @@
         overflow-y: scroll;
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-between;
+        justify-content: flex-start;
         margin-top: 30px;
         .noContent{
           .fac();
@@ -153,7 +226,7 @@
           }
         }
         .item{
-          margin-bottom: 20px;
+          margin:0 18px 20px 0;
           flex: 190px 0 0;
           height: 274px;
           display: flex;
