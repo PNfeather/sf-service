@@ -2,10 +2,11 @@
   <div name='imgAdjust' class="fillcontain">
     <headTop></headTop>
     <makeBody>
-      <div class="imgArea">
+      <div class="imgArea" @mousemove="change" @mouseup="end">
         <div class="imgWrapper" ref="imgWrapper">
-          <imgBorder>
-            <img ref="dealImg" :src="currentEditTemplate.url" :style="{width: imgWidth,height: imgHeight, top: imgTop + 'px', left: imgLeft + 'px'}" alt="">
+          <div class="bt"></div><div class="bb"></div><div class="bl"></div><div class="br"></div>
+          <imgBorder :attribute="attribute" @change="getNewAttribute" ref="imgBorder">
+            <img ref="dealImg" :src="currentEditTemplate.url" alt="">
           </imgBorder>
         </div>
       </div>
@@ -21,10 +22,12 @@
     name: 'imgAdjust',
     data () {
       return {
-        imgWidth: '',
-        imgHeight: '',
-        imgTop: 0,
-        imgLeft: 0
+        attribute: {
+          width: 0,
+          height: 0,
+          left: 0,
+          top: 0
+        }
       };
     },
     created () {},
@@ -47,29 +50,30 @@
           let wwNum = parseFloat(getCss(wrapper, 'width'));
           let whNum = parseFloat(getCss(wrapper, 'height'));
           let wrapperWHPer = wwNum / whNum;
-          let posCenter = () => {
+          let posCenter = (tooWidth) => {
             this.$nextTick(() => {
-              let dealImg = this.$refs.dealImg;
-              if (this.imgWidth === '100%') {
-                this.imgWidth = getCss(dealImg, 'width');
-                let hNum = parseFloat(getCss(dealImg, 'height'));
-                this.imgTop = parseInt(whNum / 2 - hNum / 2);
+              if (tooWidth) {
+                this.$set(this.attribute, 'width', wwNum);
+                this.$set(this.attribute, 'height', wwNum / imgWHPer);
+                this.$set(this.attribute, 'top', whNum / 2 - this.attribute.height / 2);
               } else {
-                this.imgHeight = getCss(dealImg, 'height');
-                let wNum = parseFloat(getCss(dealImg, 'width'));
-                this.imgLeft = parseInt(wwNum / 2 - wNum / 2);
+                this.$set(this.attribute, 'height', whNum);
+                this.$set(this.attribute, 'width', whNum * imgWHPer);
+                this.$set(this.attribute, 'left', wwNum / 2 - this.attribute.width / 2);
               }
             });
           };
-          if (imgWHPer > wrapperWHPer) {
-            this.imgWidth = '100%';
-            this.imgHeight = 'auto';
-          } else {
-            this.imgWidth = 'auto';
-            this.imgHeight = '100%';
-          }
-          posCenter();
+          posCenter(imgWHPer > wrapperWHPer);
         };
+      },
+      getNewAttribute (val) {
+        Object.assign(this.attribute, val);
+      },
+      change (e) {
+        this.$refs.imgBorder.change(e);
+      },
+      end (e) {
+        this.$refs.imgBorder.end(e);
       }
     },
     components: {
@@ -86,11 +90,36 @@
       min-width: 600px;
       .fac();
       .imgWrapper{
-        border: 2px solid #FF0000;
-        .wh(546px, 729px);
         position: relative;
+        .wh(546px, 729px);
+        .bb, .bt, .br, .bl{
+          z-index: 9999;
+          position: absolute;
+        }
+        .bl, .br{
+          .wh(2px, 733px);
+          background-color: #FF0000;
+          top: -2px;
+        }
+        .bb, .bt{
+          .wh(550px, 2px);
+          background-color: #FF0000;
+          left: -2px;
+        }
+        .bl{
+          left: -2px;
+        }
+        .br{
+          right: -2px;
+        }
+        .bb{
+          bottom: -2px;
+        }
+        .bt{
+          top: -2px;
+        }
         img{
-          .wh(100%, 100%)
+          .wh(100%, auto)
         }
       }
     }

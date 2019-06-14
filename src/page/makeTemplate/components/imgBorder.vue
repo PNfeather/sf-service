@@ -1,37 +1,34 @@
 <template>
-  <div name="moveDiv">
-    <div class="subDiv" :class="{'changing': changeType}" v-if="canChange && checked" @mousemove="change" @mouseup="end"></div>
-    <div @click="checkSelf" @mousedown="start('move', $event)" @mousemove="change" @mouseup="end" class="moveDiv" :class="{'active': checked, 'canChange': canChange && checked}" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px'}" ref="moveDiv">
-      <slot></slot>
-      <div class="w" v-if="canChange && checked" @mousedown="start('w', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="wn" v-if="canChange && checked" @mousedown="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="n" v-if="canChange && checked" @mousedown="start('n', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="en" v-if="canChange && checked" @mousedown="start('en', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="e" v-if="canChange && checked" @mousedown="start('e', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="es" v-if="canChange && checked" @mousedown="start('es', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="s" v-if="canChange && checked" @mousedown="start('s', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="ws" v-if="canChange && checked" @mousedown="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
+  <div name="imgBorder">
+    <div class="moveDiv active canChange" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px'}" ref="moveDiv">
+      <div class="fillcontain" style="overflow:hidden;">
+        <slot></slot>
+      </div>
+      <div class="rotateBtn"  @mousedown="rotateStart" @mousemove="rotateChange" @mouseup="rotateEnd">
+        <i class="iconfont iconRotate"></i>
+      </div>
+      <div class="top" @mousedown="start('move', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="w" @mousedown="start('w', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="wn" @mousedown="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="n" @mousedown="start('n', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="en" @mousedown="start('en', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="e" @mousedown="start('e', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="es" @mousedown="start('es', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="s" @mousedown="start('s', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="ws" @mousedown="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
     </div>
   </div>
 </template>
 
 <script type='text/babel'>
   export default {
-    name: 'moveDiv',
+    name: 'imgBorder',
     props: {
       attribute: { // 带返回参数则返回指定路由
         type: Object,
         default: () => {
           return {};
         }
-      },
-      checked: {
-        type: Boolean,
-        default: false
-      },
-      canChange: {
-        type: Boolean,
-        default: true
       }
     },
     data () {
@@ -44,26 +41,26 @@
         changeOutPutTimer: 0
       };
     },
-    created () {},
     mounted () {
-      if (Object.keys(this.attribute).length) {
-        this.currentAttribute = {...this.attribute};
-      }
+      this.currentAttribute = {...this.attribute};
     },
-    computed: {},
     watch: {
       attribute: {
         handler (val) {
-          this.currentAttribute = {...this.attribute};
+          this.currentAttribute = {...val};
         },
         deep: true
       }
     },
     methods: {
-      checkSelf ($event) {
-        if (!this.checked) {
-          this.$emit('click', $event);
-        }
+      rotateStart (e) {
+        console.log(e);
+      },
+      rotateChange (e) {
+        console.log(e);
+      },
+      rotateEnd (e) {
+        console.log(e);
       },
       start (type, e) {
         type !== 'move' && e.stopPropagation();
@@ -76,7 +73,7 @@
         this.changeType = '';
       },
       change (e) { // 改变方法
-        if (!this.changeType || !this.canChange || !this.checked) return;
+        if (!this.changeType) return;
         let mx = e.pageX - this.startX; // 移动距离
         let my = e.pageY - this.startY;
         let moveArr = []; // 移动方式数组
@@ -109,26 +106,17 @@
         for (let i = 0; i < changeArr.length; i++) {
           let itemKey = Object.keys(changeArr[i])[0];
           this.$set(this.currentAttribute, itemKey, changeArr[i][itemKey]);
-          if (this.changeOutPutTimer) clearTimeout(this.changeOutPutTimer);
-          this.changeOutPutTimer = setTimeout(() => {
-            this.$emit('change', {id: this.id, attribute: this.currentAttribute});
-          }, 300);
         }
+        if (this.changeOutPutTimer) clearTimeout(this.changeOutPutTimer);
+        this.changeOutPutTimer = setTimeout(() => {
+          this.$emit('change', this.currentAttribute);
+        }, 300);
       }
-    },
-    components: {}
+    }
   };
 </script>
 <style scoped lang="less">
-  [name = 'moveDiv']{
-    .subDiv{
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      z-index: 9;
-    }
+  [name = 'imgBorder']{
     .changing{
       z-index: 99;
     }
@@ -136,7 +124,43 @@
       box-sizing: border-box;
       position: absolute;
       border: 1px solid #999;
-      z-index: 10;
+      z-index: 100;
+      cursor: move;
+      .rotateBtn{
+        cursor: pointer;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-15px);
+        bottom: -42px;
+        width: 30px;
+        height: 30px;
+        border-radius: 100%;
+        background-color: #1690FF;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        &:before{
+          content: '';
+          position: absolute;
+          top: -12px;
+          width: 1px;
+          height: 12px;
+          background-color: #1690FF;
+          left: 14.5px;
+        }
+        .iconfont{
+          font-size: 16px;
+          color: #fff;
+        }
+      }
+      .top{
+        position: absolute;
+        right: 2%;
+        bottom: 2%;
+        left: 2%;
+        top: 2%;
+        z-index: 2;
+      }
       .w{
         position: absolute;
         height: 100%;
@@ -154,6 +178,8 @@
         top: -2px;
         z-index: 2;
         cursor: nw-resize;
+        border: 1px solid #ccc;
+        background-color: #FFF;
       }
       .n{
         position: absolute;
@@ -172,6 +198,8 @@
         top: -2px;
         z-index: 2;
         cursor: ne-resize;
+        border: 1px solid #ccc;
+        background-color: #FFF;
       }
       .e{
         position: absolute;
@@ -190,6 +218,8 @@
         bottom: -2px;
         z-index: 2;
         cursor: se-resize;
+        border: 1px solid #ccc;
+        background-color: #FFF;
       }
       .s{
         position: absolute;
@@ -208,14 +238,9 @@
         bottom: -2px;
         z-index: 2;
         cursor: sw-resize;
+        border: 1px solid #ccc;
+        background-color: #FFF;
       }
-    }
-    .active{
-      border: 1px solid red!important;
-      z-index: 100;
-    }
-    .canChange{
-      cursor: move;
     }
   }
 </style>
