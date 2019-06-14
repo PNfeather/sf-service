@@ -28,11 +28,11 @@
           <p>请导入或者从资源库选择作业图片</p>
           <p>（单次导入最多99张图片）</p>
         </div>
-        <div class="item" v-for="(item, index) in templateList" :key="index" @click="goMake">
+        <div class="item" v-for="(item, index) in templateList" :key="index" @click="goMake(item)">
           <div class="delete">
             <i class="iconfont iconClose"></i>
           </div>
-          <img :src="item.imgSrc" alt="">
+          <img :src="item.url" alt="">
           <p>第{{index + 1}}页</p>
         </div>
       </section>
@@ -106,7 +106,7 @@
       beforeUpload (info) { // 只导入
         getBase64(info, (imageUrl) => {
           this.templateList.push({
-            imgSrc: imageUrl
+            url: imageUrl
           });
         });
         return false;
@@ -120,7 +120,7 @@
           this.doneUpload += 1;
           getBase64(info.file.originFileObj, (imageUrl) => {
             this.templateList.push({
-              imgSrc: imageUrl
+              url: imageUrl
             });
           });
           this.uploadModal && (this.$message.success(`${info.file.name} 上传成功`));
@@ -129,7 +129,8 @@
           this.$message.error(`${info.file.name} 上传失败`);
         }
       },
-      goMake () {
+      goMake (item) {
+        this.$store.dispatch('passTemplate', JSON.stringify(item));
         this.$router.push('imgAdjust');
       },
       submit () {

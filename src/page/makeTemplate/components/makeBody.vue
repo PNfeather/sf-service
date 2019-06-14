@@ -66,10 +66,14 @@
       background: #FFFFFF;
       box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
       border-radius: 2px;
-      display: flex;
-      flex-direction: column;
+      position: relative;
+      padding-top: 60px;
       .header{
-        flex: 60px 0 0;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 60px;
         display: flex;
         padding: 0 30px;
         border-bottom: 1px solid #EBEBEB;
@@ -143,6 +147,10 @@
             width: 96px;
           }
         }
+      }
+      .workArea{
+        .wh(100%, 100%);
+        overflow: auto;
       }
     }
   }
