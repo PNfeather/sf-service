@@ -180,28 +180,28 @@
     }
     .top{
       position: absolute;
-      right: 2%;
-      bottom: 2%;
-      left: 2%;
-      top: 2%;
-      z-index: 2;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      top: 0;
+      z-index: 1;
     }
     .w{
       position: absolute;
       height: 100%;
-      width: 5px;
+      width: 8px;
       left: -2px;
       top: 0;
-      z-index: 1;
+      z-index: 2;
       cursor: w-resize;
     }
     .wn{
       position: absolute;
-      height: 5px;
-      width: 5px;
+      height: 8px;
+      width: 8px;
       left: -2px;
       top: -2px;
-      z-index: 2;
+      z-index: 3;
       cursor: nw-resize;
       border: 1px solid #ccc;
       background-color: #FFF;
@@ -209,19 +209,19 @@
     .n{
       position: absolute;
       width: 100%;
-      height: 5px;
+      height: 8px;
       top: -2px;
       left: 0;
-      z-index: 1;
+      z-index: 2;
       cursor: n-resize;
     }
     .en{
       position: absolute;
-      height: 5px;
-      width: 5px;
+      height: 8px;
+      width: 8px;
       right: -2px;
       top: -2px;
-      z-index: 2;
+      z-index: 3;
       cursor: ne-resize;
       border: 1px solid #ccc;
       background-color: #FFF;
@@ -229,19 +229,19 @@
     .e{
       position: absolute;
       height: 100%;
-      width: 5px;
+      width: 8px;
       right: -2px;
       top: 0;
-      z-index: 1;
+      z-index: 2;
       cursor: e-resize;
     }
     .es{
       position: absolute;
-      height: 5px;
-      width: 5px;
+      height: 8px;
+      width: 8px;
       right: -2px;
       bottom: -2px;
-      z-index: 2;
+      z-index: 3;
       cursor: se-resize;
       border: 1px solid #ccc;
       background-color: #FFF;
@@ -249,19 +249,19 @@
     .s{
       position: absolute;
       width: 100%;
-      height: 5px;
+      height: 8px;
       bottom: -2px;
       left: 0;
-      z-index: 1;
+      z-index: 2;
       cursor: s-resize;
     }
     .ws{
       position: absolute;
-      height: 5px;
-      width: 5px;
+      height: 8px;
+      width: 8px;
       left: -2px;
       bottom: -2px;
-      z-index: 2;
+      z-index: 3;
       cursor: sw-resize;
       border: 1px solid #ccc;
       background-color: #FFF;

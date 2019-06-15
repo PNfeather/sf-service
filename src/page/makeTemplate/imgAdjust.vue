@@ -11,7 +11,7 @@
         </div>
       </div>
     </makeBody>
-    <fc-loading :loading-modal.sync="loadingModal"></fc-loading>
+    <fc-loading :loading-modal.sync="loadingModal" text="图片生成中"></fc-loading>
   </div>
 </template>
 
@@ -84,7 +84,9 @@
             this.startCreate = false;
             this.loadingModal = false;
             let saveUrl = canvas.toDataURL('image/png');
-            console.log(saveUrl);
+            let c = Object.assign({}, this.currentEditTemplate, {url: saveUrl});
+            this.$store.dispatch('passTemplate', JSON.stringify(c));
+            this.$router.replace('frameTemplate');
             // 点击生成图片并自动下载方法：
             // let a = document.createElement('a');
             // document.body.appendChild(a);
@@ -93,7 +95,6 @@
             // a.click();
           });
         });
-        // this.$router.replace('frameTemplate');
       }
     },
     components: {
