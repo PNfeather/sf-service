@@ -25,4 +25,5 @@ _.zipWith = _lodash.zipWith;
 _.cloneDeep = _lodash.cloneDeep;
 _.filter = _lodash.filter;
 _.minBy = _lodash.minBy;
+_.min = _lodash.min;
 export default _;

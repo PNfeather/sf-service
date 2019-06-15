@@ -5,12 +5,13 @@
       <div class="fillcontain" style="overflow: auto">
         <div class="frameTemplateWrapper">
           <section class="funBtnGroup">
-            <div class="btnItem" :class="[item.active ? item.activeClass : '']" v-for="(item, index) in funBtnList" :key="index" @mousedown="addActive(item)" @mouseup="removeActive(item)">
+            <div class="btnItem" :class="[item.active ? item.activeClass : '']" v-for="(item, index) in funBtnList" :key="index" @mousedown="addActive(item)" @mouseup="removeActive(item)" @click="item.fun()">
               <i class="iconfont" :class="[item.icon]"></i>
               <p>{{item.text}}</p>
             </div>
           </section>
           <section class="handleArea">
+            <drawFrame ref="drawFrame"></drawFrame>
             <img :src="currentEditTemplate.url" class="fillcontain" alt="">
           </section>
           <section class="tableArea">
@@ -48,6 +49,7 @@
 
 <script type='text/babel'>
   import makeBody from './components/makeBody';
+  import drawFrame from './components/drawFrame';
   export default {
     name: 'frameTemplate',
     data () {
@@ -57,11 +59,13 @@
             icon: 'iconMerge',
             activeClass: 'mergeActive',
             text: '合并',
+            fun: this.mergeTem,
             active: false
           }, {
             icon: 'iconDelete',
             activeClass: 'deleteActive',
             text: '删除',
+            fun: this.deleteTem,
             active: false
           }
         ],
@@ -97,6 +101,12 @@
     },
     watch: {},
     methods: {
+      mergeTem () {
+        this.$refs.drawFrame.mergeTem();
+      },
+      deleteTem () {
+        this.$refs.drawFrame.deleteTem();
+      },
       addActive (item) {
         this.$set(item, 'active', true);
       },
@@ -129,7 +139,8 @@
       }
     },
     components: {
-      makeBody
+      makeBody,
+      drawFrame
     }
   };
 </script>
@@ -180,6 +191,14 @@
       .handleArea{
         .wh(546px, 729px);
         box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
+        overflow: hidden;
+        position: relative;
+        &:after{
+          content: '';
+          .wh(100%, 100%);
+          z-index: 1;
+          .allcover();
+        }
       }
       .tableArea{
         .wh(494px, 729px);
