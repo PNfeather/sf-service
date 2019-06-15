@@ -1,22 +1,20 @@
 <template>
-  <div name="imgBorder">
-    <div class="moveDiv active canChange" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px'}" ref="moveDiv">
-      <div class="fillcontain" style="overflow:hidden;">
-        <slot></slot>
-      </div>
-      <div class="rotateBtn"  @mousedown="rotateStart" @mousemove="rotateChange" @mouseup="rotateEnd">
-        <i class="iconfont iconRotate"></i>
-      </div>
-      <div class="top" @mousedown="start('move', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="w" @mousedown="start('w', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="wn" @mousedown="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="n" @mousedown="start('n', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="en" @mousedown="start('en', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="e" @mousedown="start('e', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="es" @mousedown="start('es', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="s" @mousedown="start('s', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="ws" @mousedown="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
+  <div name="imgBorder" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px', transform: 'rotateZ(' + currentDeg + 'deg)'}" ref="moveDiv">
+    <div class="fillcontain" style="overflow:hidden;">
+      <slot></slot>
     </div>
+    <div class="rotateBtn"  @mousedown="rotateStart" @mousemove="rotateChange" @mouseup="rotateEnd">
+      <i class="iconfont iconRotate"></i>
+    </div>
+    <div class="top" @mousedown="start('move', $event)" @mousemove="change" @mouseup="end"></div>
+    <div class="w" @mousedown="start('w', $event)" @mousemove="change" @mouseup="end"></div>
+    <div class="wn" @mousedown="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
+    <div class="n" @mousedown="start('n', $event)" @mousemove="change" @mouseup="end"></div>
+    <div class="en" @mousedown="start('en', $event)" @mousemove="change" @mouseup="end"></div>
+    <div class="e" @mousedown="start('e', $event)" @mousemove="change" @mouseup="end"></div>
+    <div class="es" @mousedown="start('es', $event)" @mousemove="change" @mouseup="end"></div>
+    <div class="s" @mousedown="start('s', $event)" @mousemove="change" @mouseup="end"></div>
+    <div class="ws" @mousedown="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
   </div>
 </template>
 
@@ -38,7 +36,11 @@
         currentAttribute: {}, // 当前状态
         orangeAttribute: {}, // 初始状态
         changeType: '',
-        changeOutPutTimer: 0
+        rotateStartToggle: false,
+        currentDeg: 0,
+        rotateCenterX: 0,
+        rotateCenterY: 0,
+        startRotate: false
       };
     },
     mounted () {
@@ -53,23 +55,46 @@
       }
     },
     methods: {
-      rotateStart (e) {
-        console.log(e);
+      getRotateCenter () { // 点击开始定位转动中心，在转动过中定位圆心会闪动
+        let moveDiv = this.$refs.moveDiv;
+        this.rotateCenterX = moveDiv.getBoundingClientRect().left + this.currentAttribute.width / 2;
+        this.rotateCenterY = moveDiv.getBoundingClientRect().top + this.currentAttribute.height / 2;
+      },
+      computedAngle (e) { // 计算当前转动角度
+        let cx = e.pageX - this.rotateCenterX;
+        let cy = e.pageY - this.rotateCenterY;
+        let angle = Math.atan(Math.abs(cx / cy)) / (2 * Math.PI) * 360;
+        // 初始转动位置在正下方，数学坐标系第三象限为0~90度，不需要调整
+        if (cx <= 0 && cy < 0) { // 初始转动位置在正下方，数学坐标系第二象限为90~180度
+          angle = 180 - angle;
+        } else if (cx > 0 && cy <= 0) { // 初始转动位置在正下方，数学坐标系第一象限为-90~-180度
+          angle = angle - 180;
+        } else if (cx >= 0 && cy > 0) { // 初始转动位置在正下方，数学坐标系第四象限为-0~-90度
+          angle = -angle;
+        }
+        return angle;
+      },
+      rotateStart () {
+        this.getRotateCenter();
+        this.startRotate = true;
       },
       rotateChange (e) {
-        console.log(e);
+        if (this.startRotate) {
+          this.currentDeg = this.computedAngle(e);
+        }
       },
       rotateEnd (e) {
-        console.log(e);
+        this.startRotate = false;
       },
       start (type, e) {
+        console.log(this.computedAngle(e));
         type !== 'move' && e.stopPropagation();
         this.startX = e.pageX;
         this.startY = e.pageY;
         this.changeType = type;
         this.orangeAttribute = {...this.currentAttribute};
       },
-      end () {
+      end (e) {
         this.changeType = '';
       },
       change (e) { // 改变方法
@@ -107,140 +132,131 @@
           let itemKey = Object.keys(changeArr[i])[0];
           this.$set(this.currentAttribute, itemKey, changeArr[i][itemKey]);
         }
-        if (this.changeOutPutTimer) clearTimeout(this.changeOutPutTimer);
-        this.changeOutPutTimer = setTimeout(() => {
-          this.$emit('change', this.currentAttribute);
-        }, 300);
       }
     }
   };
 </script>
 <style scoped lang="less">
   [name = 'imgBorder']{
-    .changing{
-      z-index: 99;
-    }
-    .moveDiv{
-      box-sizing: border-box;
+    box-sizing: border-box;
+    position: absolute;
+    border: 1px solid #999;
+    z-index: 100;
+    cursor: move;
+    .rotateBtn{
+      cursor: pointer;
       position: absolute;
-      border: 1px solid #999;
-      z-index: 100;
-      cursor: move;
-      .rotateBtn{
-        cursor: pointer;
+      left: 50%;
+      transform: translateX(-15px);
+      bottom: -42px;
+      width: 30px;
+      height: 30px;
+      border-radius: 100%;
+      background-color: #1690FF;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      &:before{
+        content: '';
         position: absolute;
-        left: 50%;
-        transform: translateX(-15px);
-        bottom: -42px;
-        width: 30px;
-        height: 30px;
-        border-radius: 100%;
+        top: -12px;
+        width: 1px;
+        height: 12px;
         background-color: #1690FF;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        &:before{
-          content: '';
-          position: absolute;
-          top: -12px;
-          width: 1px;
-          height: 12px;
-          background-color: #1690FF;
-          left: 14.5px;
-        }
-        .iconfont{
-          font-size: 16px;
-          color: #fff;
-        }
+        left: 14.5px;
       }
-      .top{
-        position: absolute;
-        right: 2%;
-        bottom: 2%;
-        left: 2%;
-        top: 2%;
-        z-index: 2;
+      .iconfont{
+        font-size: 16px;
+        color: #fff;
       }
-      .w{
-        position: absolute;
-        height: 100%;
-        width: 5px;
-        left: -2px;
-        top: 0;
-        z-index: 1;
-        cursor: w-resize;
-      }
-      .wn{
-        position: absolute;
-        height: 5px;
-        width: 5px;
-        left: -2px;
-        top: -2px;
-        z-index: 2;
-        cursor: nw-resize;
-        border: 1px solid #ccc;
-        background-color: #FFF;
-      }
-      .n{
-        position: absolute;
-        width: 100%;
-        height: 5px;
-        top: -2px;
-        left: 0;
-        z-index: 1;
-        cursor: n-resize;
-      }
-      .en{
-        position: absolute;
-        height: 5px;
-        width: 5px;
-        right: -2px;
-        top: -2px;
-        z-index: 2;
-        cursor: ne-resize;
-        border: 1px solid #ccc;
-        background-color: #FFF;
-      }
-      .e{
-        position: absolute;
-        height: 100%;
-        width: 5px;
-        right: -2px;
-        top: 0;
-        z-index: 1;
-        cursor: e-resize;
-      }
-      .es{
-        position: absolute;
-        height: 5px;
-        width: 5px;
-        right: -2px;
-        bottom: -2px;
-        z-index: 2;
-        cursor: se-resize;
-        border: 1px solid #ccc;
-        background-color: #FFF;
-      }
-      .s{
-        position: absolute;
-        width: 100%;
-        height: 5px;
-        bottom: -2px;
-        left: 0;
-        z-index: 1;
-        cursor: s-resize;
-      }
-      .ws{
-        position: absolute;
-        height: 5px;
-        width: 5px;
-        left: -2px;
-        bottom: -2px;
-        z-index: 2;
-        cursor: sw-resize;
-        border: 1px solid #ccc;
-        background-color: #FFF;
-      }
+    }
+    .top{
+      position: absolute;
+      right: 2%;
+      bottom: 2%;
+      left: 2%;
+      top: 2%;
+      z-index: 2;
+    }
+    .w{
+      position: absolute;
+      height: 100%;
+      width: 5px;
+      left: -2px;
+      top: 0;
+      z-index: 1;
+      cursor: w-resize;
+    }
+    .wn{
+      position: absolute;
+      height: 5px;
+      width: 5px;
+      left: -2px;
+      top: -2px;
+      z-index: 2;
+      cursor: nw-resize;
+      border: 1px solid #ccc;
+      background-color: #FFF;
+    }
+    .n{
+      position: absolute;
+      width: 100%;
+      height: 5px;
+      top: -2px;
+      left: 0;
+      z-index: 1;
+      cursor: n-resize;
+    }
+    .en{
+      position: absolute;
+      height: 5px;
+      width: 5px;
+      right: -2px;
+      top: -2px;
+      z-index: 2;
+      cursor: ne-resize;
+      border: 1px solid #ccc;
+      background-color: #FFF;
+    }
+    .e{
+      position: absolute;
+      height: 100%;
+      width: 5px;
+      right: -2px;
+      top: 0;
+      z-index: 1;
+      cursor: e-resize;
+    }
+    .es{
+      position: absolute;
+      height: 5px;
+      width: 5px;
+      right: -2px;
+      bottom: -2px;
+      z-index: 2;
+      cursor: se-resize;
+      border: 1px solid #ccc;
+      background-color: #FFF;
+    }
+    .s{
+      position: absolute;
+      width: 100%;
+      height: 5px;
+      bottom: -2px;
+      left: 0;
+      z-index: 1;
+      cursor: s-resize;
+    }
+    .ws{
+      position: absolute;
+      height: 5px;
+      width: 5px;
+      left: -2px;
+      bottom: -2px;
+      z-index: 2;
+      cursor: sw-resize;
+      border: 1px solid #ccc;
+      background-color: #FFF;
     }
   }
 </style>

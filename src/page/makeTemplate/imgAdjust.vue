@@ -5,7 +5,7 @@
       <div class="imgArea" @mousemove="change" @mouseup="end">
         <div class="imgWrapper" ref="imgWrapper">
           <div class="bt"></div><div class="bb"></div><div class="bl"></div><div class="br"></div>
-          <imgBorder :attribute="attribute" @change="getNewAttribute" ref="imgBorder">
+          <imgBorder :attribute="attribute" ref="imgBorder">
             <img ref="dealImg" :src="currentEditTemplate.url" alt="">
           </imgBorder>
         </div>
@@ -41,7 +41,7 @@
     },
     watch: {},
     methods: {
-      getWH () { // 计算图片放到框中居中沾满且不改变比例
+      getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
         let img = document.createElement('img');
         img.src = this.currentEditTemplate.url;
         img.onload = () => {
@@ -66,14 +66,13 @@
           posCenter(imgWHPer > wrapperWHPer);
         };
       },
-      getNewAttribute (val) {
-        Object.assign(this.attribute, val);
-      },
       change (e) {
         this.$refs.imgBorder.change(e);
+        this.$refs.imgBorder.rotateChange(e);
       },
       end (e) {
         this.$refs.imgBorder.end(e);
+        this.$refs.imgBorder.rotateEnd(e);
       }
     },
     components: {
