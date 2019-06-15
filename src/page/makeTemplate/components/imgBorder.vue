@@ -1,20 +1,22 @@
 <template>
-  <div name="imgBorder" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px', transform: 'rotateZ(' + currentDeg + 'deg)'}" ref="moveDiv">
+  <div name="imgBorder" :class="{'noBorder': startCreate}" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px', transform: 'rotateZ(' + currentDeg + 'deg)'}" ref="moveDiv">
     <div class="fillcontain" style="overflow:hidden;">
       <slot></slot>
     </div>
-    <div class="rotateBtn"  @mousedown="rotateStart" @mousemove="rotateChange" @mouseup="rotateEnd">
-      <i class="iconfont iconRotate"></i>
+    <div class="funArea" v-show="!startCreate">
+      <div class="rotateBtn"  @mousedown="rotateStart" @mousemove="rotateChange" @mouseup="rotateEnd">
+        <i class="iconfont iconRotate"></i>
+      </div>
+      <div class="top" @mousedown="start('move', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="w" @mousedown="start('w', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="wn" @mousedown="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="n" @mousedown="start('n', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="en" @mousedown="start('en', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="e" @mousedown="start('e', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="es" @mousedown="start('es', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="s" @mousedown="start('s', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="ws" @mousedown="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
     </div>
-    <div class="top" @mousedown="start('move', $event)" @mousemove="change" @mouseup="end"></div>
-    <div class="w" @mousedown="start('w', $event)" @mousemove="change" @mouseup="end"></div>
-    <div class="wn" @mousedown="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
-    <div class="n" @mousedown="start('n', $event)" @mousemove="change" @mouseup="end"></div>
-    <div class="en" @mousedown="start('en', $event)" @mousemove="change" @mouseup="end"></div>
-    <div class="e" @mousedown="start('e', $event)" @mousemove="change" @mouseup="end"></div>
-    <div class="es" @mousedown="start('es', $event)" @mousemove="change" @mouseup="end"></div>
-    <div class="s" @mousedown="start('s', $event)" @mousemove="change" @mouseup="end"></div>
-    <div class="ws" @mousedown="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
   </div>
 </template>
 
@@ -27,6 +29,10 @@
         default: () => {
           return {};
         }
+      },
+      startCreate: {
+        type: Boolean,
+        default: false
       }
     },
     data () {
@@ -87,7 +93,6 @@
         this.startRotate = false;
       },
       start (type, e) {
-        console.log(this.computedAngle(e));
         type !== 'move' && e.stopPropagation();
         this.startX = e.pageX;
         this.startY = e.pageY;
@@ -137,6 +142,9 @@
   };
 </script>
 <style scoped lang="less">
+  .noBorder{
+    border: none!important;
+  }
   [name = 'imgBorder']{
     box-sizing: border-box;
     position: absolute;

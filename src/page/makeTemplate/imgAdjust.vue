@@ -1,16 +1,17 @@
 <template>
   <div name='imgAdjust' class="fillcontain">
     <headTop></headTop>
-    <makeBody>
+    <makeBody @next="submit">
       <div class="imgArea" @mousemove="change" @mouseup="end">
         <div class="imgWrapper" ref="imgWrapper">
           <div class="bt"></div><div class="bb"></div><div class="bl"></div><div class="br"></div>
-          <imgBorder :attribute="attribute" ref="imgBorder">
+          <imgBorder :attribute="attribute" :startCreate="startCreate" ref="imgBorder">
             <img ref="dealImg" :src="currentEditTemplate.url" alt="">
           </imgBorder>
         </div>
       </div>
     </makeBody>
+    <fc-loading :loading-modal.sync="loadingModal"></fc-loading>
   </div>
 </template>
 
@@ -18,6 +19,7 @@
   import makeBody from './components/makeBody';
   import imgBorder from './components/imgBorder';
   import {getCss} from './js';
+  import html2canvas from 'html2canvas';
   export default {
     name: 'imgAdjust',
     data () {
@@ -27,10 +29,11 @@
           height: 0,
           left: 0,
           top: 0
-        }
+        },
+        startCreate: false, // 与加载弹框控制变量不能使用同一个，生成图片过程不能手动关闭该开关。
+        loadingModal: false
       };
     },
-    created () {},
     mounted () {
       this.getWH();
     },
@@ -39,7 +42,6 @@
         return JSON.parse(this.$store.getters.currentEditTemplate);
       }
     },
-    watch: {},
     methods: {
       getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
         let img = document.createElement('img');
@@ -73,6 +75,25 @@
       end (e) {
         this.$refs.imgBorder.end(e);
         this.$refs.imgBorder.rotateEnd(e);
+      },
+      submit () {
+        this.loadingModal = true;
+        this.startCreate = true;
+        this.$nextTick(() => {
+          html2canvas(this.$refs.imgWrapper).then(canvas => {
+            this.startCreate = false;
+            this.loadingModal = false;
+            let saveUrl = canvas.toDataURL('image/png');
+            console.log(saveUrl);
+            // 点击生成图片并自动下载方法：
+            // let a = document.createElement('a');
+            // document.body.appendChild(a);
+            // a.href = saveUrl;
+            // a.download = '这是图片标题';
+            // a.click();
+          });
+        });
+        // this.$router.replace('frameTemplate');
       }
     },
     components: {

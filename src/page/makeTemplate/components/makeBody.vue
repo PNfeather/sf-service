@@ -45,7 +45,7 @@
         this.$router.go(-1);
       },
       nextStep () {
-        this.$router.replace('frameTemplate');
+        this.$emit('next');
       },
       lastStep () {
         this.$router.replace('imgAdjust');
