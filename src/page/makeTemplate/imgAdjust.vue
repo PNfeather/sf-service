@@ -6,7 +6,7 @@
         <div class="imgWrapper" ref="imgWrapper">
           <div class="bt"></div><div class="bb"></div><div class="bl"></div><div class="br"></div>
           <imgBorder :attribute="attribute" :startCreate="startCreate" ref="imgBorder">
-            <img ref="dealImg" :src="currentEditTemplate.url" alt="">
+            <img ref="dealImg" :src="currentChooseImg.url" alt="">
           </imgBorder>
         </div>
       </div>
@@ -38,14 +38,14 @@
       this.getWH();
     },
     computed: {
-      currentEditTemplate () {
-        return JSON.parse(this.$store.getters.currentEditTemplate);
+      currentChooseImg () {
+        return JSON.parse(this.$store.getters.currentChooseImg);
       }
     },
     methods: {
       getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
         let img = document.createElement('img');
-        img.src = this.currentEditTemplate.url;
+        img.src = this.currentChooseImg.url;
         img.onload = () => {
           let wrapper = this.$refs.imgWrapper;
           let imgWHPer = img.width / img.height;
@@ -84,7 +84,7 @@
             this.startCreate = false;
             this.loadingModal = false;
             let saveUrl = canvas.toDataURL('image/png');
-            let c = Object.assign({}, this.currentEditTemplate, {url: saveUrl});
+            let c = Object.assign({}, this.currentChooseImg, {url: saveUrl});
             this.$store.dispatch('passTemplate', JSON.stringify(c));
             this.$router.replace('frameTemplate');
             // 点击生成图片并自动下载方法：

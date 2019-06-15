@@ -130,7 +130,7 @@
         }
       },
       goMake (item) {
-        this.$store.dispatch('passTemplate', JSON.stringify(item));
+        this.$store.dispatch('passChooseImg', JSON.stringify(item));
         this.$router.push('imgAdjust');
       },
       submit () {
