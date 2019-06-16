@@ -15,9 +15,9 @@
             <img :src="currentEditTemplate.url" class="fillcontain" alt="">
           </section>
           <section class="tableArea">
-            <a-table :columns="columns" :dataSource="questionList" rowKey="serialNumber" :pagination="false" bordered>
+            <a-table :columns="columns" :dataSource="questionList" rowKey="id" :pagination="false" bordered :rowClassName="rowClassName">
               <template slot="serialNumber" slot-scope="text, record, index">
-                <div class='editable-row-operations'>
+                <div class='editable-row-operations sort' @click="checkQuestion(record.serialNumber)">
                   {{record.serialNumber}}、
                 </div>
               </template>
@@ -85,6 +85,11 @@
       this.getWH();
     },
     computed: {
+      rowClassName () {
+        return (record) => {
+          return (record.checked ? 'frameTemplateCheckedRow' : '');
+        };
+      },
       currentEditTemplate () {
         return JSON.parse(this.$store.getters.currentEditTemplate);
       },
@@ -93,11 +98,22 @@
       }
     },
     watch: {
+      checkedQuestionList: {
+        handler (val) {
+          this.questionList.forEach((item) => {
+            if (val.includes(item.serialNumber)) {
+              this.$set(item, 'checked', true);
+            } else {
+              this.$set(item, 'checked', false);
+            }
+          });
+        },
+        deep: true
+      },
       divList: {
         handler (val) {
           let questionSigns = [];
           let questionList = [];
-          console.log(val);
           val.forEach((item) => {
             let questionSignsCell = {
               'score': 5,
@@ -112,7 +128,8 @@
               'score': 5,
               'serialNumber': '',
               'currentBtn': 5,
-              'id': ''
+              'id': '',
+              'checked': false
             };
             let atr = item.attribute;
             questionSignsCell.id = questionListCell.id = item.id;
@@ -126,12 +143,21 @@
           });
           this.questionSigns = [...questionSigns];
           this.questionList = [...questionList];
-          console.log(questionList);
         },
         deep: true
       }
     },
     methods: {
+      checkQuestion (sort) {
+        let checkedList = [...this.checkedQuestionList];
+        let index = checkedList.indexOf(sort);
+        if (index > -1) {
+          checkedList.splice(index, 1);
+        } else {
+          checkedList.push(sort);
+        }
+        this.$store.dispatch('changeCheckedQuestionList', checkedList);
+      },
       mergeTem () {
         this.$refs.drawFrame.mergeTem();
       },
@@ -176,10 +202,14 @@
     }
   };
 </script>
-<style>
+<style lang="less">
   th.smallTablePadding,
   td.smallTablePadding {
     padding-left: 24px !important;
+    position: relative;
+  }
+  .frameTemplateCheckedRow{
+    border: 2px solid #ff0000;
   }
 </style>
 <style scoped lang="less">
@@ -236,6 +266,16 @@
         .wh(494px, 729px);
         box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
         overflow: auto;
+        .sort{
+          &:after{ // 点击焦点阔山到整个单元格
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+          }
+        }
         .activeBtn{
           color: #fff;
           background-color: #40a9ff;

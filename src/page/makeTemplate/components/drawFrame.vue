@@ -53,6 +53,11 @@
         deep: true
       }
     },
+    computed: {
+      checkedQuestionList () {
+        return this.$store.getters.checkedQuestionList;
+      }
+    },
     methods: {
       checkCapture (type, currentData) { // 捕获计算
         let result = currentData;
