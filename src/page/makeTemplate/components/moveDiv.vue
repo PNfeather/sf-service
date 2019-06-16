@@ -18,10 +18,11 @@
   export default {
     name: 'moveDiv',
     props: {
-      id: {
-        type: Number,
-        default: 0,
-        require: true
+      originalItem: {
+        type: Object,
+        default: () => {
+          return {};
+        }
       },
       attribute: { // 带返回参数则返回指定路由
         type: Object,
@@ -82,6 +83,7 @@
       change (e) { // 改变方法
         if (!this.changeType) return;
         this.divNoChange = false;
+        let limit = 20; // div限制宽高
         let mx = e.pageX - this.startX; // 移动距离
         let my = e.pageY - this.startY;
         let moveArr = []; // 移动方式数组
@@ -94,10 +96,10 @@
         let ms = !im && this.changeType.indexOf('s') > -1; // 下边动
         let cw = this.orangeAttribute.width + (mw ? (-mx) : mx); // 当前width
         let ch = this.orangeAttribute.height + (mn ? (-my) : my); // 当前height
-        let r = this.orangeAttribute.width + this.orangeAttribute.left; // 最初右边位置
-        let b = this.orangeAttribute.height + this.orangeAttribute.top; // 最初底边位置
-        cw < 20 && (cw = 20); // 宽度动不能小于0
-        ch < 20 && (ch = 20); // 高度动不能小于0
+        let r = this.orangeAttribute.width + this.orangeAttribute.left - limit; // 最初右边位置
+        let b = this.orangeAttribute.height + this.orangeAttribute.top - limit; // 最初底边位置
+        cw < limit && (cw = limit); // 宽度动不能小于0
+        ch < limit && (ch = limit); // 高度动不能小于0
         mw && cl > r && (cl = r); // 左边动不能超过右边
         mn && ct > b && (ct = b); // 上边动不能超过下边
         if (im) {
@@ -116,7 +118,7 @@
           this.$set(this.currentAttribute, itemKey, changeArr[i][itemKey]);
           if (this.changeOutPutTimer) clearTimeout(this.changeOutPutTimer);
           this.changeOutPutTimer = setTimeout(() => {
-            this.$emit('change', {id: this.id, attribute: this.currentAttribute});
+            this.$emit('change', Object.assign({}, this.originalItem, {attribute: this.currentAttribute}));
           }, 300);
         }
       }

@@ -11,7 +11,7 @@
             </div>
           </section>
           <section class="handleArea">
-            <drawFrame ref="drawFrame"></drawFrame>
+            <drawFrame ref="drawFrame" v-model="divList"></drawFrame>
             <img :src="currentEditTemplate.url" class="fillcontain" alt="">
           </section>
           <section class="tableArea">
@@ -74,22 +74,11 @@
           {className: 'smallTablePadding', title: '序号', dataIndex: 'serialNumber', width: '14%', scopedSlots: { customRender: 'serialNumber' }},
           {className: 'smallTablePadding', title: '题类', dataIndex: 'questionKind', width: '60%', scopedSlots: { customRender: 'questionKind' }},
           {className: 'smallTablePadding', title: '分值', dataIndex: 'score', width: '26%', scopedSlots: { customRender: 'score' }}
-        ]
+        ],
+        divList: []
       };
     },
     created () {
-      for (let i = 1; i < 20; i++) {
-        let cell = {
-          'height': 0,
-          'left': 0,
-          'score': 5,
-          'serialNumber': i,
-          'top': 0,
-          'width': 0,
-          'currentBtn': 5
-        };
-        this.questionSigns.push(cell);
-      }
     },
     mounted () {
       this.getWH();
@@ -99,7 +88,35 @@
         return JSON.parse(this.$store.getters.currentEditTemplate);
       }
     },
-    watch: {},
+    watch: {
+      divList: {
+        handler (val) {
+          let result = [];
+          val.forEach((item) => {
+            let cell = {
+              'score': 5,
+              'serialNumber': '',
+              'height': '',
+              'left': '',
+              'top': '',
+              'width': '', // 此网上为后端需要数据
+              'currentBtn': 5,
+              'id': ''
+            };
+            let atr = item.attribute;
+            cell.id = item.id;
+            cell.serialNumber = item.serialNumber;
+            cell.width = atr.width;
+            cell.top = atr.top;
+            cell.left = atr.left;
+            cell.height = atr.height;
+            result.push(cell);
+          });
+          this.questionSigns = [...result];
+        },
+        deep: true
+      }
+    },
     methods: {
       mergeTem () {
         this.$refs.drawFrame.mergeTem();

@@ -6,8 +6,8 @@
         :key="item.id"
         :attribute="item.attribute"
         :originalItem="item"
-        :checked="activeMoveDivSort.includes(item.sort)"
-        @click="checkMoveDiv(item.sort, $event)"
+        :checked="activeMoveDivSort.includes(item.serialNumber)"
+        @click="checkMoveDiv(item.serialNumber, $event)"
         @change="reChangeMoveDiv"></moveDiv>
   </div>
 </template>
@@ -21,7 +21,7 @@
       return {
         moveDivList: [], // moveDiv数据list
         id: 1, // moveDiv 唯一id
-        sort: 1, // 对应序号，可合并用
+        serialNumber: 1, // 对应序号，可合并用
         createToggle: false, // 创建开关
         captureToggle: true,
         changeTimer: null,
@@ -35,7 +35,7 @@
       moveDivList: {
         handler (val) {
           if (!val.length) return;
-          console.log(val);
+          this.$emit('input', val);
           val.forEach((item) => {
             let attr = item.attribute;
             this.capturePoints.x.push(attr.startX, attr.startX + attr.width);
@@ -76,11 +76,11 @@
           }
           this.moveDivList.push({
             id: this.id,
-            sort: this.sort,
+            serialNumber: this.serialNumber,
             attribute: {...this.currentAttribute}
           });
           this.id++;
-          this.sort++;
+          this.serialNumber++;
           this.currentAttribute = {}; // 消除临时moveDiv
         }
       },
@@ -122,30 +122,30 @@
         this.$set(this.currentAttribute, 'width', Math.abs(cw));
         this.$set(this.currentAttribute, 'height', Math.abs(ch));
       },
-      checkMoveDiv (sort, $event) { // 点击选择框
+      checkMoveDiv (serialNumber, $event) { // 点击选择框
         $event.stopPropagation();
-        let index = this.activeMoveDivSort.indexOf(sort);
+        let index = this.activeMoveDivSort.indexOf(serialNumber);
         if (index > -1) {
           this.activeMoveDivSort.splice(index, 1);
         } else {
-          this.activeMoveDivSort.push(sort);
+          this.activeMoveDivSort.push(serialNumber);
         }
       },
       mergeTem () { // 合并当前选择的框
         let minSort = _.min(this.activeMoveDivSort);
         this.moveDivList = [...this.moveDivList.map((item, index) => {
-          if (this.activeMoveDivSort.includes(item.sort)) { // 选中框序号合并成选中框中序号最小的那个
-            item.sort = minSort;
+          if (this.activeMoveDivSort.includes(item.serialNumber)) { // 选中框序号合并成选中框中序号最小的那个
+            item.serialNumber = minSort;
           } else if (index > 1) { // 不在选中中的序列号等于上一个序号+1
-            item.sort = this.moveDivList[index - 1].sort + 1;
+            item.serialNumber = this.moveDivList[index - 1].serialNumber + 1;
           }
-          (index === this.moveDivList.length - 1) && (this.sort = item.sort + 1); // 下一个新添加的序号变为列队最后一个的序号+1
+          (index === this.moveDivList.length - 1) && (this.serialNumber = item.serialNumber + 1); // 下一个新添加的序号变为列队最后一个的序号+1
           return item;
         })];
       },
       deleteTem () { // 删除选中框
         this.moveDivList = [...this.moveDivList.filter((item) => {
-          return !this.activeMoveDivSort.includes(item.sort);
+          return !this.activeMoveDivSort.includes(item.serialNumber);
         })];
       }
     },
