@@ -45,6 +45,12 @@
           });
         },
         deep: true
+      },
+      activeMoveDivSort: {
+        handler (val) {
+          this.$store.dispatch('changeCheckedQuestionList', val);
+        },
+        deep: true
       }
     },
     methods: {
@@ -133,20 +139,32 @@
       },
       mergeTem () { // 合并当前选择的框
         let minSort = _.min(this.activeMoveDivSort);
-        this.moveDivList = [...this.moveDivList.map((item, index) => {
+        let sort = 1;
+        this.moveDivList = [...this.moveDivList.map((item) => { // 合并后序号调整方法
           if (this.activeMoveDivSort.includes(item.serialNumber)) { // 选中框序号合并成选中框中序号最小的那个
+            (item.serialNumber == minSort) && sort++;
             item.serialNumber = minSort;
-          } else if (index > 1) { // 不在选中中的序列号等于上一个序号+1
-            item.serialNumber = this.moveDivList[index - 1].serialNumber + 1;
+          } else {
+            item.serialNumber = sort;
+            sort++;
           }
-          (index === this.moveDivList.length - 1) && (this.serialNumber = item.serialNumber + 1); // 下一个新添加的序号变为列队最后一个的序号+1
           return item;
         })];
+        this.activeMoveDivSort = [minSort]; // 合并后选中序号只有之前未合并前最小序号
+        this.serialNumber = sort; // 后续添加序号重赋值
       },
-      deleteTem () { // 删除选中框
-        this.moveDivList = [...this.moveDivList.filter((item) => {
-          return !this.activeMoveDivSort.includes(item.serialNumber);
-        })];
+      deleteTem () { // 删除选中框,并重排序
+        let sort = 1;
+        let result = [];
+        this.moveDivList.forEach((item) => {
+          if (!this.activeMoveDivSort.includes(item.serialNumber)) {
+            item.serialNumber = sort;
+            sort++;
+            result.push(item);
+          }
+        });
+        this.activeMoveDivSort = [];
+        this.moveDivList = [...result];
       }
     },
     components: {

@@ -1,7 +1,7 @@
 <template>
   <div name='frameTemplate' class="fillcontain">
     <headTop></headTop>
-    <makeBody :isStepOne="false">
+    <makeBody :isStepOne="false" @finish="submit">
       <div class="fillcontain" style="overflow: auto">
         <div class="frameTemplateWrapper">
           <section class="funBtnGroup">
@@ -15,7 +15,7 @@
             <img :src="currentEditTemplate.url" class="fillcontain" alt="">
           </section>
           <section class="tableArea">
-            <a-table :columns="columns" :dataSource="questionSigns" rowKey="serialNumber" :pagination="false" bordered>
+            <a-table :columns="columns" :dataSource="questionList" rowKey="serialNumber" :pagination="false" bordered>
               <template slot="serialNumber" slot-scope="text, record, index">
                 <div class='editable-row-operations'>
                   {{record.serialNumber}}、
@@ -70,6 +70,7 @@
           }
         ],
         questionSigns: [],
+        questionList: [],
         columns: [
           {className: 'smallTablePadding', title: '序号', dataIndex: 'serialNumber', width: '14%', scopedSlots: { customRender: 'serialNumber' }},
           {className: 'smallTablePadding', title: '题类', dataIndex: 'questionKind', width: '60%', scopedSlots: { customRender: 'questionKind' }},
@@ -86,33 +87,46 @@
     computed: {
       currentEditTemplate () {
         return JSON.parse(this.$store.getters.currentEditTemplate);
+      },
+      checkedQuestionList () {
+        return this.$store.getters.checkedQuestionList;
       }
     },
     watch: {
       divList: {
         handler (val) {
-          let result = [];
+          let questionSigns = [];
+          let questionList = [];
+          console.log(val);
           val.forEach((item) => {
-            let cell = {
+            let questionSignsCell = {
               'score': 5,
               'serialNumber': '',
               'height': '',
               'left': '',
               'top': '',
               'width': '', // 此网上为后端需要数据
+              'id': ''
+            };
+            let questionListCell = {
+              'score': 5,
+              'serialNumber': '',
               'currentBtn': 5,
               'id': ''
             };
             let atr = item.attribute;
-            cell.id = item.id;
-            cell.serialNumber = item.serialNumber;
-            cell.width = atr.width;
-            cell.top = atr.top;
-            cell.left = atr.left;
-            cell.height = atr.height;
-            result.push(cell);
+            questionSignsCell.id = questionListCell.id = item.id;
+            questionSignsCell.serialNumber = questionListCell.serialNumber = item.serialNumber;
+            questionSignsCell.width = atr.width;
+            questionSignsCell.top = atr.top;
+            questionSignsCell.left = atr.left;
+            questionSignsCell.height = atr.height;
+            questionList.every(item => { return (item.serialNumber !== questionListCell.serialNumber); }) && questionList.push(questionListCell);
+            questionSigns.push(questionSignsCell);
           });
-          this.questionSigns = [...result];
+          this.questionSigns = [...questionSigns];
+          this.questionList = [...questionList];
+          console.log(questionList);
         },
         deep: true
       }
@@ -153,7 +167,8 @@
         if (value === '') {
           this.$set(item, 'score', item.currentBtn);
         }
-      }
+      },
+      submit () {}
     },
     components: {
       makeBody,
