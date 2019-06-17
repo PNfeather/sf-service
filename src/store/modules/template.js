@@ -3,7 +3,8 @@ const template = {
   state: {
     currentChooseImg: storage.get('currentChooseImg') || {},
     currentEditTemplate: storage.get('currentEditTemplate') || {},
-    checkedQuestionList: []
+    checkedQuestionList: [],
+    questionScoreCatch: []
   },
 
   mutations: {
@@ -15,6 +16,9 @@ const template = {
     },
     SET_CHECKEDQUESTIONLIST: (state, data) => {
       state.checkedQuestionList = data;
+    },
+    SET_QUESTIONSCORECATCH: (state, data) => {
+      state.questionScoreCatch = data;
     }
   },
 
@@ -29,6 +33,9 @@ const template = {
     },
     changeCheckedQuestionList ({ commit }, data) {
       commit('SET_CHECKEDQUESTIONLIST', data);
+    },
+    changeQuestionScoreCatch ({ commit }, data) {
+      commit('SET_QUESTIONSCORECATCH', data);
     }
   }
 };

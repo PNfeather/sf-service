@@ -38,8 +38,25 @@
       };
     },
     watch: {
+      questionScoreCatch: { // 分数变化时将分数挂到对应div上
+        handler (val) {
+          let c = {};
+          val.forEach((item) => {
+            c[item.serialNumber] = {
+              score: item.score,
+              currentBtn: item.currentBtn
+            };
+          });
+          this.moveDivList = [...this.moveDivList.map((item) => {
+            c[item.serialNumber] && Object.assign(item, c[item.serialNumber]);
+            return item;
+          })];
+        },
+        deep: true
+      },
       moveDivList: {
         handler (val) {
+          console.log(val);
           if (!val.length) return;
           this.$emit('input', val);
           val.forEach((item) => {
@@ -62,6 +79,9 @@
     computed: {
       checkedQuestionList () {
         return this.$store.getters.checkedQuestionList;
+      },
+      questionScoreCatch () {
+        return this.$store.getters.questionScoreCatch;
       }
     },
     methods: {
@@ -153,14 +173,22 @@
         }
         this.$store.dispatch('changeCheckedQuestionList', this.activeMoveDivSort);
       },
+      getScoreCatchCell (catchArr, item) {
+        if (item.score || item.currentBtn) {
+          let {serialNumber, score, currentBtn} = item;
+          catchArr.push({serialNumber, score, currentBtn});
+        }
+      },
       mergeTem () { // 合并当前选择的框
         let minSort = _.min(this.activeMoveDivSort);
         let sort = 1;
         let opre = 0; // 上一个循环原始值
         let cpre = 0; // 上一个循环当前值
+        let scoreCatch = [];
         this.moveDivList = [...(this.moveDivList.map((item) => { // 合并后序号调整并排序方法
           if (this.activeMoveDivSort.includes(item.serialNumber)) { // 选中框序号合并成选中框中序号最小的那个
             if (item.serialNumber == minSort) {
+              this.getScoreCatchCell(scoreCatch, item);
               item.mergeHeader = minSort; // 将合并的最小序列号对象标记为合并头，属性值定为当前合并序列号
               sort++;
             } else {
@@ -169,6 +197,7 @@
             }
             item.serialNumber = minSort;
           } else {
+            this.getScoreCatchCell(scoreCatch, item);
             if (item.serialNumber == opre) { // 当前循环值与上一循环原始值想等，则表示当前与上一个以合并
               item.serialNumber = cpre;
             } else {
@@ -184,6 +213,7 @@
           return (a.serialNumber - b.serialNumber);
         }))];
         this.activeMoveDivSort = [minSort]; // 合并后选中序号只有之前未合并前最小序号
+        this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
         this.$store.dispatch('changeCheckedQuestionList', [minSort]);
         this.serialNumber = sort; // 后续添加序号重赋值
       },
@@ -192,6 +222,7 @@
         let opre = 0; // 上一个循环原始值
         let cpre = 0; // 上一个循环当前值
         let result = [];
+        let scoreCatch = [];
         this.moveDivList.forEach((item) => {
           if (!this.activeMoveDivSort.includes(item.serialNumber)) {
             if (item.serialNumber == opre) { // 当前循环值与上一循环原始值想等，则表示当前与上一个以合并
@@ -203,11 +234,13 @@
                 sort++;
               }
             }
+            this.getScoreCatchCell(scoreCatch, item);
             result.push(item);
           }
         });
         this.serialNumber = sort; // 后续添加序号重赋值
         this.activeMoveDivSort = [];
+        this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
         this.$store.dispatch('changeCheckedQuestionList', []);
         this.moveDivList = [...result];
       }

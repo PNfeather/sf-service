@@ -94,7 +94,6 @@
           }
         ],
         questionList: [],
-        questionCatch: {},
         columns: [
           {className: 'smallTablePadding', title: '序号', dataIndex: 'serialNumber', width: '14%', scopedSlots: { customRender: 'serialNumber' }},
           {className: 'smallTablePadding', title: '题类', dataIndex: 'questionKind', width: '60%', scopedSlots: { customRender: 'questionKind' }},
@@ -130,6 +129,9 @@
       },
       checkedQuestionList () {
         return this.$store.getters.checkedQuestionList;
+      },
+      questionScoreCatch () {
+        return this.$store.getters.questionScoreCatch;
       }
     },
     watch: {
@@ -150,8 +152,8 @@
           let questionList = [];
           val.forEach((item) => {
             let questionListCell = {
-              'score': 5,
-              'currentBtn': 5
+              'score': item.score || 5,
+              'currentBtn': item.currentBtn || 5
             };
             let atr = item.attribute;
             let {height, left, top, width} = atr;
@@ -162,7 +164,6 @@
             questionList.push(questionListCell);
           });
           this.questionList = [...questionList];
-          console.log(questionList);
         },
         deep: true
       }
@@ -199,21 +200,37 @@
       removeActive (item) {
         (item.activeType === 'mouseDown') && this.$set(item, 'active', false);
       },
+      changeQuestionCatch (serialNumber, score, currentBtn) {
+        let result = [...this.questionScoreCatch];
+        let existIndex = -1;
+        result.forEach((item, index) => {
+            (item.serialNumber == serialNumber) && (existIndex = index);
+        });
+        if (existIndex > -1) {
+          result.splice(existIndex, 1, {serialNumber, score, currentBtn});
+        } else {
+          result.push({serialNumber, score, currentBtn});
+        }
+        this.$store.dispatch('changeQuestionScoreCatch', [...result]);
+      },
       changeScore (item, val) {
         this.$set(item, 'score', val);
         this.$set(item, 'currentBtn', val);
+        this.changeQuestionCatch(item.serialNumber, val, val);
       },
       inputChangeScore (item, e) {
         const { value } = e.target;
         const reg = /^(0|[1-9][0-9]*)$/;
         if ((!isNaN(value) && reg.test(value)) || value === '') {
           this.$set(item, 'score', value);
+          this.changeQuestionCatch(item.serialNumber, value, item.currentBtn);
         }
       },
       onBlur (item, e) {
         const { value } = e.target;
         if (value === '') {
           this.$set(item, 'score', item.currentBtn);
+          this.changeQuestionCatch(item.serialNumber, item.currentBtn, item.currentBtn);
         }
       },
       changeTemplatePageNumber ($event) {
@@ -235,7 +252,16 @@
           let {height, left, score, serialNumber, top, width} = item;
           questionSigns.push({height, left, score, serialNumber, top, width});
         });
-        console.log(questionSigns);
+        let params = {
+          'height': this.templateH,
+          'questionSigns': [...questionSigns],
+          'serialNumber': this.templatePageNumber,
+          'templateBookId': 0,
+          'url': this.currentEditTemplate.url,
+          'width': this.templateW,
+          'workId': 0
+        };
+        console.log(params);
       }
     },
     components: {
