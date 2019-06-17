@@ -1,7 +1,7 @@
 <template>
   <div name='frameTemplate' class="fillcontain">
     <headTop></headTop>
-    <makeBody :isStepOne="false" @finish="openSurePageModal">
+    <makeBody :isStepOne="false" @last="lastStep" @finish="openSurePageModal">
       <div class="fillcontain" style="overflow: auto">
         <div class="frameTemplateWrapper">
           <section class="funBtnGroup">
@@ -45,6 +45,17 @@
       </div>
     </makeBody>
     <a-modal
+      v-model="backModal"
+      centered
+      width="450px"
+      @ok="sureBack"
+      okText="返回"
+      class="frameTemplateModal">
+      <div class="frameTemplateModalWrapper">
+        当前页面数据将会清空，是否返回上一步?
+      </div>
+    </a-modal>
+    <a-modal
       title="填写资料页码"
       v-model="visible"
       centered
@@ -68,7 +79,9 @@
   export default {
     name: 'frameTemplate',
     data () {
+      let query = this.$route.query;
       return {
+        workId: query.workId,
         funBtnList: [
           {
             icon: 'iconMerge',
@@ -103,6 +116,7 @@
         templateH: '546', // 模板高
         templateW: '729', // 模板宽
         visible: false,
+        backModal: false,
         templatePageNumber: '',
         isMultipleChoice: false // 复选开关
       };
@@ -243,6 +257,16 @@
       openSurePageModal () {
         this.visible = true;
       },
+      lastStep () {
+        if (this.questionList.length) {
+          this.backModal = true;
+        } else {
+          this.$router.replace({path: 'imgAdjust', query: {workId: this.workId}});
+        }
+      },
+      sureBack () {
+        this.$router.replace({path: 'imgAdjust', query: {workId: this.workId}});
+      },
       submit () {
         let questionSigns = [];
         let mergeObj = {};
@@ -259,7 +283,7 @@
           'templateBookId': 0,
           'url': this.currentEditTemplate.url,
           'width': this.templateW,
-          'workId': 0
+          'workId': this.workId
         };
         console.log(params);
       }

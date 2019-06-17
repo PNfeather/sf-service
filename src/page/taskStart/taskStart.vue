@@ -131,7 +131,7 @@
       },
       goMake (item) {
         this.$store.dispatch('passChooseImg', JSON.stringify(item));
-        this.$router.push('imgAdjust');
+        this.$router.push({path: 'imgAdjust', query: {workId: this.workId}});
       },
       submit () {
         console.log('发布');

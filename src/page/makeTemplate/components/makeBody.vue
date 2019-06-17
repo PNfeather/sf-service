@@ -48,7 +48,7 @@
         this.$emit('next');
       },
       lastStep () {
-        this.$router.replace('imgAdjust');
+        this.$emit('last');
       },
       finish () {
         this.$emit('finish');

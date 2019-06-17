@@ -23,7 +23,9 @@
   export default {
     name: 'imgAdjust',
     data () {
+      let query = this.$route.query;
       return {
+        workId: query.workId,
         attribute: {
           width: 0,
           height: 0,
@@ -86,7 +88,7 @@
             let saveUrl = canvas.toDataURL('image/png');
             let c = Object.assign({}, this.currentChooseImg, {url: saveUrl});
             this.$store.dispatch('passTemplate', JSON.stringify(c));
-            this.$router.replace('frameTemplate');
+            this.$router.replace({path: 'frameTemplate', query: {workId: this.workId}});
             // 点击生成图片并自动下载方法：
             // let a = document.createElement('a');
             // document.body.appendChild(a);
