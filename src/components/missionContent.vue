@@ -6,11 +6,13 @@
       <span class="startTime">布置时间：0000年00月00日 00：00</span>
       <span class="endTime">截止时间：0000年00月00日 00：00</span>
     </section>
-    <section class="smallImg" v-show="!showBig">
-      <div class="imgItem" v-for="(item, index) in imgList" :key="item">
-        <img src="~@IMG/loginBack.png" alt="" @click="openBig(index)">
-      </div>
-    </section>
+    <transition name="small-scale" mode="in-out">
+      <section class="smallImg" v-show="!showBig">
+        <div class="imgItem" v-for="(item, index) in imgList" :key="item">
+          <img src="~@IMG/loginBack.png" alt="" @click="openBig(index)">
+        </div>
+      </section>
+    </transition>
     <transition name="big-scale" mode="in-out">
       <section class="bigImg" v-show="showBig">
         <div class="close" @click="showSmall">
@@ -68,7 +70,7 @@
     name: 'missionContent',
     props: {
       workId: {
-        type: String || Number,
+        type: [String, Number],
         default: '',
         required: true
       }
@@ -239,8 +241,15 @@
         }
       }
     }
-    .big-scale-enter-active, .big-scale-leave-active {
-      transition: all 1s;
+    .small-scale-enter-active {
+      transition: all .5s;
+    }
+    .small-scale-enter, .small-scale-leave-active {
+      transform: translateY(-50px);
+      opacity: 0;
+    }
+    .big-scale-enter-active{
+      transition: all .5s;
     }
     .big-scale-enter, .big-scale-leave-active {
       transform: translateY(50px);
