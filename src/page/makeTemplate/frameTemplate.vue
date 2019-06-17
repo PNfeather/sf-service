@@ -5,16 +5,16 @@
       <div class="fillcontain" style="overflow: auto">
         <div class="frameTemplateWrapper">
           <section class="funBtnGroup">
-            <div class="btnItem" :class="[item.active ? item.activeClass : '']" v-for="(item, index) in funBtnList" :key="index" @mousedown="addActive(item)" @mouseup="removeActive(item)" @click="item.fun()">
+            <div class="btnItem" :class="[item.active ? item.activeClass : '']" v-for="(item, index) in funBtnList" :key="index" @mousedown="addActive(item)" @mouseup="removeActive(item)" @click="item.fun(item)">
               <i class="iconfont" :class="[item.icon]"></i>
               <p>{{item.text}}</p>
             </div>
           </section>
           <section class="handleArea">
-            <drawFrame ref="drawFrame" v-model="divList"></drawFrame>
+            <drawFrame ref="drawFrame" :isMultipleChoice="isMultipleChoice" v-model="divList"></drawFrame>
             <img :src="currentEditTemplate.url" class="fillcontain" alt="">
           </section>
-          <section class="tableArea">
+          <section class="tableArea frameTemplateTable">
             <a-table :columns="columns" :dataSource="questionList" rowKey="id" :pagination="false" bordered :rowClassName="rowClassName">
               <template slot="serialNumber" slot-scope="text, record, index">
                 <div class='editable-row-operations sort' @click="checkQuestion(record.serialNumber)">
@@ -58,15 +58,24 @@
           {
             icon: 'iconMerge',
             activeClass: 'mergeActive',
+            activeType: 'mouseDown',
             text: '合并',
             fun: this.mergeTem,
             active: false
           }, {
             icon: 'iconDelete',
             activeClass: 'deleteActive',
+            activeType: 'mouseDown',
             text: '删除',
             fun: this.deleteTem,
             active: false
+          }, {
+            icon: 'iconMultipleChoice',
+            activeClass: 'multipleChoiceActive',
+            activeType: 'click',
+            text: '多选',
+            fun: this.multipleChoice,
+            active: this.isMultipleChoice
           }
         ],
         questionSigns: [],
@@ -76,10 +85,15 @@
           {className: 'smallTablePadding', title: '题类', dataIndex: 'questionKind', width: '60%', scopedSlots: { customRender: 'questionKind' }},
           {className: 'smallTablePadding', title: '分值', dataIndex: 'score', width: '26%', scopedSlots: { customRender: 'score' }}
         ],
-        divList: []
+        divList: [],
+        isMultipleChoice: false // 复选开关
       };
     },
     created () {
+    },
+    beforeRouteLeave (to, from, next) { // 路由离开前清空选中List
+      this.$store.dispatch('changeCheckedQuestionList', []);
+      next();
     },
     mounted () {
       this.getWH();
@@ -138,7 +152,8 @@
             questionSignsCell.top = atr.top;
             questionSignsCell.left = atr.left;
             questionSignsCell.height = atr.height;
-            questionList.every(item => { return (item.serialNumber !== questionListCell.serialNumber); }) && questionList.push(questionListCell);
+            this.checkedQuestionList.includes(questionListCell.serialNumber) && (this.$set(questionListCell, 'checked', true));
+            questionList.every(item => { return (item.serialNumber !== questionListCell.serialNumber); }) && questionList.push(questionListCell); // 重复序号只添加一次题目
             questionSigns.push(questionSignsCell);
           });
           this.questionSigns = [...questionSigns];
@@ -149,12 +164,17 @@
     },
     methods: {
       checkQuestion (sort) {
-        let checkedList = [...this.checkedQuestionList];
+        let checkedList = [];
+        checkedList = [...this.checkedQuestionList];
         let index = checkedList.indexOf(sort);
         if (index > -1) {
           checkedList.splice(index, 1);
         } else {
-          checkedList.push(sort);
+          if (this.isMultipleChoice) { // 是否复选
+            checkedList.push(sort);
+          } else {
+            checkedList = [sort];
+          }
         }
         this.$store.dispatch('changeCheckedQuestionList', checkedList);
       },
@@ -164,11 +184,15 @@
       deleteTem () {
         this.$refs.drawFrame.deleteTem();
       },
+      multipleChoice (item) {
+        this.isMultipleChoice = !item.active;
+        this.$set(item, 'active', !item.active);
+      },
       addActive (item) {
-        this.$set(item, 'active', true);
+        (item.activeType === 'mouseDown') && this.$set(item, 'active', true);
       },
       removeActive (item) {
-        this.$set(item, 'active', false);
+        (item.activeType === 'mouseDown') && this.$set(item, 'active', false);
       },
       getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
         let img = document.createElement('img');
@@ -208,8 +232,16 @@
     padding-left: 24px !important;
     position: relative;
   }
+  .frameTemplateTable{
+    .ant-table-tbody > tr:hover:not(.ant-table-expanded-row) > td{
+      background: #fff;
+    }
+  }
+  .frameTemplateCheckedRow:hover:not(.ant-table-expanded-row) > td {
+    background: #e6f7ff!important;
+  }
   .frameTemplateCheckedRow{
-    border: 2px solid #ff0000;
+    background: #e6f7ff!important;
   }
 </style>
 <style scoped lang="less">
@@ -231,6 +263,9 @@
         }
         .deleteActive{
           color: #E46948!important;
+        }
+        .multipleChoiceActive{
+          color: #1890ff!important;
         }
         .btnItem{
           .wh(54px, 54px);

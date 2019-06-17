@@ -17,6 +17,12 @@
   import _ from '@/plugins/lodash';
   export default {
     name: 'drawFrame',
+    props: {
+      isMultipleChoice: { // 复选开关
+        type: Boolean,
+        default: false
+      }
+    },
     data () {
       return {
         moveDivList: [], // moveDiv数据list
@@ -34,6 +40,7 @@
     watch: {
       moveDivList: {
         handler (val) {
+          console.log(val);
           if (!val.length) return;
           this.$emit('input', val);
           val.forEach((item) => {
@@ -46,9 +53,9 @@
         },
         deep: true
       },
-      activeMoveDivSort: {
+      checkedQuestionList: {
         handler (val) {
-          this.$store.dispatch('changeCheckedQuestionList', val);
+          this.activeMoveDivSort = [...val];
         },
         deep: true
       }
@@ -139,13 +146,18 @@
         if (index > -1) {
           this.activeMoveDivSort.splice(index, 1);
         } else {
-          this.activeMoveDivSort.push(serialNumber);
+          if (this.isMultipleChoice) {
+            this.activeMoveDivSort.push(serialNumber);
+          } else {
+            this.activeMoveDivSort = [serialNumber];
+          }
         }
+        this.$store.dispatch('changeCheckedQuestionList', this.activeMoveDivSort);
       },
       mergeTem () { // 合并当前选择的框
         let minSort = _.min(this.activeMoveDivSort);
         let sort = 1;
-        this.moveDivList = [...this.moveDivList.map((item) => { // 合并后序号调整方法
+        this.moveDivList = [...(this.moveDivList.map((item) => { // 合并后序号调整并排序方法
           if (this.activeMoveDivSort.includes(item.serialNumber)) { // 选中框序号合并成选中框中序号最小的那个
             (item.serialNumber == minSort) && sort++;
             item.serialNumber = minSort;
@@ -154,8 +166,11 @@
             sort++;
           }
           return item;
-        })];
+        }).sort((a, b) => {
+          return (a.serialNumber - b.serialNumber);
+        }))];
         this.activeMoveDivSort = [minSort]; // 合并后选中序号只有之前未合并前最小序号
+        this.$store.dispatch('changeCheckedQuestionList', [minSort]);
         this.serialNumber = sort; // 后续添加序号重赋值
       },
       deleteTem () { // 删除选中框,并重排序
@@ -163,12 +178,16 @@
         let result = [];
         this.moveDivList.forEach((item) => {
           if (!this.activeMoveDivSort.includes(item.serialNumber)) {
-            item.serialNumber = sort;
-            sort++;
+            if (item.serialNumber >= sort) { // 序号大于等于排列序号则重赋值序号
+              item.serialNumber = sort;
+              sort++;
+            }
             result.push(item);
           }
         });
+        this.serialNumber = sort; // 后续添加序号重赋值
         this.activeMoveDivSort = [];
+        this.$store.dispatch('changeCheckedQuestionList', []);
         this.moveDivList = [...result];
       }
     },
