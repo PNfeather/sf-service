@@ -29,11 +29,11 @@
           <p>（单次导入最多99张图片）</p>
         </div>
         <div class="item" v-for="(item, index) in templateList" :key="index" @click="goMake(item)">
-          <div class="delete">
+          <div class="delete" @click.stop="deleteTemplate(index)">
             <i class="iconfont iconClose"></i>
           </div>
           <img :src="item.url" alt="">
-          <p>第{{index + 1}}页</p>
+          <p><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
         </div>
       </section>
       <section class="submitBtn">
@@ -132,6 +132,9 @@
       goMake (item) {
         this.$store.dispatch('passChooseImg', JSON.stringify(item));
         this.$router.push({path: 'imgAdjust', query: {workId: this.workId}});
+      },
+      deleteTemplate (index) {
+        this.templateList.splice(index, 1);
       },
       submit () {
         console.log('发布');
