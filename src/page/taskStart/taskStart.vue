@@ -45,9 +45,10 @@
       v-model="visible"
       centered
       class="missionModal"
+      @cancel="closeMissionContent"
       width="88%"
       :footer="null">
-      <missionContent :workId="workId" class="fillcontain"></missionContent>
+      <missionContent ref="missionContent" :workId="workId" class="fillcontain"></missionContent>
     </a-modal>
     <a-modal
       v-model="uploadModal"
@@ -91,6 +92,9 @@
     },
     watch: {},
     methods: {
+      closeMissionContent () {
+        this.$refs.missionContent.pause();
+      },
       backTaskList () {
         this.$router.push('missionList');
       },

@@ -54,6 +54,7 @@
     <section class="voice">
       <div class="item" :class="{active: audioPlaying}" @click="playAudio">
         <i class="iconfont iconVoice"></i>{{duration}}s
+        <span style="flex: 1; text-align: right" v-show="currentTime > 0 && (currentTime != duration)">{{currentTime}}s</span>
         <audio ref="voice" :src="testMp3" preload>
           您的浏览器不支持audio标签
         </audio>
@@ -78,8 +79,13 @@
         duration: 0,
         audioPlaying: false,
         showBig: false,
+        currentTime: 0,
         imgList: new Array(6)
       };
+    },
+    activated () {
+      this.audioPlaying = false;
+      this.currentTime = 0;
     },
     methods: {
       onChange (index) {
@@ -94,9 +100,18 @@
       },
       playAudio () {
         let audio = this.$refs.voice;
-        this.audioPlaying = true;
         audio.currentTime = 0;
-        audio.play(); // audio.play();// 这个就是播放
+        if (audio.paused) {
+          this.audioPlaying = true;
+          audio.play(); // audio.play();// 这个就是播放
+        } else {
+          this.pause();
+        }
+      },
+      pause () {
+        let audio = this.$refs.voice;
+        this.audioPlaying = false;
+        audio.pause(); // 暂停播放
       }
     },
     watch: {
@@ -107,6 +122,9 @@
     mounted () {
       this.$nextTick(() => {
         let audio = this.$refs.voice;
+        audio.addEventListener('timeupdate', () => {
+          this.currentTime = Math.ceil(audio.currentTime);
+        });
         audio.addEventListener('loadeddata', () => {
           this.duration = Math.ceil(audio.duration);
         });
@@ -206,7 +224,7 @@
       }
       .item{
         margin-top: 20px;
-        padding-left: 10px;
+        padding: 0 10px;
         .wh(150px, 40px);
         .fj(flex-start);
         background: rgba(247,199,10,0.30);
