@@ -40,7 +40,6 @@
     watch: {
       moveDivList: {
         handler (val) {
-          console.log(val);
           if (!val.length) return;
           this.$emit('input', val);
           val.forEach((item) => {
@@ -157,13 +156,28 @@
       mergeTem () { // 合并当前选择的框
         let minSort = _.min(this.activeMoveDivSort);
         let sort = 1;
+        let opre = 0; // 上一个循环原始值
+        let cpre = 0; // 上一个循环当前值
         this.moveDivList = [...(this.moveDivList.map((item) => { // 合并后序号调整并排序方法
           if (this.activeMoveDivSort.includes(item.serialNumber)) { // 选中框序号合并成选中框中序号最小的那个
-            (item.serialNumber == minSort) && sort++;
+            if (item.serialNumber == minSort) {
+              item.mergeHeader = minSort; // 将合并的最小序列号对象标记为合并头，属性值定为当前合并序列号
+              sort++;
+            } else {
+              item.mergeHeader && (delete item.mergeHeader); // 若本身为合并头，删除标记
+              item.mergeBody = minSort; // 合并的其他对象标记为合并身，属性值定为当前合并序列号
+            }
             item.serialNumber = minSort;
           } else {
-            item.serialNumber = sort;
-            sort++;
+            if (item.serialNumber == opre) { // 当前循环值与上一循环原始值想等，则表示当前与上一个以合并
+              item.serialNumber = cpre;
+            } else {
+              opre = item.serialNumber;
+              if (item.serialNumber >= sort) { // 序号大于等于排列序号则重赋值序号
+                cpre = item.serialNumber = sort;
+                sort++;
+              }
+            }
           }
           return item;
         }).sort((a, b) => {
@@ -175,12 +189,19 @@
       },
       deleteTem () { // 删除选中框,并重排序
         let sort = 1;
+        let opre = 0; // 上一个循环原始值
+        let cpre = 0; // 上一个循环当前值
         let result = [];
         this.moveDivList.forEach((item) => {
           if (!this.activeMoveDivSort.includes(item.serialNumber)) {
-            if (item.serialNumber >= sort) { // 序号大于等于排列序号则重赋值序号
-              item.serialNumber = sort;
-              sort++;
+            if (item.serialNumber == opre) { // 当前循环值与上一循环原始值想等，则表示当前与上一个以合并
+              item.serialNumber = cpre;
+            } else {
+              opre = item.serialNumber;
+              if (item.serialNumber >= sort) { // 序号大于等于排列序号则重赋值序号
+                cpre = item.serialNumber = sort;
+                sort++;
+              }
             }
             result.push(item);
           }

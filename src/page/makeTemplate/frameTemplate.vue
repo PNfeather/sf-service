@@ -1,7 +1,7 @@
 <template>
   <div name='frameTemplate' class="fillcontain">
     <headTop></headTop>
-    <makeBody :isStepOne="false" @finish="submit">
+    <makeBody :isStepOne="false" @finish="openSurePageModal">
       <div class="fillcontain" style="overflow: auto">
         <div class="frameTemplateWrapper">
           <section class="funBtnGroup">
@@ -44,6 +44,21 @@
         </div>
       </div>
     </makeBody>
+    <a-modal
+      title="填写资料页码"
+      v-model="visible"
+      centered
+      width="450px"
+      @ok="submit"
+      class="frameTemplateModal">
+      <div class="frameTemplateModalWrapper">
+        第<a-input
+        :value="templatePageNumber"
+        maxLength="6"
+        class="frameTemplateModalWrapperInput"
+        @change="changeTemplatePageNumber"/>页
+      </div>
+    </a-modal>
   </div>
 </template>
 
@@ -78,14 +93,18 @@
             active: this.isMultipleChoice
           }
         ],
-        questionSigns: [],
         questionList: [],
+        questionCatch: {},
         columns: [
           {className: 'smallTablePadding', title: '序号', dataIndex: 'serialNumber', width: '14%', scopedSlots: { customRender: 'serialNumber' }},
           {className: 'smallTablePadding', title: '题类', dataIndex: 'questionKind', width: '60%', scopedSlots: { customRender: 'questionKind' }},
           {className: 'smallTablePadding', title: '分值', dataIndex: 'score', width: '26%', scopedSlots: { customRender: 'score' }}
         ],
         divList: [],
+        templateH: '546', // 模板高
+        templateW: '729', // 模板宽
+        visible: false,
+        templatePageNumber: '',
         isMultipleChoice: false // 复选开关
       };
     },
@@ -96,12 +115,14 @@
       next();
     },
     mounted () {
-      this.getWH();
     },
     computed: {
       rowClassName () {
         return (record) => {
-          return (record.checked ? 'frameTemplateCheckedRow' : '');
+          let className = [];
+          !record.showSign && (className.push('frameTemplateHiddenRow'));
+          record.checked && (className.push('frameTemplateCheckedRow'));
+          return className.join(' ');
         };
       },
       currentEditTemplate () {
@@ -126,38 +147,22 @@
       },
       divList: {
         handler (val) {
-          let questionSigns = [];
           let questionList = [];
           val.forEach((item) => {
-            let questionSignsCell = {
-              'score': 5,
-              'serialNumber': '',
-              'height': '',
-              'left': '',
-              'top': '',
-              'width': '', // 此网上为后端需要数据
-              'id': ''
-            };
             let questionListCell = {
               'score': 5,
-              'serialNumber': '',
-              'currentBtn': 5,
-              'id': '',
-              'checked': false
+              'currentBtn': 5
             };
             let atr = item.attribute;
-            questionSignsCell.id = questionListCell.id = item.id;
-            questionSignsCell.serialNumber = questionListCell.serialNumber = item.serialNumber;
-            questionSignsCell.width = atr.width;
-            questionSignsCell.top = atr.top;
-            questionSignsCell.left = atr.left;
-            questionSignsCell.height = atr.height;
+            let {height, left, top, width} = atr;
+            let {id, serialNumber, mergeHeader, mergeBody} = item;
+            questionListCell = {...questionListCell, ...{height, left, top, width}, ...{id, serialNumber, mergeHeader, mergeBody}};
             this.checkedQuestionList.includes(questionListCell.serialNumber) && (this.$set(questionListCell, 'checked', true));
-            questionList.every(item => { return (item.serialNumber !== questionListCell.serialNumber); }) && questionList.push(questionListCell); // 重复序号只添加一次题目
-            questionSigns.push(questionSignsCell);
+            this.$set(questionListCell, 'showSign', questionList.every(item => { return (item.serialNumber !== questionListCell.serialNumber); })); // 重复序号只添加一次题目,其他隐藏
+            questionList.push(questionListCell);
           });
-          this.questionSigns = [...questionSigns];
           this.questionList = [...questionList];
+          console.log(questionList);
         },
         deep: true
       }
@@ -194,13 +199,6 @@
       removeActive (item) {
         (item.activeType === 'mouseDown') && this.$set(item, 'active', false);
       },
-      getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
-        let img = document.createElement('img');
-        img.src = this.currentEditTemplate.url;
-        img.onload = () => {
-          console.log(img.width, img.height);
-        };
-      },
       changeScore (item, val) {
         this.$set(item, 'score', val);
         this.$set(item, 'currentBtn', val);
@@ -218,7 +216,27 @@
           this.$set(item, 'score', item.currentBtn);
         }
       },
-      submit () {}
+      changeTemplatePageNumber ($event) {
+        const { value } = $event.target;
+        const reg = /^(0|[1-9][0-9]*)$/;
+        if ((!isNaN(value) && reg.test(value)) || value === '') {
+          this.templatePageNumber = value;
+        }
+      },
+      openSurePageModal () {
+        this.visible = true;
+      },
+      submit () {
+        let questionSigns = [];
+        let mergeObj = {};
+        this.questionList.forEach((item) => {
+          (item.mergeHeader) && (mergeObj[item.mergeHeader] = item.score); // 保存合并头对应分数
+          (item.mergeBody) && (item.score = mergeObj[item.mergeBody]); // 合并身取对应合并头的分数
+          let {height, left, score, serialNumber, top, width} = item;
+          questionSigns.push({height, left, score, serialNumber, top, width});
+        });
+        console.log(questionSigns);
+      }
     },
     components: {
       makeBody,
@@ -237,11 +255,29 @@
       background: #fff;
     }
   }
+  .frameTemplateHiddenRow{
+    display: none!important;
+  }
   .frameTemplateCheckedRow:hover:not(.ant-table-expanded-row) > td {
     background: #e6f7ff!important;
   }
   .frameTemplateCheckedRow{
     background: #e6f7ff!important;
+  }
+  .frameTemplateModal{
+    .frameTemplateModalWrapper{
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 80%;
+      margin: 0 auto;
+      .frameTemplateModalWrapperInput{
+        width: 87px;
+        margin: 0 5px;
+        text-align: center;
+      }
+    }
   }
 </style>
 <style scoped lang="less">
