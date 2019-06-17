@@ -37,6 +37,7 @@
         </div>
       </section>
       <section class="submitBtn">
+        <a-button type="primary" class="submit" @click="temSave">暂存</a-button>
         <a-button type="primary" class="submit" @click="submit" :disabled="submitToggle">发布</a-button>
       </section>
     </div>
@@ -142,6 +143,9 @@
       },
       submit () {
         console.log('发布');
+      },
+      temSave () {
+        console.log('暂存');
       }
     },
     components: {
@@ -287,6 +291,7 @@
         flex: 100px 0 0;
         .fac();
         .submit{
+          margin: 0 20px;
           width: 240px;
           height: 50px;
           line-height: 50px;
