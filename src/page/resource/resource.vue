@@ -87,7 +87,7 @@
         }, 300);
       },
       addNew () {
-        console.log('新增');
+        this.$router.push('startNewResource');
       },
       handleTask (workId) {
         let data = [...this.tableData];

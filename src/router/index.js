@@ -17,6 +17,8 @@ const missionDetail = r => require.ensure([], () => r(require('@/page/missionDet
 const taskStart = r => require.ensure([], () => r(require('@/page/taskStart/taskStart')), 'taskStart');
 // 资源库列表
 const resource = r => require.ensure([], () => r(require('@/page/resource/resource')), 'resource');
+// 新增资源
+const startNewResource = r => require.ensure([], () => r(require('@/page/resource/startNewResource')), 'startNewResource');
 // 作业管理
 const taskManage = r => require.ensure([], () => r(require('@/page/taskManage/taskManage')), 'taskManage');
 // 模板制作-图片调整
@@ -54,6 +56,9 @@ const routes = [
       }, {
         path: '/resource',
         component: resource
+      }, {
+        path: '/startNewResource',
+        component: startNewResource
       }, {
         path: '/taskManage',
         component: taskManage
