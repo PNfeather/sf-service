@@ -28,6 +28,9 @@ const frameTemplate = r => require.ensure([], () => r(require('@/page/makeTempla
 
 const routes = [
   {
+    path: '/',
+    redirect: '/login'
+  }, {
     path: '/login',
     component: login
   }, {
