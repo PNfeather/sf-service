@@ -16,7 +16,7 @@ axios.defaults.timeout = 30000;
 axios.defaults.responseType = 'json';
 
 // 防止请求session变动
-// axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = true;
 
 // 请求路径
 axios.defaults.baseURL = process.env.BASE_URL;
