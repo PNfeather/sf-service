@@ -1,20 +1,20 @@
 <template>
   <div name='taskStart' class="fillcontain">
     <div class="title">
-      <titleBack :title="title" customBack @back="back"></titleBack>
+      <titleBack :title="backTitle" customBack @back="back"></titleBack>
     </div>
     <div class="template fillcontain">
       <section class="functional">
-        <div class="title" v-show="s1 || s3">今日化学作业模板列表</div>
+        <div class="title" v-show="s1 || s3 || s4 || s5">今日化学作业模板列表</div>
         <div class="search" v-show="s2">
           <a-input v-model="templateName" class="input" placeholder="请输入资源名称"/>
           <a-button type="primary" @click="searchResource">搜索</a-button>
         </div>
         <div class="btnGroup">
-          <a-button type="primary" class="funBtn" @click="checkTask">查看作业</a-button>
+          <a-button type="primary" class="funBtn" @click="checkTask" v-show="s1 || s2 || s3">查看作业</a-button>
           <a-button type="primary" class="funBtn" @click="goResourceChoiceList" v-show="s1">资源库</a-button>
           <a-upload
-            v-show="s1"
+            v-show="s1 || s4"
             name="file"
             :multiple="true"
             accept="image/*"
@@ -28,12 +28,12 @@
         </div>
       </section>
       <section class="imgArea">
-        <div class="noContent fillcontain" v-if="!templateList.length && s1">
+        <div class="noContent fillcontain" v-if="!templateList.length && (s1 || s4)">
           <img src="~@IMG/noContent.png" alt="">
           <p>请导入或者从资源库选择作业图片</p>
           <p>（单次导入最多99张图片）</p>
         </div>
-        <div class="item" v-for="(item, index) in templateList" :key="index" @click="goMake(item)" v-if="s1">
+        <div class="item" v-for="(item, index) in templateList" :key="index" @click="goMake(item)" v-if="s1 || s4">
           <div class="delete" @click.stop="deleteTemplate(index)">
             <i class="iconfont iconClose"></i>
           </div>
@@ -51,8 +51,12 @@
           <img src="~@IMG/default.jpg" alt="">
           <p><span>第{{index + 1}}页</span></p>
         </div>
+        <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s5">
+          <img :src="item.url" alt="">
+          <p><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
+        </div>
       </section>
-      <section class="submitBtn" v-show="s1">
+      <section class="submitBtn" v-show="s1 || s4">
         <a-button type="primary" class="submit" @click="temSave">暂存</a-button>
         <a-button type="primary" class="submit" @click="submit" :disabled="submitToggle">发布</a-button>
       </section>
@@ -71,7 +75,7 @@
         </a-pagination>
       </section>
       <section class="submitBtn" v-show="s3">
-        <a-button class="submit">取消</a-button>
+        <a-button class="submit" @click="goResourceChoiceList">取消</a-button>
         <a-button type="primary" class="submit">确认</a-button>
       </section>
     </div>
@@ -108,7 +112,7 @@
     data () {
       let query = this.$route.query;
       return {
-        pageType: 'missionTemplate', // missionTemplate模板制作页，resourceChoiceList图文资源库选择页，templateChoiceList模板选择页
+        pageType: query.pageType || 'missionTemplate', // missionTemplate作业模板制作页，resourceChoiceList图文资源库选择页，templateChoiceList模板选择页，resourceMakeStart资源模板制作页,checkTemplate查看模板页
         startUploadToggle: false,
         uploadModal: false,
         totalUpload: 0, // 总上传图片数
@@ -128,28 +132,39 @@
         count: 0,
         pageTypeConfig: {
           missionTemplate: {
-            title: '返回任务列表',
+            backTitle: '返回任务列表',
             backMethod: 'backTaskList'
           },
           resourceChoiceList: {
-            title: '返回模板列表',
+            backTitle: '返回模板列表',
             backMethod: 'goMissionTemplate'
           },
           templateChoiceList: {
-            title: '返回资源库',
+            backTitle: '返回资源库',
             backMethod: 'goResourceChoiceList'
+          },
+          resourceMakeStart: {
+            backTitle: '返回资源库',
+            backMethod: 'backResource'
+          },
+          checkTemplate: {
+            backTitle: '返回资源库',
+            backMethod: 'backResource'
           }
         }
       };
     },
-    created () {},
-    mounted () {},
+    activated () {
+      let query = this.$route.query;
+      this.pageType = query.pageType;
+      this.workId = query.workId;
+    },
     computed: {
       currentPageConfig () {
         return this.pageTypeConfig[this.pageType];
       },
-      title () {
-        return this.currentPageConfig.title;
+      backTitle () {
+        return this.currentPageConfig.backTitle;
       },
       uploadPercent () {
         return Math.floor(100 * this.doneUpload / this.totalUpload);
@@ -162,6 +177,12 @@
       },
       s3 () {
         return (this.pageType === 'templateChoiceList');
+      },
+      s4 () {
+        return (this.pageType === 'resourceMakeStart');
+      },
+      s5 () {
+        return (this.pageType === 'checkTemplate');
       }
     },
     watch: {},
@@ -174,6 +195,9 @@
       },
       backTaskList () {
         this.$router.push('missionList');
+      },
+      backResource () {
+        this.$router.push('resource');
       },
       goMissionTemplate () { // 页面切换到任务末班
         this.pageType = 'missionTemplate';

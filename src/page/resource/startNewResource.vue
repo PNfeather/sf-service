@@ -63,7 +63,7 @@
         this.coverImg = '';
       },
       startUpload () {
-        this.$router.push('taskStart');
+        this.$router.push({path: 'taskStart', query: {pageType: 'resourceMakeStart'}});
       }
     },
     components: {

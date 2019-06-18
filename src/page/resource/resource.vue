@@ -15,8 +15,8 @@
       </template>
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
-          <a style="text-decoration: underline" @click="() => handleTask(record.workId)">查看</a>
-          <a style="text-decoration: underline" @click="() => handleTask(record.workId)">编辑</a>
+          <a style="text-decoration: underline" @click="() => checkResource(record.workId)">查看</a>
+          <a style="text-decoration: underline" @click="() => editResource(record.workId)">编辑</a>
         </div>
       </template>
     </a-table>
@@ -89,10 +89,11 @@
       addNew () {
         this.$router.push('startNewResource');
       },
-      handleTask (workId) {
-        let data = [...this.tableData];
-        let target = data.filter(item => { return (item.workId == workId); })[0];
-        console.log(target);
+      checkResource (workId) {
+        this.$router.push({path: 'taskStart', query: {pageType: 'checkTemplate', workId: workId}});
+      },
+      editResource (workId) {
+        this.$router.push({path: 'taskStart', query: {pageType: 'resourceMakeStart', workId: workId}});
       },
       onShowSizeChange (current, pageSize) {
         this.currentPage = current;

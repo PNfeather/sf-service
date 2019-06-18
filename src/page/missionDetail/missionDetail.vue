@@ -25,7 +25,7 @@
     },
     methods: {
       goStart () {
-        this.$router.push({path: 'taskStart', query: {workId: this.workId}});
+        this.$router.push({path: 'taskStart', query: {workId: this.workId, pageType: 'missionTemplate'}});
       }
     },
     components: {
