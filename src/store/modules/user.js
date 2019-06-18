@@ -35,11 +35,15 @@ const user = {
               storage.set('serviceList', reData.data);
               commit('SET_SERVICELIST', reData.data);
             } else {
-              message.error(data.message);
+              message.error(reData.message);
             }
           });
           message.success('登录成功');
-          router.push('/manage');
+          if (values.autoBack) {
+            router.go(-1);
+          } else {
+            router.push('/manage');
+          }
         } else {
           message.error(data.message);
         }

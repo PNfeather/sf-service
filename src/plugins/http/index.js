@@ -1,4 +1,5 @@
 import axios from 'axios';
+import router from '@/router';
 // 设置用户类型
 // axios.defaults.headers.common['Clinent-Identify'] = 'H5';
 
@@ -13,6 +14,9 @@ axios.defaults.timeout = 30000;
 
 // 默认返回数据格式
 axios.defaults.responseType = 'json';
+
+// 防止请求session变动
+// axios.defaults.withCredentials = true;
 
 // 请求路径
 axios.defaults.baseURL = process.env.BASE_URL;
@@ -46,6 +50,9 @@ axios.interceptors.request.use(config => {
 // 添加响应拦截器
 axios.interceptors.response.use(response => {
   removePending(response.config); // 在一个ajax响应后再执行一下取消操作，把已经完成的请求从pending中移除
+  if (response.data && response.data.code == '401') { // 登录过期自动跳登录
+    router.push({path: '/login', query: {autoBack: true}});
+  }
   return response;
 }, error => {
   console.warn(error);

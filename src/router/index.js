@@ -28,7 +28,7 @@ const frameTemplate = r => require.ensure([], () => r(require('@/page/makeTempla
 
 const routes = [
   {
-    path: '/',
+    path: '/login',
     component: login
   }, {
     path: '/imgAdjust',

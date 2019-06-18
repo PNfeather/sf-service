@@ -2,7 +2,7 @@ import Mock from 'mockjs'; // 引入mockjs
 
 let baseUrl = process.env.BASE_URL;
 
-Mock.mock(baseUrl + '/user/logout', 'post', (options) => {
+Mock.mock(baseUrl + '/user', 'delete', (options) => {
   console.log(options);
   return {
     'code': 0,

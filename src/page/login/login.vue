@@ -52,7 +52,9 @@
   export default {
     name: 'login',
     data () {
+      const query = this.$route.query;
       return {
+        autoBack: query.autoBack,
         loginImg: require('@IMG/loginImg.png'),
         form: this.$form.createForm(this),
         rules: {
@@ -80,7 +82,7 @@
         e.preventDefault();
         this.form.validateFields((err, values) => {
           if (!err) {
-            this.$store.dispatch('login', values);
+            this.$store.dispatch('login', {autoBack: this.autoBack, ...values});
           }
         });
       }

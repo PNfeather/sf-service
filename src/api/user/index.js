@@ -1,9 +1,8 @@
 import {Http} from '@/plugins/http';
-import qs from 'qs';
 
 // 登录
-export const login = data => Http.post('/user/login', data);
+export const login = (data) => Http.post('/user', data);
 // 登出
-export const logout = (data) => Http.post('/user/logout', qs.stringify(data));
+export const logout = () => Http.delete('/user');
 // 客服列表
 export const serviceList = () => Http.get('/user/all-service');
