@@ -1,15 +1,20 @@
 <template>
   <div name='taskStart' class="fillcontain">
     <div class="title">
-      <titleBack title="返回任务列表" customBack @back="backTaskList"></titleBack>
+      <titleBack :title="title" customBack @back="back"></titleBack>
     </div>
     <div class="template fillcontain">
       <section class="functional">
-        <div class="title">今日化学作业模板列表</div>
+        <div class="title" v-show="s1 || s3">今日化学作业模板列表</div>
+        <div class="search" v-show="s2">
+          <a-input v-model="templateName" class="input" placeholder="请输入资源名称"/>
+          <a-button type="primary" @click="searchResource">搜索</a-button>
+        </div>
         <div class="btnGroup">
           <a-button type="primary" class="funBtn" @click="checkTask">查看作业</a-button>
-          <a-button type="primary" class="funBtn" @click="goResource">资源库</a-button>
+          <a-button type="primary" class="funBtn" @click="goResourceChoiceList" v-show="s1">资源库</a-button>
           <a-upload
+            v-show="s1"
             name="file"
             :multiple="true"
             accept="image/*"
@@ -23,22 +28,51 @@
         </div>
       </section>
       <section class="imgArea">
-        <div class="noContent fillcontain" v-if="!templateList.length">
+        <div class="noContent fillcontain" v-if="!templateList.length && s1">
           <img src="~@IMG/noContent.png" alt="">
           <p>请导入或者从资源库选择作业图片</p>
           <p>（单次导入最多99张图片）</p>
         </div>
-        <div class="item" v-for="(item, index) in templateList" :key="index" @click="goMake(item)">
+        <div class="item" v-for="(item, index) in templateList" :key="index" @click="goMake(item)" v-if="s1">
           <div class="delete" @click.stop="deleteTemplate(index)">
             <i class="iconfont iconClose"></i>
           </div>
           <img :src="item.url" alt="">
           <p><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
         </div>
+        <div class="item" v-for="(item, index) in resourceList" :key="index" @click="goTemplateChoiceList(item)" v-if="s2">
+          <img src="~@IMG/default.jpg" alt="">
+          <p><span>sdfsdfsdf</span></p>
+        </div>
+        <div class="item" v-for="(item, index) in templateChoiceList" :key="index" @click="choiceTemplate(item)" v-if="s3">
+          <div class="choiceIcon">
+            <i class="iconfont iconFinished" :class="{'selected': selectedList.includes(item.id)}"></i>
+          </div>
+          <img src="~@IMG/default.jpg" alt="">
+          <p><span>第{{index + 1}}页</span></p>
+        </div>
       </section>
-      <section class="submitBtn">
+      <section class="submitBtn" v-show="s1">
         <a-button type="primary" class="submit" @click="temSave">暂存</a-button>
         <a-button type="primary" class="submit" @click="submit" :disabled="submitToggle">发布</a-button>
+      </section>
+      <section class="paginationArea" v-show="s2">
+        <a-pagination
+          :style="{flex: '100px 0 0', paddingTop: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center'}"
+          :pageSizeOptions="pageSizeOptions"
+          :total="count"
+          :showTotal="total => `共 ${total} 条记录`"
+          showSizeChanger
+          :defaultPageSize="10"
+          v-model="currentPage"
+          showQuickJumper
+          @change="changePage"
+          @showSizeChange="onShowSizeChange">
+        </a-pagination>
+      </section>
+      <section class="submitBtn" v-show="s3">
+        <a-button class="submit">取消</a-button>
+        <a-button type="primary" class="submit">确认</a-button>
       </section>
     </div>
     <a-modal
@@ -74,6 +108,7 @@
     data () {
       let query = this.$route.query;
       return {
+        pageType: 'missionTemplate', // missionTemplate模板制作页，resourceChoiceList图文资源库选择页，templateChoiceList模板选择页
         startUploadToggle: false,
         uploadModal: false,
         totalUpload: 0, // 总上传图片数
@@ -81,14 +116,52 @@
         submitToggle: false,
         workId: query.workId,
         visible: false,
-        templateList: []
+        templateList: [], // 模板列表
+        resourceList: new Array(20), // 资源列表
+        selectedList: [], // 已选择模板数组
+        templateName: '',
+        pageSizeOptions: ['5', '10', '20', '30', '40', '50'],
+        templateChoiceList: [{id: 1}, {id: 2}, {id: 3}, {id: 4}], // 模板选择列表
+        skip: 0,
+        limit: 10,
+        currentPage: 1,
+        count: 0,
+        pageTypeConfig: {
+          missionTemplate: {
+            title: '返回任务列表',
+            backMethod: 'backTaskList'
+          },
+          resourceChoiceList: {
+            title: '返回模板列表',
+            backMethod: 'goMissionTemplate'
+          },
+          templateChoiceList: {
+            title: '返回资源库',
+            backMethod: 'goResourceChoiceList'
+          }
+        }
       };
     },
     created () {},
     mounted () {},
     computed: {
+      currentPageConfig () {
+        return this.pageTypeConfig[this.pageType];
+      },
+      title () {
+        return this.currentPageConfig.title;
+      },
       uploadPercent () {
         return Math.floor(100 * this.doneUpload / this.totalUpload);
+      },
+      s1 () {
+        return (this.pageType === 'missionTemplate');
+      },
+      s2 () {
+        return (this.pageType === 'resourceChoiceList');
+      },
+      s3 () {
+        return (this.pageType === 'templateChoiceList');
       }
     },
     watch: {},
@@ -96,14 +169,43 @@
       closeMissionContent () {
         this.$refs.missionContent.pause();
       },
+      back () {
+        this[this.currentPageConfig.backMethod]();
+      },
       backTaskList () {
         this.$router.push('missionList');
       },
+      goMissionTemplate () { // 页面切换到任务末班
+        this.pageType = 'missionTemplate';
+      },
+      goResourceChoiceList () { // 页面切换到资源列表
+        this.pageType = 'resourceChoiceList';
+      },
+      goTemplateChoiceList () { // 页面切换到模板选择列表
+        this.pageType = 'templateChoiceList';
+      },
+      choiceTemplate (item) {
+        let index = this.selectedList.indexOf(item.id);
+        if (index > -1) {
+          this.selectedList.splice(index, 1);
+        } else {
+          this.selectedList.push(item.id);
+        }
+      },
+      onShowSizeChange (current, pageSize) {
+        this.currentPage = current;
+        this.limit = pageSize;
+        this.skip = (current - 1) * this.limit;
+      },
+      changePage (current) {
+        this.currentPage = current;
+        this.skip = (current - 1) * this.limit;
+      },
+      searchResource () {
+        console.log('搜资源');
+      },
       checkTask () {
         this.visible = true;
-      },
-      goResource () {
-        console.log('资源库');
       },
       startUpload () {
         this.startUploadToggle = true;
@@ -210,6 +312,18 @@
           font-size: 22px;
           color: #333333;
         }
+        .search{
+          flex: 1;
+          font-size: 22px;
+          color: #333333;
+          display: flex;
+          justify-content: flex-start;
+          align-items: center;
+          .input{
+            width: 220px;
+            margin-right: 10px;
+          }
+        }
         .btnGroup{
           flex: 1;
           .fj(flex-end);
@@ -249,6 +363,24 @@
           border-radius: 4px;
           overflow: hidden;
           position: relative;
+          .choiceIcon{
+            position: absolute;
+            .wh(26px, 26px);
+            z-index: 3;
+            right: 8px;
+            top: 8px;
+            border-radius: 100%;
+            overflow: hidden;
+            background-color: #fff;
+            .fac();
+            .iconfont{
+              font-size: 28px;
+              color: #ccc;
+            }
+            .selected{
+              color: #1690FF!important;
+            }
+          }
           .delete{
             position: absolute;
             top: 5px;
@@ -297,6 +429,12 @@
           line-height: 50px;
           font-size: 16px;
         }
+      }
+      .paginationArea{
+        width: 100%;
+        flex: 100px 0 0;
+        .fac();
+        flex-direction: column;
       }
     }
   }
