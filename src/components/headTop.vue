@@ -75,7 +75,7 @@
 </template>
 
 <script type='text/babel'>
-  import {logout} from '@/api/user';
+  import {logout, rePwd} from '@/api/user';
   export default {
     name: 'headTop',
     data () {
@@ -96,7 +96,8 @@
             'reNewPassword',
             {rules: [{ required: true, message: '请输入新密码验证' }]}
           ]
-        }
+        },
+        errorTimer: null
       };
     },
     computed: {
@@ -124,7 +125,13 @@
       },
       handleOk () {
         this.handleSubmit().then(res => {
-          res && (this.visible = false);
+          if (res) {
+            let {newPassword, oldPassword} = res;
+            rePwd({newPassword, oldPassword}).then(res => {
+              console.log(res);
+            });
+            // this.visible = false;
+          }
         });
       },
       accountError () {
@@ -139,7 +146,16 @@
         return new Promise(resolve => {
           this.form.validateFields((err, values) => {
             if (!err) {
-              resolve(true);
+              if (values.newPassword !== values.reNewPassword) {
+                resolve(false);
+                if (this.errorTimer) return;
+                this.$message.error('两次密码输入不一致');
+                this.errorTimer = setTimeout(() => {
+                  this.errorTimer = null;
+                }, 800);
+              } else {
+                resolve(values);
+              }
             }
           });
         });
