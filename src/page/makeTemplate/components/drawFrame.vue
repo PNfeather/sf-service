@@ -82,6 +82,29 @@
       },
       questionScoreCatch () {
         return this.$store.getters.questionScoreCatch;
+      },
+      currentEditTemplate () {
+        return JSON.parse(this.$store.getters.currentEditTemplate);
+      }
+    },
+    mounted () { // 进来已有模板情况加载模板数据
+      let arr = this.currentEditTemplate.questionSigns;
+      let ft = this.$refs.bg.getBoundingClientRect().top;
+      let fl = this.$refs.bg.getBoundingClientRect().left;
+      if (arr && arr.length) {
+        arr.forEach((item) => {
+          let {serialNumber, score} = item;
+          let {width, height, top, left} = item;
+          let cell = {serialNumber, score};
+          cell.attribute = {width, height, top, left};
+          cell.attribute.startX = fl + item.left;
+          cell.attribute.startY = ft + item.top; // 拱捕获使用
+          cell.id = this.id;
+          this.id++;
+          (item.serialNumber > this.serialNumber) && (this.serialNumber = item.serialNumber);
+          this.moveDivList.push(cell);
+        });
+        this.serialNumber++; // 循环玩当序号排列为已存在的最大序号加1，id一次排过来
       }
     },
     methods: {

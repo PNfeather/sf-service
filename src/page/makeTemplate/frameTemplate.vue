@@ -285,7 +285,7 @@
           'width': this.templateW,
           'workId': this.workId
         };
-        console.log(params);
+        console.log(JSON.stringify(params));
       }
     },
     components: {
