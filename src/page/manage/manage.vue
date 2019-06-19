@@ -28,12 +28,10 @@
         </a-layout-content>
       </a-layout>
     </a-layout>
-    <superviseFooter></superviseFooter>
   </div>
 </template>
 
 <script type='text/babel'>
-  import superviseFooter from '@C/superviseFooter.vue';
   export default {
     computed: {
       defaultActive () {
@@ -46,9 +44,6 @@
       changePage (item) {
         this.$router.push(item.key);
       }
-    },
-    components: {
-      superviseFooter
     }
   };
 </script>

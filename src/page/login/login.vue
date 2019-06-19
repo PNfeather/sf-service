@@ -45,10 +45,12 @@
         </div>
       </section>
     </transition>
+    <superviseFooter></superviseFooter>
   </div>
 </template>
 
 <script type='text/babel'>
+  import superviseFooter from '@C/superviseFooter.vue';
   export default {
     name: 'login',
     data () {
@@ -86,6 +88,9 @@
           }
         });
       }
+    },
+    components: {
+      superviseFooter
     }
   };
 </script>
