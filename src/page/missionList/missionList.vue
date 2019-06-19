@@ -43,7 +43,7 @@
 </template>
 
 <script type='text/babel'>
-  import {taskList} from '@/api/task';
+  import {worksList} from '@/api/works';
   export default {
     name: 'missionList',
     data () {
@@ -70,7 +70,7 @@
         limit: 10,
         currentPage: 1,
         count: 0,
-        getListTimer: 0
+        getListTimer: null
       };
     },
     created () {
@@ -91,21 +91,22 @@
     },
     methods: {
       getList () {
-        if (this.getListTimer) clearTimeout(this.getListTimer);
+        if (this.getListTimer) return;
+        worksList({
+          limit: this.limit,
+          skip: this.skip,
+          serviceId: this.serviceId,
+          status: this.status
+        }).then(res => {
+          let data = res.data;
+          this.count = data.total;
+          if (data.code == 0) {
+            this.tableData = data.data;
+          }
+        });
         this.getListTimer = setTimeout(() => {
-          taskList({
-            limit: this.limit,
-            skip: this.skip,
-            serviceId: this.serviceId,
-            status: this.status
-          }).then(res => {
-            let data = res.data;
-            this.count = data.total;
-            if (data.code == 0) {
-              this.tableData = data.data;
-            }
-          });
-        }, 300);
+          this.getListTimer = null;
+        });
       },
       refresh () {
         this.getList();

@@ -6,7 +6,7 @@ require('./user/logout');
 require('./user/all-service');
 
 // 任务模块
-require('./task/list');
+require('./works/list');
 
 const Mock = require('mockjs');
 

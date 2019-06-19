@@ -39,7 +39,7 @@
 </template>
 
 <script type='text/babel'>
-  import {taskList} from '@/api/task';
+  import {worksList} from '@/api/works';
   export default {
     name: 'missionList',
     data () {
@@ -83,7 +83,7 @@
       getList () {
         if (this.getListTimer) clearTimeout(this.getListTimer);
         this.getListTimer = setTimeout(() => {
-          taskList({
+          worksList({
             limit: this.limit,
             skip: this.skip,
             teacherInfo: this.teacherInfo,

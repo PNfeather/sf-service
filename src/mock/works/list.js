@@ -19,7 +19,7 @@ for (let i = 0; i < total; i++) { // 可自定义生成的个数
   list.push(template);
 }
 
-Mock.mock(baseUrl + '/task/list', 'post', (options) => {
+Mock.mock(baseUrl + '/works/list', 'post', (options) => {
   let arr = options.body.split('&');
   let params = {};
   arr.forEach(item => {
