@@ -31,6 +31,9 @@ const routes = [
     path: '/',
     redirect: '/login'
   }, {
+    path: '*',
+    redirect: '/manage'
+  }, {
     path: '/login',
     component: login
   }, {

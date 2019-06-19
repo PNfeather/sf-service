@@ -8,6 +8,9 @@
     name: 'home',
     mounted () {
       this.$router.replace('missionList');
+    },
+    activated () {
+      this.$router.replace('missionList');
     }
   };
 </script>
