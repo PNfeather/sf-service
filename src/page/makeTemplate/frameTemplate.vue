@@ -113,7 +113,7 @@
           {className: 'smallTablePadding', title: '分值', dataIndex: 'score', width: '26%', scopedSlots: { customRender: 'score' }}
         ],
         divList: [],
-        templateH: '546', // 模板高
+        templateH: '475', // 模板高
         templateW: '729', // 模板宽
         visible: false,
         backModal: false,
@@ -372,7 +372,7 @@
         }
       }
       .handleArea{
-        .wh(546px, 729px);
+        .wh(475px, 729px);
         box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
         overflow: hidden;
         position: relative;

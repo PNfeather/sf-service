@@ -114,7 +114,7 @@
       .fac();
       .imgWrapper{
         position: relative;
-        .wh(546px, 729px);
+        .wh(475px, 729px);
         .bb, .bt, .br, .bl{
           z-index: 9999;
           position: absolute;
@@ -125,7 +125,7 @@
           top: -2px;
         }
         .bb, .bt{
-          .wh(550px, 2px);
+          .wh(479px, 2px);
           background-color: #FF0000;
           left: -2px;
         }
