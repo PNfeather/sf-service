@@ -1,30 +1,22 @@
-# sf-service
+# back-stage-management
 
 > A Vue.js project
 
 ## Build Setup
 
 ``` bash
-# install dependencies
-npm install
+# 依赖包安装(打包或运行前必须执行的指令)
+npm install(推荐使用yarn)
 
-# serve with hot reload at localhost:8080
+# 本地运行
 npm run dev
 
-# build for production with minification
-npm run build
+# 测试打包
+npm run build-cs
 
-# build for production and view the bundle analyzer report
-npm run build --report
+# 生产打包
+npm run build-pro
 
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
