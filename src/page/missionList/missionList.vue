@@ -17,7 +17,7 @@
         <a-button type="primary" class="refresh" @click="refresh">刷新</a-button>
       </div>
     </div>
-    <a-table :style="{width: '101%', marginLeft: '-2px', flex: '1'}" :columns="columns" :dataSource="tableData" rowKey="workId" :pagination="false" bordered>
+    <a-table :style="{width: '101%', marginLeft: '-2px', flex: '1'}" :columns="columns" :dataSource="tableData" rowKey="id" :pagination="false" bordered>
       <template slot="name" slot-scope="text">
         <a href="javascript:;">{{text}}</a>
       </template>
@@ -44,6 +44,7 @@
 
 <script type='text/babel'>
   import {worksList} from '@/api/works';
+  import format from '@/tools/format';
   export default {
     name: 'missionList',
     data () {
@@ -57,8 +58,8 @@
         ],
         tableData: [],
         columns: [
-          {className: 'tablePadding', title: '作业名称', dataIndex: 'workName', width: '16.6%'},
-          {className: 'tablePadding', title: '布置教师', dataIndex: 'assignTeacher', width: '16.7%'},
+          {className: 'tablePadding', title: '作业名称', dataIndex: 'name', width: '16.6%'},
+          {className: 'tablePadding', title: '布置教师', dataIndex: 'assignTeacherName', width: '16.7%'},
           {className: 'tablePadding', title: '班级', dataIndex: 'className', width: '21.8%'},
           {className: 'tablePadding', title: '布置时间', dataIndex: 'assignTime', width: '12.9%'},
           {className: 'tablePadding', title: '状态', dataIndex: 'status', width: '10%'},
@@ -101,7 +102,20 @@
           let data = res.data;
           this.count = data.total;
           if (data.code == 0) {
-            this.tableData = data.data;
+            let statusObj = {
+              '0': '等待模板',
+              '1': '模板制作中',
+              '2': '模板已完成'
+            };
+            this.tableData = data.data.map((item) => {
+              let time = format(new Date(item.assignTime), 'MM月DD日 HH:mm');
+              if (time[0] == 0) {
+                time = time.substr(1);
+              }
+              item.assignTime = time;
+              item.status = statusObj[item.workStatus];
+              return item;
+            });
           }
         });
         this.getListTimer = setTimeout(() => {

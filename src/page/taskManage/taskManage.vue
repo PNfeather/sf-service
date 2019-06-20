@@ -11,13 +11,13 @@
       </div>
       <a-button type="primary" class="check" @click="check">查询</a-button>
     </div>
-    <a-table :style="{width: '101%', marginLeft: '-2px', flex: '1'}" :columns="columns" :dataSource="tableData" rowKey="workId" :pagination="false" :scroll="{y: 560}" bordered>
+    <a-table :style="{width: '101%', marginLeft: '-2px', flex: '1'}" :columns="columns" :dataSource="tableData" rowKey="id" :pagination="false" bordered>
       <template slot="name" slot-scope="text">
         <a href="javascript:;">{{text}}</a>
       </template>
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
-          <a-popconfirm placement="topRight" title="你确定要删除该作业?" @confirm="deleteTask(record.workId)" >
+          <a-popconfirm placement="topRight" title="你确定要删除该作业?" @confirm="deleteTask(record.id, index)" >
             <a style="text-decoration: underline; color: #E98469;">删除</a>
           </a-popconfirm>
         </div>
@@ -39,7 +39,8 @@
 </template>
 
 <script type='text/babel'>
-  import {worksList} from '@/api/works';
+  import {worksList, deleteWork} from '@/api/works';
+  import format from '@/tools/format';
   export default {
     name: 'missionList',
     data () {
@@ -48,8 +49,8 @@
         service: '',
         tableData: [],
         columns: [
-          {className: 'tablePadding', title: '作业名称', dataIndex: 'workName', width: '18.7%'},
-          {className: 'tablePadding', title: '布置教师', dataIndex: 'assignTeacher', width: '19%'},
+          {className: 'tablePadding', title: '作业名称', dataIndex: 'name', width: '18.7%'},
+          {className: 'tablePadding', title: '布置教师', dataIndex: 'assignTeacherName', width: '19%'},
           {className: 'tablePadding', title: '班级', dataIndex: 'className', width: '23.5%'},
           {className: 'tablePadding', title: '布置时间', dataIndex: 'assignTime', width: '14.6%'},
           {className: 'tablePadding', title: '操作客服', dataIndex: 'serviceName', width: '11.5%'},
@@ -92,18 +93,28 @@
             let data = res.data;
             this.count = data.total;
             if (data.code == 0) {
-              this.tableData = data.data;
+              this.tableData = data.data.map((item) => {
+                let time = format(new Date(item.assignTime), 'MM月DD日 HH:mm');
+                if (time[0] == 0) {
+                  time = time.substr(1);
+                }
+                item.assignTime = time;
+                return item;
+              });
             }
           });
-        }, 300);
+        }, 500);
       },
       check () {
         this.getList();
       },
-      deleteTask (workId) {
-        let data = [...this.tableData];
-        let target = data.filter(item => { return (item.workId == workId); })[0];
-        console.log(target);
+      deleteTask (workId, index) {
+        deleteWork(workId).then((res) => {
+          if (res.data.code == 0) {
+            this.$message.warn('作业删除');
+            this.tableData.splice(index, 1);
+          }
+        });
       },
       onShowSizeChange (current, pageSize) {
         this.currentPage = current;
