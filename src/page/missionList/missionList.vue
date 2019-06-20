@@ -82,9 +82,7 @@
     },
     computed: {
       serviceList () {
-        let result = this.$store.getters.serviceList;
-        result.unshift({id: '', name: '全部'});
-        return result;
+        return [{id: '', name: '全部'}, ...this.$store.getters.serviceList];
       }
     },
     // activated () {
