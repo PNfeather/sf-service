@@ -11,6 +11,7 @@
           <a-button type="primary" @click="searchResource">搜索</a-button>
         </div>
         <div class="btnGroup">
+          <a-button type="primary" class="funBtn" :class="{active: showWorkSortNum}" @click="openSort" v-show="s1 || s4">{{!showWorkSortNum ? '排序' : '完成排序'}}</a-button>
           <a-button type="primary" class="funBtn" @click="checkTask" v-show="s1 || s2 || s3">查看作业</a-button>
           <a-button type="primary" class="funBtn" @click="goResourceChoiceList" v-show="s1">资源库</a-button>
           <a-upload
@@ -27,18 +28,27 @@
           </a-upload>
         </div>
       </section>
-      <section class="imgArea">
+      <section class="imgArea" ref="imgArea">
         <div class="noContent fillcontain" v-if="!templateList.length && (s1 || s4)">
           <img src="~@IMG/noContent.png" alt="">
           <p>请导入或者从资源库选择作业图片</p>
           <p>（单次导入最多99张图片）</p>
         </div>
-        <div class="item" v-for="(item, index) in templateList" :key="index" @click="goMake(item)" v-if="s1 || s4">
+        <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s1 || s4">
           <div class="delete" @click.stop="deleteTemplate(index)">
             <i class="iconfont iconClose"></i>
           </div>
-          <img :src="item.url" alt="">
-          <p><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
+          <div class="finished">
+            <i class="iconfont iconFinished2"></i>
+          </div>
+          <img :src="item.url" alt="" @click="goMake(item)">
+          <p v-show="!showWorkSortNum"><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
+          <p v-show="showWorkSortNum"><span>序号:<a-input
+            :value="item.workSortNum"
+            style="width: 60px;margin-left: 5px;text-align: center;"
+            @change="inputChangeScore(item, index, $event)"
+            @blur="onBlur(item, index, $event)"
+          /></span></p>
         </div>
         <div class="item" v-for="(item, index) in resourceList" :key="index" @click="goTemplateChoiceList(item)" v-if="s2">
           <img src="~@IMG/default.jpg" alt="">
@@ -151,7 +161,8 @@
             backTitle: '返回资源库',
             backMethod: 'backResource'
           }
-        }
+        },
+        showWorkSortNum: false // 排序开关
       };
     },
     activated () {
@@ -169,24 +180,62 @@
       uploadPercent () {
         return Math.floor(100 * this.doneUpload / this.totalUpload);
       },
-      s1 () {
+      s1 () { // missionTemplate作业模板制作页
         return (this.pageType === 'missionTemplate');
       },
-      s2 () {
+      s2 () { // resourceChoiceList图文资源库选择页
         return (this.pageType === 'resourceChoiceList');
       },
-      s3 () {
+      s3 () { // templateChoiceList模板选择页
         return (this.pageType === 'templateChoiceList');
       },
-      s4 () {
+      s4 () { // resourceMakeStart资源模板制作页
         return (this.pageType === 'resourceMakeStart');
       },
-      s5 () {
+      s5 () { // checkTemplate查看模板页
         return (this.pageType === 'checkTemplate');
       }
     },
-    watch: {},
+    watch: {
+      'templateList.length' () {
+        this.templateList.forEach((item, index) => {
+          item.workSortNum = index + 1;
+          item.serialNumber = index + 1; // todo 待删除
+        });
+      }
+    },
+    mounted () {
+      this.templateList = JSON.parse(window.localStorage.getItem('templateList')) || []; // todo 待删除
+    },
     methods: {
+      openSort () {
+        this.showWorkSortNum = !this.showWorkSortNum;
+      },
+      inputChangeScore (item, index, e) {
+        const { value } = e.target;
+        const reg = /^(0|[1-9][0-9]*)$/;
+        if ((!isNaN(value) && reg.test(value)) || value === '') {
+          item.workSortNum = value;
+          this.templateList.splice(index, 1, item);
+        }
+      },
+      onBlur (item, index, e) {
+        if (index + 1 != item.workSortNum) {
+          const { value } = e.target;
+          let tem = {...item};
+          let max = this.templateList.length;
+          if (value === '') {
+            tem.workSortNum = 1;
+          } else if (value - 0 > max) {
+            tem.workSortNum = max;
+          }
+          this.templateList.splice(index, 1);
+          this.templateList.splice(tem.workSortNum - 1, 0, tem);
+          this.templateList.forEach((item, cIndex) => {
+            this.$set(item, 'workSortNum', cIndex + 1);
+          });
+        }
+      },
       closeMissionContent () {
         this.$refs.missionContent.pause();
       },
@@ -239,6 +288,7 @@
           this.templateList.push({
             url: imageUrl
           });
+          window.localStorage.setItem('templateList', JSON.stringify(this.templateList)); // todo 待删除
         });
         return false;
       },
@@ -351,6 +401,10 @@
         .btnGroup{
           flex: 1;
           .fj(flex-end);
+          .active{
+            background: #F7BA0A!important;
+            border: none!important;
+          }
           .funBtn{
             margin-left: 14px;
           }
@@ -387,28 +441,20 @@
           border-radius: 4px;
           overflow: hidden;
           position: relative;
-          .choiceIcon{
+          .finished{
             position: absolute;
-            .wh(26px, 26px);
-            z-index: 3;
-            right: 8px;
-            top: 8px;
-            border-radius: 100%;
-            overflow: hidden;
-            background-color: #fff;
-            .fac();
-            .iconfont{
-              font-size: 28px;
-              color: #ccc;
-            }
-            .selected{
-              color: #1690FF!important;
+            top: 0;
+            left: 10px;
+            i{
+              font-size: 45px;
+              color: #E46948;
             }
           }
           .delete{
             position: absolute;
             top: 5px;
             right: 5px;
+            z-index: 3;
             .wh(26px, 26px);
             .fac();
             border-radius: 100%;
