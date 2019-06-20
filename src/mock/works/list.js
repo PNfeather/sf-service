@@ -20,13 +20,7 @@ for (let i = 0; i < total; i++) { // 可自定义生成的个数
 }
 
 Mock.mock(baseUrl + '/works/list', 'post', (options) => {
-  let arr = options.body.split('&');
-  let params = {};
-  arr.forEach(item => {
-    let tem = item.split('=');
-    params[tem[0]] = tem[1];
-  });
-  console.log(params);
+  let params = JSON.parse(options.body);
   let skip = params.skip;
   let limit = params.limit;
   let start = skip;

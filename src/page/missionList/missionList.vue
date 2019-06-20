@@ -17,7 +17,7 @@
         <a-button type="primary" class="refresh" @click="refresh">刷新</a-button>
       </div>
     </div>
-    <a-table :style="{width: '101%', marginLeft: '-2px', flex: '1'}" :columns="columns" :dataSource="tableData" rowKey="workId" :pagination="false" :scroll="{y: 560}" bordered>
+    <a-table :style="{width: '101%', marginLeft: '-2px', flex: '1'}" :columns="columns" :dataSource="tableData" rowKey="workId" :pagination="false" bordered>
       <template slot="name" slot-scope="text">
         <a href="javascript:;">{{text}}</a>
       </template>
@@ -106,7 +106,7 @@
         });
         this.getListTimer = setTimeout(() => {
           this.getListTimer = null;
-        });
+        }, 500);
       },
       refresh () {
         this.getList();
