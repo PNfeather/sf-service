@@ -9,14 +9,14 @@
         <a-button type="primary" class="addNew" @click="addNew">新增</a-button>
       </div>
     </div>
-    <a-table :style="{width: '101%', marginLeft: '-2px', flex: '1'}" :columns="columns" :dataSource="tableData" rowKey="workId" :pagination="false" :scroll="{y: 560}" bordered>
+    <a-table :style="{width: '101%', marginLeft: '-2px', flex: '1'}" :columns="columns" :dataSource="tableData" rowKey="id" :pagination="false" :scroll="{y: 560}" bordered>
       <template slot="name" slot-scope="text">
         <a href="javascript:;">{{text}}</a>
       </template>
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
-          <a style="text-decoration: underline" @click="() => checkResource(record.workId)">查看</a>
-          <a style="text-decoration: underline" @click="() => editResource(record.workId)">编辑</a>
+          <a style="text-decoration: underline" @click="checkResource(record.id)">查看</a>
+          <a style="text-decoration: underline" @click="editResource(record.id)" v-show="record.bookStatus == 0">编辑</a>
         </div>
       </template>
     </a-table>
@@ -36,7 +36,7 @@
 </template>
 
 <script type='text/babel'>
-  import {worksList} from '@/api/works';
+  import {getBookList} from '@/api/tBook';
   export default {
     name: 'resource',
     data () {
@@ -44,10 +44,10 @@
         templateName: '',
         tableData: [],
         columns: [
-          {className: 'tablePadding', title: '资源名称', dataIndex: 'workName', width: '34%'},
-          {className: 'tablePadding', title: '创建人', dataIndex: 'assignTeacher', width: '20%'},
-          {className: 'tablePadding', title: '最后修改时间', dataIndex: 'className', width: '18%'},
-          {className: 'tablePadding', title: '状态', dataIndex: 'assignTime', width: '15%'},
+          {className: 'tablePadding', title: '资源名称', dataIndex: 'name', width: '34%'},
+          {className: 'tablePadding', title: '创建人', dataIndex: 'creatorName', width: '20%'},
+          {className: 'tablePadding', title: '最后修改时间', dataIndex: 'time', width: '18%'},
+          {className: 'tablePadding', title: '状态', dataIndex: 'statusName', width: '15%'},
           {className: 'tablePadding', title: '操作', dataIndex: 'deal', width: '13%', scopedSlots: { customRender: 'operation' }}
         ],
         pageSizeOptions: ['5', '10', '20', '30', '40', '50'],
@@ -73,7 +73,7 @@
       getList () {
         if (this.getListTimer) clearTimeout(this.getListTimer);
         this.getListTimer = setTimeout(() => {
-          worksList({
+          getBookList({
             limit: this.limit,
             skip: this.skip,
             templateName: this.templateName
@@ -81,10 +81,14 @@
             let data = res.data;
             this.count = data.total;
             if (data.code == 0) {
-              this.tableData = data.data;
+              this.tableData = data.data.map((item) => {
+                item.statusName = (item.bookStatus == 0) ? '草稿' : '已发布';
+                // todo 待修改或完善 接口缺失最后修改时间
+                return item;
+              });
             }
           });
-        }, 300);
+        }, 500);
       },
       addNew () {
         this.$router.push('startNewResource');
