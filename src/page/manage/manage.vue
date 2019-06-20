@@ -22,9 +22,7 @@
           </a-menu>
         </a-layout-sider>
         <a-layout-content class="layout-content">
-          <keep-alive>
-            <router-view></router-view>
-          </keep-alive>
+          <router-view></router-view>
         </a-layout-content>
       </a-layout>
     </a-layout>

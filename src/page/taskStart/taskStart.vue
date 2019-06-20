@@ -114,7 +114,7 @@
 </template>
 
 <script type='text/babel'>
-  import {reviewBook} from '@/api/tBook';
+  import {reviewBook, getBookTemplate} from '@/api/tBook';
   import timeLimit from '@/tools/timeLimit';
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
@@ -157,7 +157,8 @@
           },
           resourceMakeStart: { // resourceMakeStart资源模板制作页
             backTitle: '返回资源库',
-            backMethod: 'backResource'
+            backMethod: 'backResource',
+            pageInitMethod: 'getBookTemplate'
           },
           checkTemplate: { // checkTemplate查看模板页
             backTitle: '返回资源库',
@@ -168,10 +169,7 @@
         showWorkSortNum: false // 排序开关
       };
     },
-    activated () {
-      let query = this.$route.query;
-      this.pageType = query.pageType;
-      this.workId = query.workId;
+    created () {
       this[this.currentPageConfig.pageInitMethod]();
     },
     computed: {
@@ -260,6 +258,19 @@
       getReviewBook () {
         timeLimit(() => {
           reviewBook(this.workId).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              let reData = data.data;
+              this.templateList = [...reData.templatePages, ...reData.templateFiles];
+            } else {
+              this.$message.error(data.message);
+            }
+          });
+        });
+      },
+      getBookTemplate () {
+        timeLimit(() => {
+          getBookTemplate(this.workId).then(res => {
             let data = res.data;
             if (data.code == 0) {
               let reData = data.data;

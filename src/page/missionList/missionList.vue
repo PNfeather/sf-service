@@ -87,9 +87,9 @@
         return result;
       }
     },
-    activated () {
-      this.getList();
-    },
+    // activated () {
+    //   this.getList();
+    // },
     methods: {
       getList () {
         if (this.getListTimer) return;

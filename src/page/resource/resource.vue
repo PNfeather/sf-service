@@ -61,9 +61,9 @@
     created () {
       this.getList();
     },
-    activated () {
-      this.getList();
-    },
+    // activated () {
+    //   this.getList();
+    // },
     mounted () {},
     watch: {
     },
