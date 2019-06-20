@@ -38,7 +38,7 @@
           <div class="delete" @click.stop="deleteTemplate(index)">
             <i class="iconfont iconClose"></i>
           </div>
-          <div class="finished">
+          <div class="finished" v-show="item.finished">
             <i class="iconfont iconFinished2"></i>
           </div>
           <img :src="item.url" alt="" @click="goMake(item)">
@@ -143,10 +143,13 @@
         limit: 10,
         currentPage: 1,
         count: 0,
+        resourceMakeStartTitle: '',
+        checkTemplateTitle: '',
+        missionTemplateTitle: query.title,
         pageTypeConfig: {
           missionTemplate: { // missionTemplate作业模板制作页
             backTitle: '返回任务列表',
-            title: query.title + '模板列表',
+            title: 'missionTemplateTitle',
             backMethod: 'backTaskList',
             pageInitMethod: 'getWorkTemplate'
           },
@@ -160,11 +163,13 @@
           },
           resourceMakeStart: { // resourceMakeStart资源模板制作页
             backTitle: '返回资源库',
+            title: 'resourceMakeStartTitle',
             backMethod: 'backResource',
             pageInitMethod: 'getBookTemplate'
           },
           checkTemplate: { // checkTemplate查看模板页
             backTitle: '返回资源库',
+            title: 'checkTemplateTitle',
             backMethod: 'backResource',
             pageInitMethod: 'getReviewBook'
           }
@@ -180,7 +185,7 @@
         return this.pageTypeConfig[this.pageType];
       },
       title () {
-        return this.currentPageConfig.title;
+        return this[this.currentPageConfig.title] + '模板列表';
       },
       backTitle () {
         return this.currentPageConfig.backTitle;
@@ -267,7 +272,8 @@
             let data = res.data;
             if (data.code == 0) {
               let reData = data.data;
-              this.templateList = [...reData.templatePages, ...reData.templateFiles];
+              this.checkTemplateTitle = reData.name;
+              this.templateList = [...reData.templatePages, ...reData.templateImages];
             } else {
               this.$message.error(data.message);
             }
@@ -280,7 +286,11 @@
             let data = res.data;
             if (data.code == 0) {
               let reData = data.data;
-              this.templateList = [...reData.templatePages, ...reData.templateFiles];
+              this.resourceMakeStartTitle = reData.name;
+              this.templateList = [...reData.templatePages.map((item) => {
+                item.finished = true;
+                return item;
+              }), ...reData.templateImages];
             } else {
               this.$message.error(data.message);
             }
@@ -293,7 +303,10 @@
             let data = res.data;
             if (data.code == 0) {
               let reData = data.data;
-              this.templateList = [...reData.templatePages, ...reData.templateImages];
+              this.templateList = [...reData.templatePages.map((item) => {
+                item.finished = true;
+                return item;
+              }), ...reData.templateImages];
             } else {
               this.$message.error(data.message);
             }
