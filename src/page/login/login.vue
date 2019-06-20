@@ -97,7 +97,7 @@
 <style scoped lang="less">
   @import '~@/style/mixin';
   .login_page{
-    background: url("~@IMG/loginBack.png") no-repeat center;
+    background: url("~@IMG/loginBack.jpg") no-repeat center;
     background-size: 100% 100%;
     position: relative;
     .login-wrapper{

@@ -4,7 +4,7 @@
       <titleBack title="返回任务列表"></titleBack>
     </div>
     <div class="detail">
-      <missionContent :workId="workId"></missionContent>
+      <missionContent :workId="workId" v-model="title"></missionContent>
     </div>
     <div class="submitBtn">
       <a-button type="primary" class="submit" @click="goStart">开始制作</a-button>
@@ -20,12 +20,13 @@
     data () {
       let query = this.$route.query;
       return {
-        workId: query.workId
+        workId: query.workId,
+        title: ''
       };
     },
     methods: {
       goStart () {
-        this.$router.push({path: 'taskStart', query: {workId: this.workId, pageType: 'missionTemplate'}});
+        this.$router.push({path: 'taskStart', query: {workId: this.workId, pageType: 'missionTemplate', title: this.title}});
       }
     },
     components: {

@@ -106,6 +106,7 @@
               this.assignTime = format(new Date(reData.assignTime), 'YYYY年MM月DD日 HH:mm');
               this.endTime = format(new Date(reData.endTime), 'YYYY年MM月DD日 HH:mm');
               this.detailName = time + reData.name;
+              this.$emit('input', this.detailName);
               this.imgList = [...reData.attachments.map((item) => {
                 item.url = this.$store.getters.imgBaseUrl + item.url; // todo 待修改或完善  待确认是否需要前端自行补充为完整路径
                 return item;

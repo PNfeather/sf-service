@@ -5,7 +5,7 @@
     </div>
     <div class="template fillcontain">
       <section class="functional">
-        <div class="title" v-show="s1 || s3 || s4 || s5">今日化学作业模板列表</div>
+        <div class="title" v-show="s1 || s3 || s4 || s5" v-text="title"></div>
         <div class="search" v-show="s2">
           <a-input v-model="templateName" class="input" placeholder="请输入资源名称"/>
           <a-button type="primary" @click="searchResource">搜索</a-button>
@@ -115,6 +115,7 @@
 
 <script type='text/babel'>
   import {reviewBook, getBookTemplate} from '@/api/tBook';
+  import {getWorkTemplate} from '@/api/works';
   import timeLimit from '@/tools/timeLimit';
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
@@ -145,7 +146,9 @@
         pageTypeConfig: {
           missionTemplate: { // missionTemplate作业模板制作页
             backTitle: '返回任务列表',
-            backMethod: 'backTaskList'
+            title: query.title + '模板列表',
+            backMethod: 'backTaskList',
+            pageInitMethod: 'getWorkTemplate'
           },
           resourceChoiceList: { // resourceChoiceList图文资源库选择页
             backTitle: '返回模板列表',
@@ -175,6 +178,9 @@
     computed: {
       currentPageConfig () {
         return this.pageTypeConfig[this.pageType];
+      },
+      title () {
+        return this.currentPageConfig.title;
       },
       backTitle () {
         return this.currentPageConfig.backTitle;
@@ -275,6 +281,19 @@
             if (data.code == 0) {
               let reData = data.data;
               this.templateList = [...reData.templatePages, ...reData.templateFiles];
+            } else {
+              this.$message.error(data.message);
+            }
+          });
+        });
+      },
+      getWorkTemplate () {
+        timeLimit(() => {
+          getWorkTemplate(this.workId).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              let reData = data.data;
+              this.templateList = [...reData.templatePages, ...reData.templateImages];
             } else {
               this.$message.error(data.message);
             }
