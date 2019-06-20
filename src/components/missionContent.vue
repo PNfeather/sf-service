@@ -1,15 +1,15 @@
 <template>
   <div name='missionContent'>
     <section class="introduce">
-      <span class="missionName">今日化学作业</span>
-      <span class="teacher">布置教师：某某</span>
-      <span class="startTime">布置时间：0000年00月00日 00：00</span>
-      <span class="endTime">截止时间：0000年00月00日 00：00</span>
+      <span class="missionName">{{detailName}}</span>
+      <span class="teacher">布置教师：{{assignTeacherName}}</span>
+      <span class="startTime">布置时间：{{assignTime}}</span>
+      <span class="endTime">截止时间：{{endTime}}</span>
     </section>
     <transition name="small-scale" mode="in-out">
       <section class="smallImg" v-show="!showBig">
-        <div class="imgItem" v-for="(item, index) in imgList" :key="item">
-          <img src="~@IMG/loginBack.png" alt="" @click="openBig(index)">
+        <div class="imgItem" v-for="(item, index) in imgList" :key="index">
+          <img :src="item.url" alt="" @click="openBig(index)">
         </div>
       </section>
     </transition>
@@ -31,33 +31,20 @@
             style="right: 10px">
             <a-icon type="right" />
           </div>
-          <div class="imgItem" v-for="item in imgList" :key="item">
-            <img src="~@IMG/loginBack.png" alt="">
+          <div class="imgItem" v-for="(item, index) in imgList" :key="index">
+            <img :src="item.url" alt="">
           </div>
         </a-carousel>
       </section>
     </transition>
     <section class="missionDetail">
-      1、指所从事的工作、业务。
-      《管子·轻重丁》：行令半岁，万民闻之，舍其作业，而为囷京以藏菽粟五谷者过半。
-      《史记·高祖本纪》：常有大度，不事家人生产作业。
-      宋司马光《与吴丞相书》：人无贫富，咸失作业。
-      2、劳动；从事生产工作。 或一次操作步骤的完成。
-      汉班固《东观汉记·魏霸传》：为将作大匠，吏皆怀恩，人自竭节作业。
-      郭沫若《创造十年》五：船愈朝前进，水愈见混浊，天空愈见昏朦起来。杨树浦一带的工厂中的作业声，煤烟，汽笛，起重机，香烟广告……中世纪的风景画，一转瞬间便改变成为未来派。
-      3、为完成生产、学习、军事训练等任务而布置的活动。
-      孙犁《秀露集·关于编辑和投稿》：在学校作文，是作业，可以模拟他人。
-      4、谓从事这种活动。例：高空带电作业。
-      5、作孽，造孽。业，罪孽。
-      唐吕岩《绝句》之二五：起来旋点黄金买，不使人间作业钱。
-      宋鲁应龙《闲窗括异志》：汝何作业造罪，货卖假香？
-      《封神演义》第八四回：分明是你自己作业，致生杀伐。 Ώ]
+      {{txtMessage}}
     </section>
-    <section class="voice">
-      <div class="item" :class="{active: audioPlaying}" @click="playAudio">
-        <i class="iconfont iconVoice"></i>{{duration}}s
-        <span style="flex: 1; text-align: right" v-show="currentTime > 0 && (currentTime != duration)">{{currentTime}}s</span>
-        <audio ref="voice" :src="testMp3" preload>
+    <section class="voice" v-for="(item, index) in voiceMessages" :key="index">
+      <div class="item" :class="{active: item.audioPlaying}" @click="playAudio(item, index)">
+        <i class="iconfont iconVoice"></i>{{item.duration}}s
+        <span style="flex: 1; text-align: right" v-show="item.currentTime > 0 && (item.currentTime != item.duration)">{{item.currentTime}}s</span>
+        <audio :ref='`voice${index}`' :src="item.url" preload>
           您的浏览器不支持audio标签
         </audio>
       </div>
@@ -66,6 +53,8 @@
 </template>
 
 <script type='text/babel'>
+  import {workDetail} from '@/api/works';
+  import format from '@/tools/format';
   export default {
     name: 'missionContent',
     props: {
@@ -77,19 +66,76 @@
     },
     data () {
       return {
-        testMp3: require('@/assets/mp3/test.mp3'),
-        duration: 0,
-        audioPlaying: false,
+        detailName: '',
+        assignTeacherName: '',
+        assignTime: '',
+        endTime: '',
+        txtMessage: '',
+        voiceMessages: [],
         showBig: false,
-        currentTime: 0,
-        imgList: new Array(6)
+        imgList: []
       };
+    },
+    created () {
+      this.pageInit();
     },
     activated () {
       this.audioPlaying = false;
       this.currentTime = 0;
+      workDetail(this.workId).then(res => {
+        let data = res.data;
+        if (data.code == 0) {
+          let reData = data.data;
+          reData.voiceMessages = [ // todo 待删除
+            {
+              url: require('@/assets/mp3/test.mp3')
+            }, {
+              url: require('@/assets/mp3/test.mp3')
+            }, {
+              url: require('@/assets/mp3/test.mp3')
+            }
+          ];
+          let time = format(new Date(reData.assignTime), 'MM月DD日');
+          if (time[0] == 0) {
+            time = time.substr(1);
+          }
+          this.txtMessage = reData.txtMessage;
+          this.assignTime = format(new Date(reData.assignTime), 'YYYY年MM月DD日 HH:mm');
+          this.endTime = format(new Date(reData.endTime), 'YYYY年MM月DD日 HH:mm');
+          this.detailName = time + reData.name;
+          this.imgList = [...reData.attachments.map((item) => {
+            item.url = this.$store.getters.imgBaseUrl + item.url; // todo 待修改或完善  待确认是否需要前端自行补充为完整路径
+            return item;
+          })];
+          this.voiceMessages = [...reData.voiceMessages.map((item) => {
+            item.audioPlaying = false;
+            item.duration = 0;
+            item.currentTime = 0;
+            return item;
+          })];
+          this.$nextTick(() => {
+            for (let i = 0; i < this.voiceMessages.length; i++) {
+              let audio = this.$refs['voice' + i][0];
+              audio.addEventListener('timeupdate', () => {
+                this.$set(this.voiceMessages[i], 'currentTime', Math.ceil(audio.currentTime));
+              });
+              audio.addEventListener('loadeddata', () => {
+                this.$set(this.voiceMessages[i], 'duration', Math.ceil(audio.duration));
+              });
+              audio.addEventListener('ended', () => {
+                this.$set(this.voiceMessages[i], 'audioPlaying', false);
+              });
+            }
+          });
+        } else {
+          this.$message.error(data.message);
+        }
+      });
     },
     methods: {
+      pageInit () {
+
+      },
       onChange (index) {
         console.log(index);
       },
@@ -100,40 +146,23 @@
         this.$refs.carousel.goTo(index, true);
         this.showBig = true;
       },
-      playAudio () {
-        let audio = this.$refs.voice;
+      playAudio (item, index) {
+        let audio = this.$refs['voice' + index][0];
         audio.currentTime = 0;
         if (audio.paused) {
-          this.audioPlaying = true;
+          this.$set(item, 'audioPlaying', true);
           audio.play(); // audio.play();// 这个就是播放
         } else {
           this.pause();
         }
       },
       pause () {
-        let audio = this.$refs.voice;
-        this.audioPlaying = false;
-        audio.pause(); // 暂停播放
+        for (let i = 0; i < this.voiceMessages.length; i++) {
+          let audio = this.$refs['voice' + i][0];
+          this.$set(this.voiceMessages[i], 'audioPlaying', false);
+          audio.pause(); // 暂停播放
+        }
       }
-    },
-    watch: {
-      currentTime (val) {
-        console.log(val);
-      }
-    },
-    mounted () {
-      this.$nextTick(() => {
-        let audio = this.$refs.voice;
-        audio.addEventListener('timeupdate', () => {
-          this.currentTime = Math.ceil(audio.currentTime);
-        });
-        audio.addEventListener('loadeddata', () => {
-          this.duration = Math.ceil(audio.duration);
-        });
-        audio.addEventListener('ended', () => {
-          this.audioPlaying = false;
-        });
-      });
     }
   };
 </script>
@@ -142,7 +171,6 @@
   [name = 'missionContent']{
     padding: 30px;
     .introduce{
-      height: 30px;
       line-height: 30px;
       text-align: left;
       .missionName{

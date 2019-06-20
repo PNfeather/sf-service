@@ -23,7 +23,7 @@
       </template>
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
-          <a style="text-decoration: underline" @click="() => handleTask(record.workId)">制作</a>
+          <a style="text-decoration: underline" @click="() => handleTask(record.id)">制作</a>
         </div>
       </template>
     </a-table>
@@ -43,7 +43,7 @@
 </template>
 
 <script type='text/babel'>
-  import {worksList} from '@/api/works';
+  import {worksList, getWork} from '@/api/works';
   import format from '@/tools/format';
   export default {
     name: 'missionList',
@@ -58,7 +58,7 @@
         ],
         tableData: [],
         columns: [
-          {className: 'tablePadding', title: '作业名称', dataIndex: 'name', width: '16.6%'},
+          {className: 'tablePadding', title: '作业名称', dataIndex: 'detailName', width: '16.6%'},
           {className: 'tablePadding', title: '布置教师', dataIndex: 'assignTeacherName', width: '16.7%'},
           {className: 'tablePadding', title: '班级', dataIndex: 'className', width: '21.8%'},
           {className: 'tablePadding', title: '布置时间', dataIndex: 'assignTime', width: '12.9%'},
@@ -114,8 +114,11 @@
               }
               item.assignTime = time;
               item.status = statusObj[item.workStatus];
+              item.detailName = time.split(' ')[0] + item.name;
               return item;
             });
+          } else {
+            this.$message.error(data.message);
           }
         });
         this.getListTimer = setTimeout(() => {
@@ -134,7 +137,14 @@
         this.getList();
       },
       handleTask (workId) {
-        this.$router.push({path: '/missionDetail', query: {workId: workId}});
+        getWork(workId).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            this.$router.push({path: '/missionDetail', query: {workId: workId}});
+          } else {
+            this.$message.error(data.message);
+          }
+        });
       },
       onShowSizeChange (current, pageSize) {
         this.currentPage = current;
