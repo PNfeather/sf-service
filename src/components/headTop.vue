@@ -128,9 +128,15 @@
           if (res) {
             let {newPassword, oldPassword} = res;
             rePwd({newPassword, oldPassword}).then(res => {
-              console.log(res);
+              if (res.data.code == 0) {
+                this.$message.success('密码修改成功，请重新登录');
+                setTimeout(() => {
+                  this.$router.push('/');
+                }, 800);
+              } else {
+                this.$message.error(res.data.message);
+              }
             });
-            // this.visible = false;
           }
         });
       },

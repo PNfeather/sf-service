@@ -1,5 +1,7 @@
 import axios from 'axios';
 import router from '@/router';
+import Vue from 'vue';
+
 // 设置用户类型
 // axios.defaults.headers.common['Clinent-Identify'] = 'H5';
 
@@ -51,6 +53,7 @@ axios.interceptors.request.use(config => {
 axios.interceptors.response.use(response => {
   removePending(response.config); // 在一个ajax响应后再执行一下取消操作，把已经完成的请求从pending中移除
   if (response.data && response.data.code == '401') { // 登录过期自动跳登录
+    Vue.prototype.$message.warn('未登录或登录过期，请登录');
     router.push({path: '/login', query: {autoBack: true}});
   }
   return response;
