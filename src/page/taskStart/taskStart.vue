@@ -114,6 +114,8 @@
 </template>
 
 <script type='text/babel'>
+  import {reviewBook} from '@/api/tBook';
+  import timeLimit from '@/tools/timeLimit';
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
   import getBase64 from '@/tools/getBase64';
@@ -141,25 +143,26 @@
         currentPage: 1,
         count: 0,
         pageTypeConfig: {
-          missionTemplate: {
+          missionTemplate: { // missionTemplate作业模板制作页
             backTitle: '返回任务列表',
             backMethod: 'backTaskList'
           },
-          resourceChoiceList: {
+          resourceChoiceList: { // resourceChoiceList图文资源库选择页
             backTitle: '返回模板列表',
             backMethod: 'goMissionTemplate'
           },
-          templateChoiceList: {
+          templateChoiceList: { // templateChoiceList模板选择页
             backTitle: '返回资源库',
             backMethod: 'goResourceChoiceList'
           },
-          resourceMakeStart: {
+          resourceMakeStart: { // resourceMakeStart资源模板制作页
             backTitle: '返回资源库',
             backMethod: 'backResource'
           },
-          checkTemplate: {
+          checkTemplate: { // checkTemplate查看模板页
             backTitle: '返回资源库',
-            backMethod: 'backResource'
+            backMethod: 'backResource',
+            pageInitMethod: 'getReviewBook'
           }
         },
         showWorkSortNum: false // 排序开关
@@ -169,6 +172,7 @@
       let query = this.$route.query;
       this.pageType = query.pageType;
       this.workId = query.workId;
+      this[this.currentPageConfig.pageInitMethod]();
     },
     computed: {
       currentPageConfig () {
@@ -252,6 +256,19 @@
       },
       goTemplateChoiceList () { // 页面切换到模板选择列表
         this.pageType = 'templateChoiceList';
+      },
+      getReviewBook () {
+        timeLimit(() => {
+          reviewBook(this.workId).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              let reData = data.data;
+              this.templateList = [...reData.templatePages, ...reData.templateFiles];
+            } else {
+              this.$message.error(data.message);
+            }
+          });
+        });
       },
       choiceTemplate (item) {
         let index = this.selectedList.indexOf(item.id);
@@ -473,6 +490,7 @@
           img{
             flex: 1;
             width: 100%;
+            overflow: hidden;
           }
           p{
             flex: 50px 0 0;

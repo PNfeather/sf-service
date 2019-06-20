@@ -15,7 +15,7 @@
       </template>
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
-          <a style="text-decoration: underline" @click="checkResource(record.id)">查看</a>
+          <a style="text-decoration: underline" @click="checkResource(record.id)" v-show="record.bookStatus == 1">查看</a>
           <a style="text-decoration: underline" @click="editResource(record.id)" v-show="record.bookStatus == 0">编辑</a>
         </div>
       </template>

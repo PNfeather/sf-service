@@ -7,6 +7,6 @@ export const getBookTemplate = (bookId) => Http.get('/service/template-books/' +
 // 发布模板书
 export const releaseBook = (bookId) => Http.put('/service/template-books/' + bookId + '/release');
 // 查看模板书
-export const reviewBook = (bookId) => Http.get('/service/template-books/' + bookId + '/release');
+export const reviewBook = (bookId) => Http.get('/service/template-books/' + bookId + '/review');
 // 模板书列表
 export const getBookList = (data) => Http.post('/service/template-books/list', data);
