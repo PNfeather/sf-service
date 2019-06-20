@@ -55,6 +55,7 @@
 <script type='text/babel'>
   import {workDetail} from '@/api/works';
   import format from '@/tools/format';
+  import timeLimit from '@/tools/timeLimit';
   export default {
     name: 'missionContent',
     props: {
@@ -79,62 +80,59 @@
     created () {
       this.pageInit();
     },
-    activated () {
-      this.audioPlaying = false;
-      this.currentTime = 0;
-      workDetail(this.workId).then(res => {
-        let data = res.data;
-        if (data.code == 0) {
-          let reData = data.data;
-          reData.voiceMessages = [ // todo 待删除
-            {
-              url: require('@/assets/mp3/test.mp3')
-            }, {
-              url: require('@/assets/mp3/test.mp3')
-            }, {
-              url: require('@/assets/mp3/test.mp3')
-            }
-          ];
-          let time = format(new Date(reData.assignTime), 'MM月DD日');
-          if (time[0] == 0) {
-            time = time.substr(1);
-          }
-          this.txtMessage = reData.txtMessage;
-          this.assignTime = format(new Date(reData.assignTime), 'YYYY年MM月DD日 HH:mm');
-          this.endTime = format(new Date(reData.endTime), 'YYYY年MM月DD日 HH:mm');
-          this.detailName = time + reData.name;
-          this.imgList = [...reData.attachments.map((item) => {
-            item.url = this.$store.getters.imgBaseUrl + item.url; // todo 待修改或完善  待确认是否需要前端自行补充为完整路径
-            return item;
-          })];
-          this.voiceMessages = [...reData.voiceMessages.map((item) => {
-            item.audioPlaying = false;
-            item.duration = 0;
-            item.currentTime = 0;
-            return item;
-          })];
-          this.$nextTick(() => {
-            for (let i = 0; i < this.voiceMessages.length; i++) {
-              let audio = this.$refs['voice' + i][0];
-              audio.addEventListener('timeupdate', () => {
-                this.$set(this.voiceMessages[i], 'currentTime', Math.ceil(audio.currentTime));
-              });
-              audio.addEventListener('loadeddata', () => {
-                this.$set(this.voiceMessages[i], 'duration', Math.ceil(audio.duration));
-              });
-              audio.addEventListener('ended', () => {
-                this.$set(this.voiceMessages[i], 'audioPlaying', false);
-              });
-            }
-          });
-        } else {
-          this.$message.error(data.message);
-        }
-      });
-    },
     methods: {
       pageInit () {
-
+        timeLimit(() => {
+          this.audioPlaying = false;
+          this.currentTime = 0;
+          workDetail(this.workId).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              let reData = data.data;
+              reData.voiceMessages = [ // todo 待删除
+                {
+                  url: require('@/assets/mp3/test.mp3')
+                }, {
+                  url: require('@/assets/mp3/test.mp3')
+                }, {
+                  url: require('@/assets/mp3/test.mp3')
+                }
+              ];
+              let time = format(new Date(reData.assignTime), 'MM月DD日');
+              if (time[0] == 0) {
+                time = time.substr(1);
+              }
+              this.txtMessage = reData.txtMessage;
+              this.assignTime = format(new Date(reData.assignTime), 'YYYY年MM月DD日 HH:mm');
+              this.endTime = format(new Date(reData.endTime), 'YYYY年MM月DD日 HH:mm');
+              this.detailName = time + reData.name;
+              this.imgList = [...reData.attachments.map((item) => {
+                item.url = this.$store.getters.imgBaseUrl + item.url; // todo 待修改或完善  待确认是否需要前端自行补充为完整路径
+                return item;
+              })];
+              this.voiceMessages = [...reData.voiceMessages.map((item) => {
+                item.audioPlaying = false;
+                return item;
+              })];
+              this.$nextTick(() => {
+                for (let i = 0; i < this.voiceMessages.length; i++) {
+                  let audio = this.$refs['voice' + i][0];
+                  audio.addEventListener('timeupdate', () => {
+                    this.$set(this.voiceMessages[i], 'currentTime', Math.ceil(audio.currentTime));
+                  });
+                  audio.addEventListener('loadeddata', () => {
+                    this.$set(this.voiceMessages[i], 'duration', Math.ceil(audio.duration));
+                  });
+                  audio.addEventListener('ended', () => {
+                    this.$set(this.voiceMessages[i], 'audioPlaying', false);
+                  });
+                }
+              });
+            } else {
+              this.$message.error(data.message);
+            }
+          });
+        });
       },
       onChange (index) {
         console.log(index);
