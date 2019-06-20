@@ -200,12 +200,8 @@
       'templateList.length' () {
         this.templateList.forEach((item, index) => {
           item.workSortNum = index + 1;
-          item.serialNumber = index + 1; // todo 待删除
         });
       }
-    },
-    mounted () {
-      this.templateList = JSON.parse(window.localStorage.getItem('templateList')) || []; // todo 待删除
     },
     methods: {
       openSort () {
@@ -288,7 +284,6 @@
           this.templateList.push({
             url: imageUrl
           });
-          window.localStorage.setItem('templateList', JSON.stringify(this.templateList)); // todo 待删除
         });
         return false;
       },

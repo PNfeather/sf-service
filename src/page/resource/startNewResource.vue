@@ -34,6 +34,8 @@
 </template>
 
 <script type='text/babel'>
+  import {createBook} from '@/api/tBook';
+  import {fileUpload} from '@/api/fileUpload';
   import titleBack from '@C/titleBack';
   import getBase64 from '@/tools/getBase64';
   export default {
@@ -41,7 +43,8 @@
     data () {
       return {
         templateName: '',
-        coverImg: ''
+        coverImg: '',
+        file: null
       };
     },
     created () {},
@@ -54,6 +57,7 @@
     watch: {},
     methods: {
       beforeUpload (info) { // 只导入
+        this.file = info;
         getBase64(info, (imageUrl) => {
           this.coverImg = imageUrl;
         });
@@ -63,7 +67,22 @@
         this.coverImg = '';
       },
       startUpload () {
-        this.$router.push({path: 'taskStart', query: {pageType: 'resourceMakeStart'}});
+        fileUpload({'file': this.file}).then(res => {
+          if (res.data.code == 0) {
+            createBook({
+              coverUrl: res.data.data.url,
+              name: this.templateName
+            }).then(resIn => {
+              if (resIn.data.code == 0) {
+                this.$router.push({path: 'taskStart', query: {pageType: 'resourceMakeStart'}});
+              } else {
+                this.$message.error(resIn.data.message);
+              }
+            });
+          } else {
+            this.$message.error(res.data.message);
+          }
+        });
       }
     },
     components: {
