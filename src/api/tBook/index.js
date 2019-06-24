@@ -10,3 +10,5 @@ export const releaseBook = (bookId) => Http.put('/service/template-books/' + boo
 export const reviewBook = (bookId) => Http.get('/service/template-books/' + bookId + '/review');
 // 模板书列表
 export const getBookList = (data) => Http.post('/service/template-books/list', data);
+// 更新模板页序号
+export const upadataTemplateSerialNum = (bookId, param) => Http.put('/service/template-books' + bookId + '/serial-number', param);

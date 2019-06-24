@@ -123,8 +123,7 @@
         drawFrameInitialIdentify: 1
       };
     },
-    created () {
-    },
+    created () {},
     beforeRouteLeave (to, from, next) { // 路由离开前清空选中List
       this.$store.dispatch('changeCheckedQuestionList', []);
       next();

@@ -40,28 +40,36 @@
           <div class="finished" v-show="item.finished">
             <i class="iconfont iconFinished2"></i>
           </div>
-          <img :src="item.url" alt="" @click="goMake(item)">
+          <div class="img">
+            <img :src="item.url" alt="" @click="goMake(item)">
+          </div>
           <p v-show="!showWorkSortNum"><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
-          <p v-show="showWorkSortNum"><span>序号:<a-input
-            :value="item.workSortNum"
+          <p v-show="showWorkSortNum && item.finished"><span>序号:<a-input
+            :value="item.serialNumber"
             style="width: 60px;margin-left: 5px;text-align: center;"
             @change="inputChangeScore(item, index, $event)"
             @blur="onBlur(item, index, $event)"
           /></span></p>
         </div>
         <div class="item" v-for="(item, index) in resourceList" :key="index" @click="goTemplateChoiceList(item)" v-if="s2">
-          <img src="~@IMG/default.jpg" alt="">
+          <div class="img">
+            <img src="~@IMG/default.jpg" alt="">
+          </div>
           <p><span>sdfsdfsdf</span></p>
         </div>
         <div class="item" v-for="(item, index) in templateChoiceList" :key="index" @click="choiceTemplate(item)" v-if="s3">
           <div class="choiceIcon">
             <i class="iconfont iconFinished" :class="{'selected': selectedList.includes(item.id)}"></i>
           </div>
-          <img src="~@IMG/default.jpg" alt="">
+          <div class="img">
+            <img src="~@IMG/default.jpg" alt="">
+          </div>
           <p><span>第{{index + 1}}页</span></p>
         </div>
         <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s5">
-          <img :src="item.url" alt="">
+          <div class="img">
+            <img :src="item.url" alt="">
+          </div>
           <p><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
         </div>
       </section>
@@ -215,11 +223,6 @@
       }
     },
     watch: {
-      'templateList.length' () {
-        this.templateList.forEach((item, index) => {
-          item.workSortNum = index + 1;
-        });
-      },
       'imagePopupList.length' (val, oldVal) {
         (val > oldVal) && this.popupUpload();
       },
@@ -255,25 +258,15 @@
         const { value } = e.target;
         const reg = /^(0|[1-9][0-9]*)$/;
         if ((!isNaN(value) && reg.test(value)) || value === '') {
-          item.workSortNum = value;
+          item.serialNumber = value;
           this.templateList.splice(index, 1, item);
         }
       },
       onBlur (item, index, e) {
-        if (index + 1 != item.workSortNum) {
+        if (item.currentSerialNumber != item.serialNumber) {
           const { value } = e.target;
-          let tem = {...item};
-          let max = this.templateList.length;
-          if (value === '') {
-            tem.workSortNum = 1;
-          } else if (value - 0 > max) {
-            tem.workSortNum = max;
-          }
-          this.templateList.splice(index, 1);
-          this.templateList.splice(tem.workSortNum - 1, 0, tem);
-          this.templateList.forEach((item, cIndex) => {
-            this.$set(item, 'workSortNum', cIndex + 1);
-          });
+          // todo 待修改或完善  对接重排序接口
+          console.log(value);
         }
       },
       closeMissionContent () {
@@ -612,10 +605,11 @@
               color: #E46948;
             }
           }
-          img{
-            flex: 1;
-            width: 100%;
-            overflow: hidden;
+          .img{
+            flex: 224px 0 0;
+            img{
+              .wh(100%, 100%);
+            }
           }
           p{
             flex: 50px 0 0;
