@@ -81,7 +81,11 @@
     data () {
       let query = this.$route.query;
       return {
-        workId: query.workId,
+        // workId: query.workId,
+        // templateImageId: query.templateImageId,
+        // templateId: query.templateId,
+        // pageType: query.pageType,
+        query: query,
         funBtnList: [
           {
             icon: 'iconMerge',
@@ -261,11 +265,11 @@
         if (this.questionList.length) {
           this.backModal = true;
         } else {
-          this.$router.replace({path: 'imgAdjust', query: {workId: this.workId}});
+          this.sureBack();
         }
       },
       sureBack () {
-        this.$router.replace({path: 'imgAdjust', query: {workId: this.workId}});
+        this.$router.replace({path: 'imgAdjust', query: this.query});
       },
       submit () {
         let questionSigns = [];

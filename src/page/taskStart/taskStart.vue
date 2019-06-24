@@ -424,7 +424,12 @@
       },
       goMake (item) {
         this.$store.dispatch('passChooseImg', JSON.stringify(item));
-        this.$router.push({path: 'imgAdjust', query: {workId: this.workId}});
+        if (!item.importStatus) { // 不是资源库导入
+          let query = {templateImageId: item.id, finished: item.finished}; // 模板图片ID， 是否已完成表示（却别最后是保存还是更新）
+          this.s1 && Object.assign(query, {workId: this.workId, pageType: 'missionTemplate'}); // 作业进来传作业ID
+          this.s4 && Object.assign(query, {templateBookId: item.templateBookId, pageType: 'resourceMakeStart'}); // 资源进来传模板书ID
+          this.$router.push({path: 'imgAdjust', query: query});
+        }
       },
       deleteTemplate (item, index) {
         deleteTemplatePage({id: item.id}).then(res => {

@@ -25,7 +25,11 @@
     data () {
       let query = this.$route.query;
       return {
-        workId: query.workId,
+        query: query,
+        // workId: query.workId,
+        // templateId: query.templateId,
+        // templateImageId: query.templateImageId,
+        // pageType: query.pageType,
         attribute: {
           width: 0,
           height: 0,
@@ -45,23 +49,11 @@
       }
     },
     methods: {
-      // getBase64Image (img) {
-      //   console.log(img);
-      //   let canvas = document.createElement('canvas');
-      //   canvas.width = img.width;
-      //   canvas.height = img.height;
-      //   let ctx = canvas.getContext('2d');
-      //   ctx.drawImage(img, 0, 0, img.width, img.height);
-      //   let ext = img.src.substring(img.src.lastIndexOf('.') + 1).toLowerCase();
-      //   let dataURL = canvas.toDataURL('image/' + ext);
-      //   return dataURL;
-      // },
       getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
         let img = document.createElement('img');
         img.src = this.currentChooseImg.url;
-        // img.setAttribute('crossOrigin', 'Anonymous'); // todo 待修改或完善 需要后端添加图片跨域请求
+        img.setAttribute('crossOrigin', 'Anonymous');
         img.onload = () => {
-          // console.log(this.getBase64Image(img)); // todo 待修改或完善 可跨域请求后才可使用
           let wrapper = this.$refs.imgWrapper;
           let imgWHPer = img.width / img.height;
           let wwNum = parseFloat(getCss(wrapper, 'width'));
@@ -101,7 +93,7 @@
             let saveUrl = canvas.toDataURL('image/png');
             let c = Object.assign({}, this.currentChooseImg, {url: saveUrl});
             this.$store.dispatch('passTemplate', JSON.stringify(c));
-            this.$router.replace({path: 'frameTemplate', query: {workId: this.workId}});
+            this.$router.replace({path: 'frameTemplate', query: this.query});
             // 点击生成图片并自动下载方法：
             // let a = document.createElement('a');
             // document.body.appendChild(a);

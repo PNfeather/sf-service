@@ -56,7 +56,6 @@
       },
       moveDivList: {
         handler (val) {
-          console.log(val);
           if (!val.length) return;
           this.$emit('input', val);
           val.forEach((item) => {
@@ -126,7 +125,7 @@
         if (this.createToggle) {
           this.createToggle = false;
           this.changeMoveDivComputed($event);
-          if (this.currentAttribute.width <= 20 || this.currentAttribute.height <= 20) {
+          if (this.currentAttribute.width <= 10 || this.currentAttribute.height <= 5) {
             if (this.warnTimer) return;
             this.$message.warn('无法框定过小区域');
             this.warnTimer = setTimeout(() => {
