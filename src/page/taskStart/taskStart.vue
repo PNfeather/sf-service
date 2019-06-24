@@ -53,18 +53,21 @@
         </div>
         <div class="item" v-for="(item, index) in resourceList" :key="index" @click="goTemplateChoiceList(item)" v-if="s2">
           <div class="img">
-            <img src="~@IMG/default.jpg" alt="">
+            <img :src='`${$CJIMGURL + item.coverUrl}`' alt="">
           </div>
-          <p><span>sdfsdfsdf</span></p>
+          <p><span>{{item.name}}</span></p>
         </div>
         <div class="item" v-for="(item, index) in templateChoiceList" :key="index" @click="choiceTemplate(item)" v-if="s3">
           <div class="choiceIcon">
             <i class="iconfont iconFinished" :class="{'selected': selectedList.includes(item.id)}"></i>
           </div>
-          <div class="img">
-            <img src="~@IMG/default.jpg" alt="">
+          <div class="finished">
+            <i class="iconfont iconFinished2"></i>
           </div>
-          <p><span>第{{index + 1}}页</span></p>
+          <div class="img">
+            <img :src="item.url" alt="">
+          </div>
+          <p><span>第{{item.serialNumber}}页</span></p>
         </div>
         <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s5">
           <div class="img">
@@ -120,7 +123,7 @@
 </template>
 
 <script type='text/babel'>
-  import {reviewBook, getBookTemplate, releaseBook} from '@/api/tBook';
+  import {reviewBook, getBookTemplate, releaseBook, getBookList} from '@/api/tBook';
   import {deleteTemplatePage} from '@/api/tPage';
   import {uploadImgTemplate} from '@/api/uploadImgTemplate';
   import {getWorkTemplate, putWork} from '@/api/works';
@@ -134,6 +137,7 @@
     data () {
       let query = this.$route.query;
       return {
+        imgUrlPre: this.$CJIMGURL,
         pageType: query.pageType || 'missionTemplate', // missionTemplate作业模板制作页，resourceChoiceList图文资源库选择页，templateChoiceList模板选择页，resourceMakeStart资源模板制作页,checkTemplate查看模板页
         startUploadToggle: false,
         uploadModal: false,
@@ -142,12 +146,13 @@
         submitToggle: false,
         workId: query.workId,
         visible: false,
+        currentBook: null,
         templateList: [], // 模板列表
-        resourceList: new Array(20), // 资源列表
+        resourceList: [], // 资源列表
         selectedList: [], // 已选择模板数组
         templateName: '',
         pageSizeOptions: ['5', '10', '20', '30', '40', '50'],
-        templateChoiceList: [{id: 1}, {id: 2}, {id: 3}, {id: 4}], // 模板选择列表
+        templateChoiceList: [], // 模板选择列表
         skip: 0,
         limit: 10,
         currentPage: 1,
@@ -164,11 +169,14 @@
           },
           resourceChoiceList: { // resourceChoiceList图文资源库选择页
             backTitle: '返回模板列表',
-            backMethod: 'goMissionTemplate'
+            backMethod: 'goMissionTemplate',
+            pageInitMethod: 'getSourceList'
           },
           templateChoiceList: { // templateChoiceList模板选择页
             backTitle: '返回资源库',
-            backMethod: 'goResourceChoiceList'
+            title: 'currentBookTitle',
+            backMethod: 'goResourceChoiceList',
+            pageInitMethod: 'getTemplatePage'
           },
           resourceMakeStart: { // resourceMakeStart资源模板制作页
             backTitle: '返回资源库',
@@ -190,7 +198,7 @@
       };
     },
     created () {
-      this[this.currentPageConfig.pageInitMethod]();
+      timeLimit(this[this.currentPageConfig.pageInitMethod]);
     },
     computed: {
       currentPageConfig () {
@@ -198,6 +206,9 @@
       },
       title () {
         return this[this.currentPageConfig.title] + '模板列表';
+      },
+      currentBookTitle () {
+        return this.currentBook.name;
       },
       backTitle () {
         return this.currentPageConfig.backTitle;
@@ -231,9 +242,15 @@
             this.uploadImgTemplate();
           }
         }
+      },
+      pageType () {
+        timeLimit(this[this.currentPageConfig.pageInitMethod]);
       }
     },
     methods: {
+      clearArr (arr) { // 不改变数组指正清空数组
+        arr.splice(0, arr.length);
+      },
       uploadImgTemplate () { // 从导入图片成为模板
         let params = {
           'templateFiles': [...this.imageUploadList]
@@ -286,7 +303,8 @@
       goResourceChoiceList () { // 页面切换到资源列表
         this.pageType = 'resourceChoiceList';
       },
-      goTemplateChoiceList () { // 页面切换到模板选择列表
+      goTemplateChoiceList (item) { // 页面切换到模板选择列表
+        this.currentBook = item;
         this.pageType = 'templateChoiceList';
       },
       getReviewBook () {
@@ -296,6 +314,7 @@
             if (data.code == 0) {
               let reData = data.data;
               this.checkTemplateTitle = reData.name;
+              this.clearArr(this.templateList);
               this.templateList = [...reData.templatePages, ...reData.templateImages];
             } else {
               this.$message.error(data.message);
@@ -310,6 +329,7 @@
             if (data.code == 0) {
               let reData = data.data;
               this.resourceMakeStartTitle = reData.name;
+              this.clearArr(this.templateList);
               this.templateList = [...reData.templatePages.map((item) => {
                 item.finished = true;
                 return item;
@@ -326,6 +346,7 @@
             let data = res.data;
             if (data.code == 0) {
               let reData = data.data;
+              this.clearArr(this.templateList);
               this.templateList = [...reData.templatePages.map((item) => {
                 item.finished = true;
                 return item;
@@ -334,6 +355,33 @@
               this.$message.error(data.message);
             }
           });
+        });
+      },
+      getSourceList () {
+        // todo 待修改或完善  未筛选出已发布，总数无法拿到，会影响分页加载
+        getBookList({}).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            let reData = data.data;
+            this.clearArr(this.resourceList);
+            this.resourceList.push(...reData.filter((o) => {
+              return (o.bookStatus == 1);
+            }));
+          } else {
+            this.$message.error(data.message);
+          }
+        });
+      },
+      getTemplatePage () {
+        reviewBook(this.currentBook.id).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            let reData = data.data;
+            this.clearArr(this.templateChoiceList);
+            this.templateChoiceList.push(...reData.templatePages);
+          } else {
+            this.$message.error(data.message);
+          }
         });
       },
       choiceTemplate (item) {
@@ -590,6 +638,19 @@
           border-radius: 4px;
           overflow: hidden;
           position: relative;
+          .selected{
+            color: #1690FF;
+          }
+          .choiceIcon{
+            .wh(40px, 40px);
+            position: absolute;
+            right: 0;
+            top: 0;
+            .fac();
+            i{
+              font-size: 26px;
+            }
+          }
           .finished{
             position: absolute;
             top: 0;
