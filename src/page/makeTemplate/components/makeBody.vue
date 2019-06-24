@@ -12,7 +12,7 @@
         </div>
         <div class="btnGroup">
           <a-button v-show="isStepOne" class="btn" type="primary" @click="nextStep">下一步</a-button>
-          <a-button v-show="!isStepOne" class="btn" @click="lastStep">上一步</a-button>
+          <a-button v-show="!isStepOne && showLastBtn" class="btn" @click="lastStep">上一步</a-button>
           <a-button v-show="!isStepOne" class="btn" type="primary" @click="finish">完成</a-button>
         </div>
       </div>
@@ -30,6 +30,10 @@
       isStepOne: {
         type: Boolean,
         default: true
+      },
+      showLastBtn: {
+        type: Boolean,
+        default: false
       }
     },
     data () {

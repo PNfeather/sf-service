@@ -3,7 +3,7 @@
       <moveDiv v-show="currentAttribute.width && currentAttribute.height" :attribute="currentAttribute" :checked="true" :canChange="false"></moveDiv>
       <moveDiv
         v-for="item in moveDivList"
-        :key="item.id"
+        :key="item.identify"
         :attribute="item.attribute"
         :originalItem="item"
         :checked="activeMoveDivSort.includes(item.serialNumber)"
@@ -13,6 +13,7 @@
 </template>
 
 <script type='text/babel'>
+  import {getTemplatePage} from '@/api/tPage';
   import moveDiv from './moveDiv.vue';
   import _ from '@/plugins/lodash';
   export default {
@@ -26,7 +27,7 @@
     data () {
       return {
         moveDivList: [], // moveDiv数据list
-        id: 1, // moveDiv 唯一id
+        identify: 1, // moveDiv 唯一辨识码
         serialNumber: 1, // 对应序号，可合并用
         createToggle: false, // 创建开关
         captureToggle: true,
@@ -81,32 +82,45 @@
       },
       questionScoreCatch () {
         return this.$store.getters.questionScoreCatch;
-      },
-      currentEditTemplate () {
-        return JSON.parse(this.$store.getters.currentEditTemplate);
       }
     },
     mounted () { // 进来已有模板情况加载模板数据
-      let arr = this.currentEditTemplate.questionSigns;
-      let ft = this.$refs.bg.getBoundingClientRect().top;
-      let fl = this.$refs.bg.getBoundingClientRect().left;
-      if (arr && arr.length) {
-        arr.forEach((item) => {
-          let {serialNumber, score} = item;
-          let {width, height, top, left} = item;
-          let cell = {serialNumber, score};
-          cell.attribute = {width, height, top, left};
-          cell.attribute.startX = fl + item.left;
-          cell.attribute.startY = ft + item.top; // 拱捕获使用
-          cell.id = this.id;
-          this.id++;
-          (item.serialNumber > this.serialNumber) && (this.serialNumber = item.serialNumber);
-          this.moveDivList.push(cell);
-        });
-        this.serialNumber++; // 循环玩当序号排列为已存在的最大序号加1，id一次排过来
-      }
+      this.pageInit();
     },
     methods: {
+      pageInit () {
+        let templatePageId = this.$route.query.templatePageId;
+        if (templatePageId) {
+          getTemplatePage({id: templatePageId}).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              let reData = data.data;
+              let arr = reData.questionSigns;
+              let ft = this.$refs.bg.getBoundingClientRect().top;
+              let fl = this.$refs.bg.getBoundingClientRect().left;
+              if (arr && arr.length) {
+                arr.forEach((item) => {
+                  item.left = item.leftPoint;
+                  item.top = item.topPoint;
+                  let {serialNumber, score} = item;
+                  let {width, height, top, left} = item;
+                  let cell = {serialNumber, score};
+                  cell.attribute = {width, height, top, left};
+                  cell.attribute.startX = fl + item.left;
+                  cell.attribute.startY = ft + item.top; // 拱捕获使用
+                  cell.identify = this.identify;
+                  this.identify++;
+                  (item.serialNumber > this.serialNumber) && (this.serialNumber = item.serialNumber);
+                  this.moveDivList.push(cell);
+                });
+                this.serialNumber++; // 循环玩当序号排列为已存在的最大序号加1，id一次排过来
+              }
+            } else {
+              this.$message.error(data.message);
+            }
+          });
+        }
+      },
       checkCapture (type, currentData) { // 捕获计算
         let result = currentData;
         let limit = 10;
@@ -134,11 +148,11 @@
             return (this.currentAttribute = {}); // 消除临时moveDiv;
           }
           this.moveDivList.push({
-            id: this.id,
+            identify: this.identify,
             serialNumber: this.serialNumber,
             attribute: {...this.currentAttribute}
           });
-          this.id++;
+          this.identify++;
           this.serialNumber++;
           this.currentAttribute = {}; // 消除临时moveDiv
         }
@@ -154,7 +168,7 @@
       },
       reChangeMoveDiv (obj) {
         this.moveDivList.forEach((item, index) => {
-          if (item.id === obj.id) {
+          if (item.identify === obj.identify) {
             this.moveDivList.splice(index, 1, obj);
           }
         });

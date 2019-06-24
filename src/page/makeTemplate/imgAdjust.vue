@@ -26,10 +26,6 @@
       let query = this.$route.query;
       return {
         query: query,
-        // workId: query.workId,
-        // templateId: query.templateId,
-        // templateImageId: query.templateImageId,
-        // pageType: query.pageType,
         attribute: {
           width: 0,
           height: 0,

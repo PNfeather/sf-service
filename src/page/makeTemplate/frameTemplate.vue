@@ -1,7 +1,7 @@
 <template>
   <div name='frameTemplate' class="fillcontain">
     <headTop></headTop>
-    <makeBody :isStepOne="false" @last="lastStep" @finish="openSurePageModal">
+    <makeBody :isStepOne="false" @last="lastStep" @finish="openSurePageModal" :showLastBtn="!query.templatePageId">
       <div class="fillcontain" style="overflow: auto">
         <div class="frameTemplateWrapper">
           <section class="funBtnGroup">
@@ -15,7 +15,7 @@
             <img :src="currentEditTemplate.url" class="fillcontain" alt="">
           </section>
           <section class="tableArea frameTemplateTable">
-            <a-table :columns="columns" :dataSource="questionList" rowKey="id" :pagination="false" bordered :rowClassName="rowClassName">
+            <a-table :columns="columns" :dataSource="questionList" rowKey="identify" :pagination="false" bordered :rowClassName="rowClassName">
               <template slot="serialNumber" slot-scope="text, record, index">
                 <div class='editable-row-operations sort' @click="checkQuestion(record.serialNumber)">
                   {{record.serialNumber}}、
@@ -74,6 +74,7 @@
 </template>
 
 <script type='text/babel'>
+  import {saveTemplatePage, updateTemplatePage} from '@/api/tPage';
   import makeBody from './components/makeBody';
   import drawFrame from './components/drawFrame';
   export default {
@@ -81,10 +82,6 @@
     data () {
       let query = this.$route.query;
       return {
-        // workId: query.workId,
-        // templateImageId: query.templateImageId,
-        // templateId: query.templateId,
-        // pageType: query.pageType,
         query: query,
         funBtnList: [
           {
@@ -122,7 +119,8 @@
         visible: false,
         backModal: false,
         templatePageNumber: '',
-        isMultipleChoice: false // 复选开关
+        isMultipleChoice: false, // 复选开关
+        drawFrameInitialIdentify: 1
       };
     },
     created () {
@@ -175,8 +173,8 @@
             };
             let atr = item.attribute;
             let {height, left, top, width} = atr;
-            let {id, serialNumber, mergeHeader, mergeBody} = item;
-            questionListCell = {...questionListCell, ...{height, left, top, width}, ...{id, serialNumber, mergeHeader, mergeBody}};
+            let {identify, serialNumber, mergeHeader, mergeBody} = item;
+            questionListCell = {...questionListCell, ...{height, left, top, width}, ...{identify, serialNumber, mergeHeader, mergeBody}};
             this.checkedQuestionList.includes(questionListCell.serialNumber) && (this.$set(questionListCell, 'checked', true));
             this.$set(questionListCell, 'showSign', questionList.every(item => { return (item.serialNumber !== questionListCell.serialNumber); })); // 重复序号只添加一次题目,其他隐藏
             questionList.push(questionListCell);
@@ -271,6 +269,34 @@
       sureBack () {
         this.$router.replace({path: 'imgAdjust', query: this.query});
       },
+      updataTemplate (params) {
+        let data = {id: this.query.templatePageId, ...params};
+        updateTemplatePage(data).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            let reData = data.data;
+            console.log(reData);
+          } else {
+            this.$message.error(data.message);
+          }
+        });
+      },
+      saveTemplate (params) {
+        let pageType = this.query.pageType;
+        let {templateImageId, templateBookId, workId} = this.query;
+        let data = {'serialNumber': this.templatePageNumber, ...{templateImageId}, ...params};
+        pageType == 'missionTemplate' && Object.assign(data, {workId});
+        pageType == 'resourceMakeStart' && Object.assign(data, {templateBookId});
+        saveTemplatePage(data).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            this.$message.success('模板已保存');
+            this.$router.go(-1);
+          } else {
+            this.$message.error(data.message);
+          }
+        });
+      },
       submit () {
         let questionSigns = [];
         let mergeObj = {};
@@ -281,15 +307,10 @@
           questionSigns.push({height, left, score, serialNumber, top, width});
         });
         let params = {
-          'height': this.templateH,
-          'questionSigns': [...questionSigns],
-          'serialNumber': this.templatePageNumber,
-          'templateBookId': 0,
-          'url': this.currentEditTemplate.url,
-          'width': this.templateW,
-          'workId': this.workId
+          'questionSigns': [...questionSigns]
         };
-        console.log(JSON.stringify(params));
+        this.query.templatePageId && this.updataTemplate(params);
+        !this.query.templatePageId && this.saveTemplate(params);
       }
     },
     components: {

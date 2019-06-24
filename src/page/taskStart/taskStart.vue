@@ -423,12 +423,23 @@
         }))).length;
       },
       goMake (item) {
-        this.$store.dispatch('passChooseImg', JSON.stringify(item));
         if (!item.importStatus) { // 不是资源库导入
-          let query = {templateImageId: item.id, finished: item.finished}; // 模板图片ID， 是否已完成表示（却别最后是保存还是更新）
-          this.s1 && Object.assign(query, {workId: this.workId, pageType: 'missionTemplate'}); // 作业进来传作业ID
-          this.s4 && Object.assign(query, {templateBookId: item.templateBookId, pageType: 'resourceMakeStart'}); // 资源进来传模板书ID
-          this.$router.push({path: 'imgAdjust', query: query});
+          let query;
+          if (item.finished) { // 已完成模板
+            this.$store.dispatch('passTemplate', JSON.stringify(item));
+            query = {templatePageId: item.id}; // 模板页ID（存在则在模板制作时需要初始渲染，最后是更新）
+            this.$router.push({path: 'frameTemplate', query: query});
+          } else { // 导入图片模板
+            this.$store.dispatch('passChooseImg', JSON.stringify(item));
+            query = {templateImageId: item.id}; // 模板图片ID
+            this.s1 && Object.assign(query, {workId: this.workId, pageType: 'missionTemplate'}); // 作业进来传作业ID
+            this.s4 && Object.assign(query, {templateBookId: item.templateBookId, pageType: 'resourceMakeStart'}); // 资源进来传模板书ID
+            this.$router.push({path: 'imgAdjust', query: query});
+          }
+        } else {
+          timeLimit(() => {
+            this.$message.warn('资源库导入模板不可编辑');
+          }, 1800);
         }
       },
       deleteTemplate (item, index) {
