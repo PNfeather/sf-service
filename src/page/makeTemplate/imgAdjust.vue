@@ -45,22 +45,23 @@
       }
     },
     methods: {
-      getBase64Image (img) {
-        let canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        let ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, img.width, img.height);
-        let ext = img.src.substring(img.src.lastIndexOf('.') + 1).toLowerCase();
-        let dataURL = canvas.toDataURL('image/' + ext);
-        return dataURL;
-      },
+      // getBase64Image (img) {
+      //   console.log(img);
+      //   let canvas = document.createElement('canvas');
+      //   canvas.width = img.width;
+      //   canvas.height = img.height;
+      //   let ctx = canvas.getContext('2d');
+      //   ctx.drawImage(img, 0, 0, img.width, img.height);
+      //   let ext = img.src.substring(img.src.lastIndexOf('.') + 1).toLowerCase();
+      //   let dataURL = canvas.toDataURL('image/' + ext);
+      //   return dataURL;
+      // },
       getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
         let img = document.createElement('img');
         img.src = this.currentChooseImg.url;
-        img.setAttribute('crossOrigin', 'Anonymous'); // todo 待修改或完善 需要后端添加图片跨域请求
+        // img.setAttribute('crossOrigin', 'Anonymous'); // todo 待修改或完善 需要后端添加图片跨域请求
         img.onload = () => {
-          console.log(this.getBase64Image(img)); // todo 待修改或完善 可跨域请求后才可使用
+          // console.log(this.getBase64Image(img)); // todo 待修改或完善 可跨域请求后才可使用
           let wrapper = this.$refs.imgWrapper;
           let imgWHPer = img.width / img.height;
           let wwNum = parseFloat(getCss(wrapper, 'width'));
@@ -94,7 +95,7 @@
         this.loadingModal = true;
         this.startCreate = true;
         this.$nextTick(() => {
-          html2canvas(this.$refs.imgWrapper).then(canvas => {
+          html2canvas(this.$refs.imgWrapper, {useCORS: true}).then(canvas => {
             this.startCreate = false;
             this.loadingModal = false;
             let saveUrl = canvas.toDataURL('image/png');
