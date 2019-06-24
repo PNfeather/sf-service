@@ -59,8 +59,8 @@
         tableData: [],
         columns: [
           {className: 'tablePadding', title: '作业名称', dataIndex: 'detailName', width: '16.6%'},
-          {className: 'tablePadding', title: '布置教师', dataIndex: 'assignTeacherName', width: '16.7%'},
-          {className: 'tablePadding', title: '班级', dataIndex: 'className', width: '21.8%'},
+          {className: 'tablePadding', title: '布置教师', dataIndex: 'teacher', width: '16.7%'},
+          {className: 'tablePadding', title: '班级', dataIndex: 'detailClassName', width: '21.8%'},
           {className: 'tablePadding', title: '布置时间', dataIndex: 'assignTime', width: '12.9%'},
           {className: 'tablePadding', title: '状态', dataIndex: 'status', width: '10%'},
           {className: 'tablePadding', title: '操作客服', dataIndex: 'serviceName', width: '10%'},
@@ -113,6 +113,8 @@
               item.assignTime = time;
               item.status = statusObj[item.workStatus];
               item.detailName = time.split(' ')[0] + item.name;
+              item.detailClassName = item.schoolName + item.className;
+              item.teacher = item.assignTeacherName + (item.assignTeacherMobile ? '(' + item.assignTeacherMobile + ')' : '');
               return item;
             });
           } else {
