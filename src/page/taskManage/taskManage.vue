@@ -49,9 +49,9 @@
         service: '',
         tableData: [],
         columns: [
-          {className: 'tablePadding', title: '作业名称', dataIndex: 'name', width: '18.7%'},
-          {className: 'tablePadding', title: '布置教师', dataIndex: 'assignTeacherName', width: '19%'},
-          {className: 'tablePadding', title: '班级', dataIndex: 'className', width: '23.5%'},
+          {className: 'tablePadding', title: '作业名称', dataIndex: 'detailName', width: '18.7%'},
+          {className: 'tablePadding', title: '布置教师', dataIndex: 'teacher', width: '19%'},
+          {className: 'tablePadding', title: '班级', dataIndex: 'detailClassName', width: '23.5%'},
           {className: 'tablePadding', title: '布置时间', dataIndex: 'assignTime', width: '14.6%'},
           {className: 'tablePadding', title: '操作客服', dataIndex: 'serviceName', width: '11.5%'},
           {className: 'tablePadding', title: '操作', dataIndex: 'deal', width: '12.7%', scopedSlots: { customRender: 'operation' }}
@@ -99,6 +99,9 @@
                   time = time.substr(1);
                 }
                 item.assignTime = time;
+                item.detailName = time.split(' ')[0] + item.name;
+                item.detailClassName = item.schoolName + item.className;
+                item.teacher = item.assignTeacherName + (item.assignTeacherMobile ? '(' + item.assignTeacherMobile + ')' : '');
                 return item;
               });
             }
