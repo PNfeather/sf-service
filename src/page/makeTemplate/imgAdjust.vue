@@ -1,17 +1,17 @@
 <template>
-  <div name='imgAdjust' class="fillcontain">
+  <div name='imgAdjust' class='fillcontain'>
     <headTop></headTop>
-    <makeBody @next="submit">
-      <div class="imgArea" @mousemove="change" @mouseup="end">
-        <div class="imgWrapper" ref="imgWrapper">
-          <div class="bt"></div><div class="bb"></div><div class="bl"></div><div class="br"></div>
-          <imgBorder :attribute="attribute" :startCreate="startCreate" ref="imgBorder">
-            <img ref="dealImg" :src="currentChooseImg.url" alt="">
+    <makeBody @next='submit'>
+      <div class='imgArea' @mousemove='change' @mouseup='end'>
+        <div class='imgWrapper' ref='imgWrapper'>
+          <div class='bt'></div><div class='bb'></div><div class='bl'></div><div class='br'></div>
+          <imgBorder :attribute='attribute' :startCreate='startCreate' ref='imgBorder'>
+            <img ref='dealImg' :src='currentChooseImg.url' alt="">
           </imgBorder>
         </div>
       </div>
     </makeBody>
-    <fc-loading :loading-modal.sync="loadingModal" text="图片生成中"></fc-loading>
+    <fc-loading :loading-modal.sync='loadingModal' text='图片生成中'></fc-loading>
   </div>
 </template>
 
@@ -45,10 +45,22 @@
       }
     },
     methods: {
+      getBase64Image (img) {
+        let canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        let ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        let ext = img.src.substring(img.src.lastIndexOf('.') + 1).toLowerCase();
+        let dataURL = canvas.toDataURL('image/' + ext);
+        return dataURL;
+      },
       getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
         let img = document.createElement('img');
         img.src = this.currentChooseImg.url;
+        img.setAttribute('crossOrigin', 'Anonymous'); // todo 待修改或完善 需要后端添加图片跨域请求
         img.onload = () => {
+          console.log(this.getBase64Image(img)); // todo 待修改或完善 可跨域请求后才可使用
           let wrapper = this.$refs.imgWrapper;
           let imgWHPer = img.width / img.height;
           let wwNum = parseFloat(getCss(wrapper, 'width'));
@@ -105,7 +117,7 @@
     }
   };
 </script>
-<style scoped lang="less">
+<style scoped lang='less'>
   @import '~@/style/mixin';
   [name = 'imgAdjust']{
     .imgArea{
