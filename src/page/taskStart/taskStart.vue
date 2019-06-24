@@ -74,7 +74,6 @@
         </div>
       </section>
       <section class="submitBtn" v-show="s1 || s4">
-        <a-button type="primary" class="submit" @click="temSave">暂存</a-button>
         <a-button type="primary" class="submit" @click="submit" :disabled="submitToggle">发布</a-button>
       </section>
       <section class="paginationArea" v-show="s2">
@@ -121,10 +120,10 @@
 </template>
 
 <script type='text/babel'>
-  import {reviewBook, getBookTemplate} from '@/api/tBook';
+  import {reviewBook, getBookTemplate, releaseBook} from '@/api/tBook';
   import {deleteTemplatePage} from '@/api/tPage';
   import {uploadImgTemplate} from '@/api/uploadImgTemplate';
-  import {getWorkTemplate} from '@/api/works';
+  import {getWorkTemplate, putWork} from '@/api/works';
   import timeLimit from '@/tools/timeLimit';
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
@@ -447,11 +446,31 @@
           }
         });
       },
-      submit () {
-        console.log('发布');
+      submitWork () {
+        putWork(this.workId).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            this.$message.success('作业发布成功');
+            this.$router.push('resource');
+          } else {
+            this.$message.error(data.message);
+          }
+        });
       },
-      temSave () {
-        console.log('暂存');
+      submitSource () {
+        releaseBook(this.workId).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            this.$message.success('资源发布成功');
+            this.$router.push('missionList');
+          } else {
+            this.$message.error(data.message);
+          }
+        });
+      },
+      submit () {
+        this.s1 && this.submitWork();
+        this.s4 && this.submitSource();
       }
     },
     components: {
