@@ -6,8 +6,7 @@ import storage from '@/tools/storage';
 const user = {
   state: {
     userInfo: storage.get('userInfo') || {},
-    serviceList: storage.get('serviceList') || [],
-    imgBaseUrl: 'https://cjfc-dev.oss-cn-shenzhen.aliyuncs.com/'
+    serviceList: storage.get('serviceList') || []
   },
 
   mutations: {

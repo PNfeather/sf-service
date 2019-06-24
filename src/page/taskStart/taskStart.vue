@@ -21,7 +21,7 @@
             accept="image/*"
             class="taskStart-upload"
             :showUploadList='false'
-            :beforeUpload="beforeUpload"
+            :customRequest="customRequest"
             @change="leadImg">
             <a-button type="primary" class="funBtn" @click="startUpload">导入图片</a-button>
           </a-upload>
@@ -34,7 +34,7 @@
           <p>（单次导入最多99张图片）</p>
         </div>
         <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s1 || s4">
-          <div class="delete" @click.stop="deleteTemplate(index)">
+          <div class="delete" @click.stop="deleteTemplate(item, index)">
             <i class="iconfont iconClose"></i>
           </div>
           <div class="finished" v-show="item.finished">
@@ -114,11 +114,14 @@
 
 <script type='text/babel'>
   import {reviewBook, getBookTemplate} from '@/api/tBook';
+  import {deleteTemplatePage} from '@/api/tPage';
+  import {uploadImgTemplate} from '@/api/uploadImgTemplate';
   import {getWorkTemplate} from '@/api/works';
   import timeLimit from '@/tools/timeLimit';
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
   import {fileUpload} from '@/api/fileUpload';
+  import getBase64 from '@/tools/getBase64';
   export default {
     name: 'taskStart',
     data () {
@@ -218,10 +221,33 @@
         });
       },
       'imagePopupList.length' (val, oldVal) {
-        console.log(val, oldVal);
+        (val > oldVal) && this.popupUpload();
+      },
+      uploadModal (val) {
+        if (!val) { // 关闭上传弹框，若存在imageUploadList则将图片上传后端模板
+          if (this.imageUploadList.length) {
+            this.uploadImgTemplate();
+          }
+        }
       }
     },
     methods: {
+      uploadImgTemplate () { // 从导入图片成为模板
+        let params = {
+          'templateFiles': [...this.imageUploadList]
+        };
+        this.s1 && Object.assign(params, {workId: this.workId});
+        this.s4 && Object.assign(params, {templateBookId: this.workId});
+        uploadImgTemplate(params).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            let reData = data.data;
+            this.templateList.push(...reData);
+          } else {
+            this.$message.error(data.message);
+          }
+        });
+      },
       openSort () {
         this.showWorkSortNum = !this.showWorkSortNum;
       },
@@ -348,54 +374,69 @@
         if (!this.fileUploadToggle || !this.uploadModal) return;
         this.fileUploadToggle = false;
         let file = this.imagePopupList.shift();
-        fileUpload({'file': file}).then(res => {
-          this.fileUploadToggle = true;
-          if (res.data.code == 0) {
-            this.doneUpload += 1;
-            let imgUrl = this.$CJIMGURL + res.data.data.url;
-            this.templateList.push({
-              url: imgUrl
+        getBase64(file, (imageUrl) => {
+          let img = document.createElement('img');
+          img.src = imageUrl;
+          img.onload = () => {
+            fileUpload({'file': file}).then(res => {
+              this.fileUploadToggle = true;
+              if (res.data.code == 0) {
+                this.doneUpload += 1;
+                let imgUrl = this.$CJIMGURL + res.data.data.url;
+                // this.templateList.push({
+                //   url: imgUrl,
+                //   width: img.width,
+                //   height: img.height
+                // });
+                this.imageUploadList.push({
+                  url: imgUrl,
+                  width: img.width,
+                  height: img.height
+                });
+                this.$message.success(`${file.name} 上传成功`);
+                if (this.imagePopupList.length) {
+                  this.popupUpload();
+                } else if (this.doneUpload === this.totalUpload) {
+                  this.uploadModal = false;
+                }
+              } else {
+                this.$message.error(res.data.message);
+              }
             });
-            this.imageUploadList.push({
-              url: imgUrl
-            });
-            this.$message.success(`${file.name} 上传成功`);
-            if (this.imagePopupList.length) {
-              this.popupUpload();
-            } else if (this.doneUpload === this.totalUpload) {
-              this.uploadModal = false;
-              console.log(this.imageUploadList);
-            }
-          } else {
-            this.$message.error(res.data.message);
-          }
+          };
         });
       },
-      beforeUpload (info) {
-        this.imagePopupList.push(info);
-        return false; // 拦截图片上传动作，自行上传
+      customRequest (data) { // 自定义上传事件
+        this.imagePopupList.push(data.file);
       },
       resetUpload () {
-        this.imagePopupList = [];
-        this.imageUploadList = [];
+        this.imagePopupList = this.imagePopupList.splice(0, this.imagePopupList.length); // 清空不改变指针
+        this.imageUploadList = this.imageUploadList.splice(0, this.imageUploadList.length);
         this.uploadModal = true;
         this.doneUpload = 0;
         this.totalUpload = 0;
       },
       leadImg (info) {
-        if (info.file.status !== 'uploading') {
-          this.startUploadToggle && (this.resetUpload()) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开
-          this.totalUpload = Array.from(new Set(info.fileList.map((item) => {
-            return item.name;
-          }))).length;
-        }
+        this.startUploadToggle && (this.resetUpload()) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开
+        this.totalUpload = Array.from(new Set(info.fileList.map((item) => {
+          return item.name;
+        }))).length;
       },
       goMake (item) {
         this.$store.dispatch('passChooseImg', JSON.stringify(item));
         this.$router.push({path: 'imgAdjust', query: {workId: this.workId}});
       },
-      deleteTemplate (index) {
-        this.templateList.splice(index, 1);
+      deleteTemplate (item, index) {
+        deleteTemplatePage({id: item.id}).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            let reData = data.data;
+            this.templateList.splice(index, 1);
+            console.log(reData);
+          } else {
+            this.$message.error(data.message);
+          }
+        });
       },
       submit () {
         console.log('发布');
