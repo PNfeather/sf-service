@@ -19,7 +19,6 @@
             name="file"
             :multiple="true"
             accept="image/*"
-            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
             class="taskStart-upload"
             :showUploadList='false'
             :beforeUpload="beforeUpload"
@@ -119,7 +118,7 @@
   import timeLimit from '@/tools/timeLimit';
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
-  import getBase64 from '@/tools/getBase64';
+  import {fileUpload} from '@/api/fileUpload';
   export default {
     name: 'taskStart',
     data () {
@@ -174,7 +173,10 @@
             pageInitMethod: 'getReviewBook'
           }
         },
-        showWorkSortNum: false // 排序开关
+        showWorkSortNum: false, // 排序开关
+        imagePopupList: [], // 图片上传队列
+        imageUploadList: [], // 图片上传数组
+        fileUploadToggle: true // 图片上传控制开关
       };
     },
     created () {
@@ -214,6 +216,9 @@
         this.templateList.forEach((item, index) => {
           item.workSortNum = index + 1;
         });
+      },
+      'imagePopupList.length' (val, oldVal) {
+        console.log(val, oldVal);
       }
     },
     methods: {
@@ -339,30 +344,50 @@
       startUpload () {
         this.startUploadToggle = true;
       },
-      beforeUpload (info) { // 只导入
-        getBase64(info, (imageUrl) => {
-          this.templateList.push({
-            url: imageUrl
-          });
-        });
-        return false;
-      },
-      leadImg (info) { // 导入后直接上传
-        if (info.file.status !== 'uploading') {
-          // this.startUploadToggle && (this.totalUpload = info.fileList.length) && (this.uploadModal = true) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开,手动关闭后，后续上传不渲染
-          console.log(info.file, info.fileList);
-        }
-        if (info.file.status === 'done') {
-          this.doneUpload += 1;
-          getBase64(info.file.originFileObj, (imageUrl) => {
+      popupUpload () {
+        if (!this.fileUploadToggle || !this.uploadModal) return;
+        this.fileUploadToggle = false;
+        let file = this.imagePopupList.shift();
+        fileUpload({'file': file}).then(res => {
+          this.fileUploadToggle = true;
+          if (res.data.code == 0) {
+            this.doneUpload += 1;
+            let imgUrl = this.$CJIMGURL + res.data.data.url;
             this.templateList.push({
-              url: imageUrl
+              url: imgUrl
             });
-          });
-          this.uploadModal && (this.$message.success(`${info.file.name} 上传成功`));
-          (this.doneUpload === this.totalUpload) && (this.uploadModal = false);
-        } else if (info.file.status === 'error') {
-          this.$message.error(`${info.file.name} 上传失败`);
+            this.imageUploadList.push({
+              url: imgUrl
+            });
+            this.$message.success(`${file.name} 上传成功`);
+            if (this.imagePopupList.length) {
+              this.popupUpload();
+            } else if (this.doneUpload === this.totalUpload) {
+              this.uploadModal = false;
+              console.log(this.imageUploadList);
+            }
+          } else {
+            this.$message.error(res.data.message);
+          }
+        });
+      },
+      beforeUpload (info) {
+        this.imagePopupList.push(info);
+        return false; // 拦截图片上传动作，自行上传
+      },
+      resetUpload () {
+        this.imagePopupList = [];
+        this.imageUploadList = [];
+        this.uploadModal = true;
+        this.doneUpload = 0;
+        this.totalUpload = 0;
+      },
+      leadImg (info) {
+        if (info.file.status !== 'uploading') {
+          this.startUploadToggle && (this.resetUpload()) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开
+          this.totalUpload = Array.from(new Set(info.fileList.map((item) => {
+            return item.name;
+          }))).length;
         }
       },
       goMake (item) {

@@ -21,6 +21,8 @@ Vue.use(VueLazyload, {
 
 (process.env.BASE_URL == '/api') && process.env.MOCK && require('@/mock');
 
+Vue.prototype.$CJIMGURL = process.env.CJIMGURL;
+
 Vue.use(http.install);
 
 Vue.use(Antd);
