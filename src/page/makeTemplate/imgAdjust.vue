@@ -6,7 +6,7 @@
         <div class='imgWrapper' ref='imgWrapper'>
           <div class='bt'></div><div class='bb'></div><div class='bl'></div><div class='br'></div>
           <imgBorder :attribute='attribute' :startCreate='startCreate' ref='imgBorder'>
-            <img ref='dealImg' :src='currentChooseImg.url' alt="">
+            <img ref='dealImg' :src='`${$CJIMGURL + currentChooseImg.url}`' alt="">
           </imgBorder>
         </div>
       </div>
@@ -20,6 +20,7 @@
   import imgBorder from './components/imgBorder';
   import {getCss} from './js';
   import html2canvas from 'html2canvas';
+  import {changeTemplateImg} from '@/api/uploadImgTemplate';
   export default {
     name: 'imgAdjust',
     data () {
@@ -47,7 +48,7 @@
     methods: {
       getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
         let img = document.createElement('img');
-        img.src = this.currentChooseImg.url;
+        img.src = this.$CJIMGURL + this.currentChooseImg.url;
         img.setAttribute('crossOrigin', 'Anonymous');
         img.onload = () => {
           let wrapper = this.$refs.imgWrapper;
@@ -87,9 +88,22 @@
             this.startCreate = false;
             this.loadingModal = false;
             let saveUrl = canvas.toDataURL('image/png');
-            let c = Object.assign({}, this.currentChooseImg, {url: saveUrl});
-            this.$store.dispatch('passTemplate', JSON.stringify(c));
-            this.$router.replace({path: 'frameTemplate', query: this.query});
+            changeTemplateImg({
+              'base64String': saveUrl,
+              'height': 729,
+              'templateImageId': this.$route.query.templateImageId,
+              'width': 475
+            }).then(res => {
+              let data = res.data;
+              if (data.code == 0) {
+                let reData = data.data;
+                let c = Object.assign({}, this.currentChooseImg, {url: reData.url});
+                this.$store.dispatch('passTemplate', JSON.stringify(c));
+                this.$router.replace({path: 'frameTemplate', query: this.query});
+              } else {
+                this.$message.error(data.message);
+              }
+            });
             // 点击生成图片并自动下载方法：
             // let a = document.createElement('a');
             // document.body.appendChild(a);

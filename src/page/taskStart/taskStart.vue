@@ -137,7 +137,6 @@
     data () {
       let query = this.$route.query;
       return {
-        imgUrlPre: this.$CJIMGURL,
         pageType: query.pageType || 'missionTemplate', // missionTemplate作业模板制作页，resourceChoiceList图文资源库选择页，templateChoiceList模板选择页，resourceMakeStart资源模板制作页,checkTemplate查看模板页
         startUploadToggle: false,
         uploadModal: false,
@@ -359,7 +358,7 @@
       },
       getSourceList () {
         // todo 待修改或完善  未筛选出已发布，总数无法拿到，会影响分页加载
-        getBookList({}).then(res => {
+        getBookList({bookStatus: 1, templateBookName: this.templateName}).then(res => {
           let data = res.data;
           if (data.code == 0) {
             let reData = data.data;
@@ -432,12 +431,7 @@
               this.fileUploadToggle = true;
               if (res.data.code == 0) {
                 this.doneUpload += 1;
-                let imgUrl = this.$CJIMGURL + res.data.data.url;
-                // this.templateList.push({
-                //   url: imgUrl,
-                //   width: img.width,
-                //   height: img.height
-                // });
+                let imgUrl = res.data.data.url;
                 this.imageUploadList.push({
                   url: imgUrl,
                   width: img.width,
