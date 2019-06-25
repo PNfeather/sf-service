@@ -12,7 +12,7 @@
           </section>
           <section class="handleArea">
             <drawFrame ref="drawFrame" :isMultipleChoice="isMultipleChoice" v-model="divList"></drawFrame>
-            <img :src="`${$CJIMGURL + currentEditTemplate.url}`" class="fillcontain" alt="">
+            <img crossOrigin="anonymous" :src="`${$CJIMGURL + currentEditTemplate.url}`" class="fillcontain" alt="">
           </section>
           <section class="tableArea frameTemplateTable">
             <a-table :columns="columns" :dataSource="questionList" rowKey="identify" :pagination="false" bordered :rowClassName="rowClassName">

@@ -6,7 +6,7 @@
         <div class='imgWrapper' ref='imgWrapper'>
           <div class='bt'></div><div class='bb'></div><div class='bl'></div><div class='br'></div>
           <imgBorder :attribute='attribute' :startCreate='startCreate' ref='imgBorder'>
-            <img ref='dealImg' :src='`${$CJIMGURL + currentChooseImg.url}`' alt="">
+            <img crossOrigin="anonymous" ref='dealImg' :src='`${$CJIMGURL + currentChooseImg.url}`' alt="">
           </imgBorder>
         </div>
       </div>
