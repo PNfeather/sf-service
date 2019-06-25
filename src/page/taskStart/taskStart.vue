@@ -447,6 +447,11 @@
       },
       startUpload () {
         this.startUploadToggle = true;
+        this.clearArr(this.imagePopupList);
+        this.clearArr(this.imageUploadList);
+        this.doneUpload = 0;
+        this.totalUpload = 0;
+        console.log(this.imagePopupList, this.imageUploadList);
       },
       popupUpload () {
         if (!this.fileUploadToggle || !this.uploadModal) return;
@@ -483,11 +488,7 @@
         this.imagePopupList.push(data.file);
       },
       resetUpload () {
-        this.clearArr(this.imagePopupList);
-        this.clearArr(this.imageUploadList);
         this.uploadModal = true;
-        this.doneUpload = 0;
-        this.totalUpload = 0;
       },
       leadImg (info) {
         this.startUploadToggle && (this.resetUpload()) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开
