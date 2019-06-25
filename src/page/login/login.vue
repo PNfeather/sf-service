@@ -1,5 +1,8 @@
 <template>
   <div class="login_page fillcontain">
+    <div class="bg fillcontain">
+      <img :src="bgImg" alt="">
+    </div>
     <transition name="form-fade" mode="in-out">
       <section class="login-wrapper">
         <div class="loginArea">
@@ -58,6 +61,7 @@
       return {
         autoBack: query.autoBack,
         loginImg: require('@IMG/loginImg.png'),
+        bgImg: require('@IMG/loginBack.jpg'),
         form: this.$form.createForm(this),
         rules: {
           account: [
@@ -97,13 +101,18 @@
 <style scoped lang="less">
   @import '~@/style/mixin';
   .login_page{
-    background: url("~@IMG/loginBack.jpg") no-repeat center;
-    background-size: 100% 100%;
     position: relative;
+    .bg{
+      .allcover();
+      img{
+        .wh(100%, 100%);
+      }
+    }
     .login-wrapper{
       .wh(12rem, 6.75rem);
       .ctp(12rem, 6.75rem);
       background: #FFFFFF;
+      z-index: 9;
       box-shadow: 0 0.09rem 0.22rem 0.2rem rgba(76,103,185,0.30);
       border-radius: 10px;
       display: flex;
