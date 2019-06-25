@@ -48,8 +48,8 @@
     methods: {
       getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
         let img = document.createElement('img');
-        img.src = this.$CJIMGURL + this.currentChooseImg.url;
         img.setAttribute('crossOrigin', 'Anonymous');
+        img.src = this.$CJIMGURL + this.currentChooseImg.url;
         img.onload = () => {
           let wrapper = this.$refs.imgWrapper;
           let imgWHPer = img.width / img.height;

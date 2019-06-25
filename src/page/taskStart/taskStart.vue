@@ -5,14 +5,14 @@
     </div>
     <div class="template fillcontain">
       <section class="functional">
-        <div class="title" v-show="s1 || s3 || s4 || s5" v-text="title"></div>
+        <div class="title" v-show="s1 || s3 || s4 || s5 || s6" v-text="title"></div>
         <div class="search" v-show="s2">
           <a-input v-model="templateName" class="input" placeholder="请输入资源名称"/>
           <a-button type="primary" @click="searchResource">搜索</a-button>
         </div>
         <div class="btnGroup">
           <a-button type="primary" class="funBtn" :class="{active: showWorkSortNum}" @click="openSort" v-show="s1 || s4">{{!showWorkSortNum ? '排序' : '完成排序'}}</a-button>
-          <a-button type="primary" class="funBtn" @click="checkTask" v-show="s1 || s2 || s3">查看作业</a-button>
+          <a-button type="primary" class="funBtn" @click="checkTask" v-show="s1 || s2 || s3 || s6">查看作业</a-button>
           <a-button type="primary" class="funBtn" @click="goResourceChoiceList" v-show="s1">资源库</a-button>
           <a-upload
             v-show="s1 || s4"
@@ -41,7 +41,7 @@
             <i class="iconfont iconFinished2"></i>
           </div>
           <div class="img">
-            <img :src='`${$CJIMGURL + item.url}`' alt="" @click="goMake(item)">
+            <img crossOrigin="anonymous" :src='`${$CJIMGURL + item.url}`' alt="" @click="goMake(item)">
           </div>
           <p v-show="!showWorkSortNum"><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
           <p v-show="showWorkSortNum && item.finished"><span>序号:<a-input
@@ -53,7 +53,7 @@
         </div>
         <div class="item" v-for="(item, index) in resourceList" :key="index" @click="goTemplateChoiceList(item)" v-if="s2">
           <div class="img">
-            <img :src='`${$CJIMGURL + item.coverUrl}`' alt="">
+            <img crossOrigin="anonymous" :src='`${$CJIMGURL + item.coverUrl}`' alt="">
           </div>
           <p><span>{{item.name}}</span></p>
         </div>
@@ -65,13 +65,13 @@
             <i class="iconfont iconFinished2"></i>
           </div>
           <div class="img">
-            <img :src='`${$CJIMGURL + item.url}`' alt="">
+            <img crossOrigin="anonymous" :src='`${$CJIMGURL + item.url}`' alt="">
           </div>
           <p><span>第{{item.serialNumber}}页</span></p>
         </div>
-        <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s5">
+        <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s5 || s6">
           <div class="img">
-            <img :src='`${$CJIMGURL + item.url}`' alt="">
+            <img crossOrigin="anonymous" :src='`${$CJIMGURL + item.url}`' alt="">
           </div>
           <p><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
         </div>
@@ -188,6 +188,12 @@
             title: 'checkTemplateTitle',
             backMethod: 'backResource',
             pageInitMethod: 'getReviewBook'
+          },
+          checkWork: { // checkWork查看作业
+            backTitle: '返回任务列表',
+            title: 'missionTemplateTitle',
+            backMethod: 'backTaskList',
+            pageInitMethod: 'getWorkCheckTemplate'
           }
         },
         showWorkSortNum: false, // 排序开关
@@ -229,6 +235,9 @@
       },
       s5 () { // checkTemplate查看模板页
         return (this.pageType === 'checkTemplate');
+      },
+      s6 () { // checkWork查看作业
+        return (this.pageType === 'checkWork');
       }
     },
     watch: {
@@ -319,6 +328,18 @@
       goTemplateChoiceList (item) { // 页面切换到模板选择列表
         this.currentBook = item;
         this.pageType = 'templateChoiceList';
+      },
+      getWorkCheckTemplate () {
+        getWorkTemplate(this.workId).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            let reData = data.data;
+            this.clearArr(this.templateList);
+            this.templateList = [...reData.templatePages];
+          } else {
+            this.$message.error(data.message);
+          }
+        });
       },
       getReviewBook () {
         reviewBook(this.workId).then(res => {

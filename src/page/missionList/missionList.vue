@@ -23,7 +23,8 @@
       </template>
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
-          <a style="text-decoration: underline" @click="() => handleTask(record.id)">制作</a>
+          <a style="text-decoration: underline" @click="() => handleTask(record.id)" v-show="record.workStatus != 2">制作</a>
+          <a style="text-decoration: underline" @click="() => checkTask(record)" v-show="record.workStatus == 2">查看</a>
         </div>
       </template>
     </a-table>
@@ -145,6 +146,9 @@
             this.$message.error(data.message);
           }
         });
+      },
+      checkTask (item) {
+        this.$router.push({path: 'taskStart', query: {pageType: 'checkWork', workId: item.id, title: item.detailName}});
       },
       onShowSizeChange (current, pageSize) {
         this.currentPage = current;

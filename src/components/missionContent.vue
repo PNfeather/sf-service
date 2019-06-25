@@ -9,7 +9,7 @@
     <transition name="small-scale" mode="in-out">
       <section class="smallImg" v-show="!showBig">
         <div class="imgItem" v-for="(item, index) in imgList" :key="index">
-          <img :src="`${$CJIMGURL + item.url}`" alt="" @click="openBig(index)">
+          <img crossOrigin="anonymous" :src="`${$CJIMGURL + item.url}`" alt="" @click="openBig(index)">
         </div>
       </section>
     </transition>
