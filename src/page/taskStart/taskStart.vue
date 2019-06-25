@@ -48,7 +48,7 @@
             :value="item.serialNumber"
             style="width: 60px;margin-left: 5px;text-align: center;"
             @change="inputChangeScore(item, index, $event)"
-            @blur="onBlur(item, index, $event)"
+            @blur="onBlur(item)"
           /></span></p>
         </div>
         <div class="item" v-for="(item, index) in resourceList" :key="index" @click="goTemplateChoiceList(item)" v-if="s2">
@@ -123,7 +123,7 @@
 </template>
 
 <script type='text/babel'>
-  import {reviewBook, getBookTemplate, releaseBook, getBookList} from '@/api/tBook';
+  import {reviewBook, getBookTemplate, releaseBook, getBookList, upadataTemplateSerialNum} from '@/api/tBook';
   import {deleteTemplatePage} from '@/api/tPage';
   import {uploadImgTemplate} from '@/api/uploadImgTemplate';
   import {getWorkTemplate, putWork, postWorkTemplate} from '@/api/works';
@@ -277,12 +277,26 @@
           this.templateList.splice(index, 1, item);
         }
       },
-      onBlur (item, index, e) {
-        if (item.currentSerialNumber != item.serialNumber) {
-          const { value } = e.target;
-          // todo 待修改或完善  对接重排序接口
-          console.log(value);
-        }
+      onBlur (item) {
+        let type = (this.s4 ? 'book' : 'work');
+        timeLimit(() => {
+          upadataTemplateSerialNum(this.workId, type, {
+            'templatePageSerialNumbers': [
+              {
+                'id': item.id,
+                'serialNumber': item.serialNumber
+              }
+            ]
+          }).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              console.log(this.currentPageConfig.pageInitMethod);
+              this[this.currentPageConfig.pageInitMethod]();
+            } else {
+              this.$message.error(data.message);
+            }
+          });
+        });
       },
       closeMissionContent () {
         this.$refs.missionContent.pause();
@@ -307,65 +321,57 @@
         this.pageType = 'templateChoiceList';
       },
       getReviewBook () {
-        timeLimit(() => {
-          reviewBook(this.workId).then(res => {
-            let data = res.data;
-            if (data.code == 0) {
-              let reData = data.data;
-              this.checkTemplateTitle = reData.name;
-              this.clearArr(this.templateList);
-              this.templateList = [...reData.templatePages, ...reData.templateImages];
-            } else {
-              this.$message.error(data.message);
-            }
-          });
+        reviewBook(this.workId).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            let reData = data.data;
+            this.checkTemplateTitle = reData.name;
+            this.clearArr(this.templateList);
+            this.templateList = [...reData.templatePages, ...reData.templateImages];
+          } else {
+            this.$message.error(data.message);
+          }
         });
       },
       getBookTemplate () {
-        timeLimit(() => {
-          getBookTemplate(this.workId).then(res => {
-            let data = res.data;
-            if (data.code == 0) {
-              let reData = data.data;
-              this.resourceMakeStartTitle = reData.name;
-              this.clearArr(this.templateList);
-              this.templateList = [...reData.templatePages.map((item) => {
-                item.finished = true;
-                return item;
-              }), ...reData.templateImages];
-            } else {
-              this.$message.error(data.message);
-            }
-          });
+        getBookTemplate(this.workId).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            let reData = data.data;
+            this.resourceMakeStartTitle = reData.name;
+            this.clearArr(this.templateList);
+            this.templateList = [...reData.templatePages.map((item) => {
+              item.finished = true;
+              return item;
+            }), ...reData.templateImages];
+          } else {
+            this.$message.error(data.message);
+          }
         });
       },
       getWorkTemplate () {
-        timeLimit(() => {
-          getWorkTemplate(this.workId).then(res => {
-            let data = res.data;
-            if (data.code == 0) {
-              let reData = data.data;
-              this.clearArr(this.templateList);
-              this.templateList = [...reData.templatePages.map((item) => {
-                item.finished = true;
-                return item;
-              }), ...reData.templateImages];
-            } else {
-              this.$message.error(data.message);
-            }
-          });
+        getWorkTemplate(this.workId).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            let reData = data.data;
+            this.clearArr(this.templateList);
+            this.templateList = [...reData.templatePages.map((item) => {
+              item.finished = true;
+              return item;
+            }), ...reData.templateImages];
+          } else {
+            this.$message.error(data.message);
+          }
         });
       },
       getSourceList () {
-        // todo 待修改或完善  未筛选出已发布，总数无法拿到，会影响分页加载
-        getBookList({bookStatus: 1, templateBookName: this.templateName}).then(res => {
+        getBookList({bookStatus: 1, templateBookName: this.templateName, skip: this.skip, limit: this.limit}).then(res => {
           let data = res.data;
           if (data.code == 0) {
             let reData = data.data;
             this.clearArr(this.resourceList);
-            this.resourceList.push(...reData.filter((o) => {
-              return (o.bookStatus == 1);
-            }));
+            this.count = data.total;
+            this.resourceList.push(...reData);
           } else {
             this.$message.error(data.message);
           }
@@ -405,13 +411,15 @@
         this.currentPage = current;
         this.limit = pageSize;
         this.skip = (current - 1) * this.limit;
+        timeLimit(this[this.currentPageConfig.pageInitMethod]);
       },
       changePage (current) {
         this.currentPage = current;
         this.skip = (current - 1) * this.limit;
+        timeLimit(this[this.currentPageConfig.pageInitMethod]);
       },
       searchResource () {
-        console.log('搜资源');
+        timeLimit(this[this.currentPageConfig.pageInitMethod]);
       },
       checkTask () {
         this.visible = true;
@@ -690,13 +698,14 @@
             }
           }
           .img{
-            flex: 224px 0 0;
+            height: 224px;
+            width: 100%;
             img{
               .wh(100%, 100%);
             }
           }
           p{
-            flex: 50px 0 0;
+            height: 50px;
             line-height: 50px;
             text-align: center;
             font-size: 16px;

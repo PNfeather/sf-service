@@ -9,7 +9,7 @@
     <transition name="small-scale" mode="in-out">
       <section class="smallImg" v-show="!showBig">
         <div class="imgItem" v-for="(item, index) in imgList" :key="index">
-          <img :src="item.url" alt="" @click="openBig(index)">
+          <img :src="`${$CJIMGURL + item.url}`" alt="" @click="openBig(index)">
         </div>
       </section>
     </transition>
@@ -32,7 +32,7 @@
             <a-icon type="right" />
           </div>
           <div class="imgItem" v-for="(item, index) in imgList" :key="index">
-            <img :src="item.url" alt="">
+            <img :src="`${$CJIMGURL + item.url}`" alt="">
           </div>
         </a-carousel>
       </section>
@@ -44,7 +44,7 @@
       <div class="item" :class="{active: item.audioPlaying}" @click="playAudio(item, index)">
         <i class="iconfont iconVoice"></i>{{item.duration}}s
         <span style="flex: 1; text-align: right" v-show="item.currentTime > 0 && (item.currentTime != item.duration)">{{item.currentTime}}s</span>
-        <audio :ref='`voice${index}`' :src="item.url" preload>
+        <audio :ref='`voice${index}`' :src="`${$CJIMGURL + item.url}`" preload>
           您的浏览器不支持audio标签
         </audio>
       </div>
@@ -89,15 +89,6 @@
             let data = res.data;
             if (data.code == 0) {
               let reData = data.data;
-              reData.voiceMessages = [ // todo 待删除
-                {
-                  url: require('@/assets/mp3/test.mp3')
-                }, {
-                  url: require('@/assets/mp3/test.mp3')
-                }, {
-                  url: require('@/assets/mp3/test.mp3')
-                }
-              ];
               let time = format(new Date(reData.assignTime), 'MM月DD日');
               if (time[0] == 0) {
                 time = time.substr(1);
@@ -106,11 +97,9 @@
               this.assignTime = format(new Date(reData.assignTime), 'YYYY年MM月DD日 HH:mm');
               this.endTime = format(new Date(reData.endTime), 'YYYY年MM月DD日 HH:mm');
               this.detailName = time + reData.name;
+              this.assignTeacherName = reData.assignTeacherName;
               this.$emit('input', this.detailName);
-              this.imgList = [...reData.attachments.map((item) => {
-                item.url = this.$CJIMGURL + item.url;
-                return item;
-              })];
+              this.imgList = [...reData.attachments];
               this.voiceMessages = [...reData.voiceMessages.map((item) => {
                 item.audioPlaying = false;
                 return item;

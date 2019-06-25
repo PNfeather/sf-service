@@ -256,7 +256,11 @@
         }
       },
       openSurePageModal () {
-        this.visible = true;
+        if (this.query.templatePageId) {
+          this.submit();
+        } else {
+          this.visible = true;
+        }
       },
       lastStep () {
         if (this.questionList.length) {
@@ -273,8 +277,8 @@
         updateTemplatePage(data).then(res => {
           let data = res.data;
           if (data.code == 0) {
-            let reData = data.data;
-            console.log(reData);
+            this.$message.success('模板已更新');
+            this.$router.go(-1);
           } else {
             this.$message.error(data.message);
           }
