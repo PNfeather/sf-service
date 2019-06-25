@@ -179,6 +179,7 @@
             questionList.push(questionListCell);
           });
           this.questionList = [...questionList];
+          console.log(this.questionList);
         },
         deep: true
       }

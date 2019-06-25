@@ -48,10 +48,9 @@
               currentBtn: item.currentBtn
             };
           });
-          this.moveDivList = [...this.moveDivList.map((item) => {
+          this.moveDivList.forEach((item) => {
             c[item.serialNumber] && Object.assign(item, c[item.serialNumber]);
-            return item;
-          })];
+          });
         },
         deep: true
       },
@@ -88,6 +87,9 @@
       this.pageInit();
     },
     methods: {
+      clearArr (arr) { // 不改变数组指正清空数组
+        arr.splice(0, arr.length);
+      },
       pageInit () {
         let templatePageId = this.$route.query.templatePageId;
         if (templatePageId) {
@@ -221,7 +223,9 @@
         let opre = 0; // 上一个循环原始值
         let cpre = 0; // 上一个循环当前值
         let scoreCatch = [];
-        this.moveDivList = [...(this.moveDivList.map((item) => { // 合并后序号调整并排序方法
+        let temList = [...this.moveDivList];
+        this.clearArr(this.moveDivList);
+        this.moveDivList.push(...(temList.map((item) => { // 合并后序号调整并排序方法
           if (this.activeMoveDivSort.includes(item.serialNumber)) { // 选中框序号合并成选中框中序号最小的那个
             if (item.serialNumber == minSort) {
               this.getScoreCatchCell(scoreCatch, item);
@@ -247,7 +251,7 @@
           return item;
         }).sort((a, b) => {
           return (a.serialNumber - b.serialNumber);
-        }))];
+        })));
         this.activeMoveDivSort = [minSort]; // 合并后选中序号只有之前未合并前最小序号
         this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
         this.$store.dispatch('changeCheckedQuestionList', [minSort]);
@@ -278,7 +282,8 @@
         this.activeMoveDivSort = [];
         this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
         this.$store.dispatch('changeCheckedQuestionList', []);
-        this.moveDivList = [...result];
+        this.clearArr(this.moveDivList);
+        this.moveDivList.push(...result);
       }
     },
     components: {
