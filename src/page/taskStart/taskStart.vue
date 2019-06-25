@@ -483,8 +483,8 @@
         this.imagePopupList.push(data.file);
       },
       resetUpload () {
-        this.imagePopupList = this.imagePopupList.splice(0, this.imagePopupList.length); // 清空不改变指针
-        this.imageUploadList = this.imageUploadList.splice(0, this.imageUploadList.length);
+        this.clearArr(this.imagePopupList);
+        this.clearArr(this.imageUploadList);
         this.uploadModal = true;
         this.doneUpload = 0;
         this.totalUpload = 0;
