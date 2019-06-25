@@ -41,7 +41,7 @@
             <i class="iconfont iconFinished2"></i>
           </div>
           <div class="img">
-            <img :src="item.url" alt="" @click="goMake(item)">
+            <img :src='`${$CJIMGURL + item.url}`' alt="" @click="goMake(item)">
           </div>
           <p v-show="!showWorkSortNum"><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
           <p v-show="showWorkSortNum && item.finished"><span>序号:<a-input
@@ -65,13 +65,13 @@
             <i class="iconfont iconFinished2"></i>
           </div>
           <div class="img">
-            <img :src="item.url" alt="">
+            <img :src='`${$CJIMGURL + item.url}`' alt="">
           </div>
           <p><span>第{{item.serialNumber}}页</span></p>
         </div>
         <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s5">
           <div class="img">
-            <img :src="item.url" alt="">
+            <img :src='`${$CJIMGURL + item.url}`' alt="">
           </div>
           <p><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
         </div>
@@ -95,7 +95,7 @@
       </section>
       <section class="submitBtn" v-show="s3">
         <a-button class="submit" @click="goResourceChoiceList">取消</a-button>
-        <a-button type="primary" class="submit">确认</a-button>
+        <a-button type="primary" class="submit" @click="sureChoice">确认</a-button>
       </section>
     </div>
     <a-modal
@@ -126,7 +126,7 @@
   import {reviewBook, getBookTemplate, releaseBook, getBookList} from '@/api/tBook';
   import {deleteTemplatePage} from '@/api/tPage';
   import {uploadImgTemplate} from '@/api/uploadImgTemplate';
-  import {getWorkTemplate, putWork} from '@/api/works';
+  import {getWorkTemplate, putWork, postWorkTemplate} from '@/api/works';
   import timeLimit from '@/tools/timeLimit';
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
@@ -391,6 +391,16 @@
         } else {
           this.selectedList.push(item.id);
         }
+      },
+      sureChoice () {
+        postWorkTemplate(this.workId, this.selectedList).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            this.pageType = 'missionTemplate';
+          } else {
+            this.$message.error(data.message);
+          }
+        });
       },
       onShowSizeChange (current, pageSize) {
         this.currentPage = current;

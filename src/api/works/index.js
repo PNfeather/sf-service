@@ -13,6 +13,6 @@ export const workDetail = (id) => Http.get('/service/works/' + id + '/detail');
 // 获取作业模板
 export const getWorkTemplate = (id) => Http.get('/service/works/' + id + '/template');
 // 资源库导入模板
-export const postWorkTemplate = (id) => Http.post('/service/works/' + id + '/template');
+export const postWorkTemplate = (id, pageIds) => Http.post('/service/works/' + id + '/template', pageIds);
 // 导入模板删除
 export const detailWrokTemplate = (id, templatePageId) => Http.delete('/service/works/' + id + '/template/' + templatePageId);
