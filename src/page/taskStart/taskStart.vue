@@ -125,8 +125,8 @@
 <script type='text/babel'>
   import {reviewBook, getBookTemplate, releaseBook, getBookList, upadataTemplateSerialNum} from '@/api/tBook';
   import {deleteTemplatePage} from '@/api/tPage';
-  import {uploadImgTemplate} from '@/api/uploadImgTemplate';
-  import {getWorkTemplate, putWork, postWorkTemplate} from '@/api/works';
+  import {uploadImgTemplate, deleteTemplateImg} from '@/api/uploadImgTemplate';
+  import {getWorkTemplate, putWork, postWorkTemplate, detailWrokTemplate} from '@/api/works';
   import timeLimit from '@/tools/timeLimit';
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
@@ -495,16 +495,40 @@
         }
       },
       deleteTemplate (item, index) {
-        deleteTemplatePage({id: item.id}).then(res => {
-          let data = res.data;
-          if (data.code == 0) {
-            let reData = data.data;
-            this.templateList.splice(index, 1);
-            console.log(reData);
-          } else {
-            this.$message.error(data.message);
-          }
-        });
+        if (item.importStatus) {
+          detailWrokTemplate(this.workId, item.id).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              let reData = data.data;
+              this.templateList.splice(index, 1);
+              console.log(reData);
+            } else {
+              this.$message.error(data.message);
+            }
+          });
+        } else if (item.finished) {
+          deleteTemplatePage({id: item.id}).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              let reData = data.data;
+              this.templateList.splice(index, 1);
+              console.log(reData);
+            } else {
+              this.$message.error(data.message);
+            }
+          });
+        } else {
+          deleteTemplateImg({id: item.id}).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              let reData = data.data;
+              this.templateList.splice(index, 1);
+              console.log(reData);
+            } else {
+              this.$message.error(data.message);
+            }
+          });
+        }
       },
       submitWork () {
         putWork(this.workId).then(res => {
