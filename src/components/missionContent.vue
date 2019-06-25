@@ -31,8 +31,7 @@
             style="right: 10px">
             <a-icon type="right" />
           </div>
-          <div class="imgItem" v-for="(item, index) in imgList" :key="index">
-            <img :src="`${$CJIMGURL + item.url}`" alt="">
+          <div class="imgItem" v-for="(item, index) in imgList" :key="index" :style="{backgroundImage: 'url(' + $CJIMGURL + item.url + ')'}">
           </div>
         </a-carousel>
       </section>
@@ -208,9 +207,9 @@
       }
       .imgItem{
         .wh(100%, 6.43rem);
-        img{
-          .wh(100%, 100%);
-        }
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
       }
       .custom-slick-arrow {
         border-radius: 100%;

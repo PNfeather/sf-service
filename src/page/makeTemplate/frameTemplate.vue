@@ -236,17 +236,16 @@
       inputChangeScore (item, e) {
         const { value } = e.target;
         const reg = /^(0|[1-9][0-9]*)$/;
-        if ((!isNaN(value) && reg.test(value)) || value === '') {
+        if ((!isNaN(value) && reg.test(value)) || value == '') {
           this.$set(item, 'score', value);
-          this.changeQuestionCatch(item.serialNumber, value, item.currentBtn);
         }
       },
       onBlur (item, e) {
         const { value } = e.target;
-        if (value === '') {
+        if (!value) {
           this.$set(item, 'score', item.currentBtn);
-          this.changeQuestionCatch(item.serialNumber, item.currentBtn, item.currentBtn);
         }
+        this.changeQuestionCatch(item.serialNumber, item.currentBtn, item.currentBtn);
       },
       changeTemplatePageNumber ($event) {
         const { value } = $event.target;

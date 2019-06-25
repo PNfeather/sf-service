@@ -31,14 +31,27 @@
 
 <script type='text/babel'>
   export default {
-    computed: {
-      defaultActive () {
-        let active = this.$route.path.replace('/', '');
-        (active == 'manage') && (active = 'missionList');
-        return active;
+    data () {
+      return {
+        defaultActive: this.$route.path.replace('/', '')
+      };
+    },
+    watch: {
+      '$route' (val) {
+        this.getDefaultActive(val);
       }
     },
+    mounted () {
+      this.getDefaultActive(this.$route);
+    },
     methods: {
+      getDefaultActive (val) {
+        let active = val.path.replace('/', '');
+        (active == 'manage') && (active = 'missionList');
+        if (['missionList', 'resource', 'taskManage'].includes(active)) {
+          this.defaultActive = active;
+        }
+      },
       changePage (item) {
         this.$router.push(item.key);
       }
