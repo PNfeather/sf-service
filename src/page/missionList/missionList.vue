@@ -51,8 +51,9 @@
     data () {
       return {
         serviceId: '',
-        status: '0', // 任务状态(0:等待模板 1:模板制作中 2: 模板已完成)
+        status: '', // 任务状态(0:等待模板 1:模板制作中 2: 模板已完成 '':全部)
         statusOptions: [
+          {value: '全部', label: ''},
           {value: '等待模板', label: '0'},
           {value: '模板制作中', label: '1'},
           {value: '模板已完成', label: '2'}
