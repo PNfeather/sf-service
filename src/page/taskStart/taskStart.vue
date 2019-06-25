@@ -556,7 +556,7 @@
           let data = res.data;
           if (data.code == 0) {
             this.$message.success('作业发布成功');
-            this.$router.push('resource');
+            this.$router.push('missionList');
           } else {
             this.$message.error(data.message);
           }
@@ -567,7 +567,7 @@
           let data = res.data;
           if (data.code == 0) {
             this.$message.success('资源发布成功');
-            this.$router.push('missionList');
+            this.$router.push('resource');
           } else {
             this.$message.error(data.message);
           }
