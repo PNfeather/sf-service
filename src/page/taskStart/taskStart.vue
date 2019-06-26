@@ -670,6 +670,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      overflow: auto;
       .functional{
         flex: 30px 0 0;
         .fj();
@@ -703,7 +704,6 @@
         }
       }
       .imgArea{
-        flex: 1;
         overflow-y: scroll;
         display: flex;
         flex-wrap: wrap;

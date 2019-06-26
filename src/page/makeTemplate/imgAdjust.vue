@@ -144,7 +144,7 @@
   [name = 'imgAdjust']{
     .imgArea{
       overflow: auto;
-      padding: 30px;
+      padding: 80px 30px;
       .fac();
       .imgWrapper{
         position: relative;

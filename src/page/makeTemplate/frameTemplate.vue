@@ -381,6 +381,8 @@
       overflow: auto;
       .topArea{
         width: 100%;
+        min-width: 950px;
+        overflow-x: auto;
         .funBtnGroup{
           width: 135px;
           float: left;

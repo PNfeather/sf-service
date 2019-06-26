@@ -5,6 +5,7 @@
       <a-layout>
         <a-layout-sider
           :trigger="null"
+          width="140"
           collapsible>
           <a-menu theme="dark" mode="inline" :defaultSelectedKeys="[defaultActive]" :style="{paddingTop: '.18rem'}" @click="changePage">
             <a-menu-item key="missionList">
@@ -63,6 +64,9 @@
   [name = 'manage']{
     padding-top: 60px;
     .iconfont{margin-right: .14rem}
+    .sider{
+      width: 180px;
+    }
     .layout-content{
       margin: .3rem;
       background: #fff;

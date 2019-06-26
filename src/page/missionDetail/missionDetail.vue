@@ -44,7 +44,6 @@
       flex: 60px 0 0;
     }
     .detail{
-      flex: 1;
       overflow: scroll;
     }
     .submitBtn{
