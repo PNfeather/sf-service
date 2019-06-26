@@ -7,6 +7,7 @@ const getters = {
   questionScoreCatch: state => state.template.questionScoreCatch,
   templateHeight: state => state.template.templateHeight,
   templateWidth: state => state.template.templateWidth,
-  imgScale: state => state.template.imgScale
+  imgScale: state => state.template.imgScale,
+  lastActive: state => state.manage.lastActive
 };
 export default getters;

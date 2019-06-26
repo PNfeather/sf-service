@@ -32,27 +32,19 @@
 
 <script type='text/babel'>
   export default {
-    data () {
-      return {
-        defaultActive: this.$route.path.replace('/', '')
-      };
-    },
-    watch: {
-      '$route' (val) {
-        this.getDefaultActive(val);
-      }
-    },
-    mounted () {
-      this.getDefaultActive(this.$route);
-    },
-    methods: {
-      getDefaultActive (val) {
-        let active = val.path.replace('/', '');
+    computed: {
+      defaultActive () {
+        let active = this.$route.path.replace('/', '');
         (active == 'manage') && (active = 'missionList');
         if (['missionList', 'resource', 'taskManage'].includes(active)) {
-          this.defaultActive = active;
+          this.$store.dispatch('changeLastActive', active);
+          return active;
+        } else {
+          return this.$store.getters.lastActive;
         }
-      },
+      }
+    },
+    methods: {
       changePage (item) {
         this.$router.push(item.key);
       }
