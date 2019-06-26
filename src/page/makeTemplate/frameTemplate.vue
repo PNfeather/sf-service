@@ -312,11 +312,16 @@
       submit () {
         let questionSigns = [];
         let mergeObj = {};
+        console.log(this.questionList);
         this.questionList.forEach((item) => {
           (item.mergeHeader) && (mergeObj[item.mergeHeader] = item.score); // 保存合并头对应分数
           (item.mergeBody) && (item.score = mergeObj[item.mergeBody]); // 合并身取对应合并头的分数
           let {height, left, score, serialNumber, top, width} = item;
-          questionSigns.push({height, left, score, serialNumber, top, width});
+          if (item.mergeBody || item.mergeHeader) {
+            questionSigns.push(Object.assign({height, left, score, serialNumber, top, width}, {assembleStatus: 1}));
+          } else {
+            questionSigns.push(Object.assign({height, left, score, serialNumber, top, width}, {assembleStatus: 0}));
+          }
         });
         let params = {
           'questionSigns': [...questionSigns.map((item) => {

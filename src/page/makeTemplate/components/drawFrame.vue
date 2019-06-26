@@ -107,6 +107,13 @@
                   let {serialNumber, score} = item;
                   let {width, height, top, left} = item;
                   let cell = {serialNumber, score};
+                  if (item.assembleStatus == 1) {
+                    let exitHeader = this.moveDivList.some((child) => {
+                        return (child.serialNumber == item.serialNumber);
+                    });
+                    exitHeader && (cell.mergeHeader = item.serialNumber);
+                    !exitHeader && (cell.mergeBody = item.serialNumber);
+                  }
                   cell.attribute = {width, height, top, left};
                   cell.attribute.startX = fl + item.left;
                   cell.attribute.startY = ft + item.top; // 拱捕获使用
@@ -234,7 +241,7 @@
               item.mergeHeader = minSort; // 将合并的最小序列号对象标记为合并头，属性值定为当前合并序列号
               sort++;
             } else {
-              item.mergeHeader && (delete item.mergeHeader); // 若本身为合并头，删除标记
+              item.mergeHeader && (item.mergeHeader = null); // 若本身为合并头，删除标记
               item.mergeBody = minSort; // 合并的其他对象标记为合并身，属性值定为当前合并序列号
             }
             item.serialNumber = minSort;
