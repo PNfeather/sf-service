@@ -4,16 +4,18 @@
     <makeBody :isStepOne="false" @last="lastStep" @finish="openSurePageModal" :showLastBtn="!query.templatePageId">
       <div class="fillcontain" style="overflow: auto">
         <div class="frameTemplateWrapper">
-          <section class="funBtnGroup">
-            <div class="btnItem" :class="[item.active ? item.activeClass : '']" v-for="(item, index) in funBtnList" :key="index" @mousedown="addActive(item)" @mouseup="removeActive(item)" @click="item.fun(item)">
-              <i class="iconfont" :class="[item.icon]"></i>
-              <p>{{item.text}}</p>
-            </div>
-          </section>
-          <section class="handleArea">
-            <drawFrame ref="drawFrame" :isMultipleChoice="isMultipleChoice" v-model="divList"></drawFrame>
-            <img crossOrigin="anonymous" :src="`${$CJIMGURL + currentEditTemplate.url}`" class="fillcontain" alt="">
-          </section>
+          <div class="topArea">
+            <section class="funBtnGroup">
+              <div class="btnItem" :class="[item.active ? item.activeClass : '']" v-for="(item, index) in funBtnList" :key="index" @mousedown="addActive(item)" @mouseup="removeActive(item)" @click="item.fun(item)">
+                <i class="iconfont" :class="[item.icon]"></i>
+                <p>{{item.text}}</p>
+              </div>
+            </section>
+            <section class="handleArea" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
+              <drawFrame ref="drawFrame" :isMultipleChoice="isMultipleChoice" v-model="divList"></drawFrame>
+              <img crossOrigin="anonymous" :src="`${$CJIMGURL + currentEditTemplate.url}`" class="fillcontain" alt="">
+            </section>
+          </div>
           <section class="tableArea frameTemplateTable">
             <a-table :columns="columns" :dataSource="questionList" rowKey="identify" :pagination="false" bordered :rowClassName="rowClassName">
               <template slot="serialNumber" slot-scope="text, record, index">
@@ -114,8 +116,6 @@
           {className: 'smallTablePadding', title: '分值', dataIndex: 'score', width: '26%', scopedSlots: { customRender: 'score' }}
         ],
         divList: [],
-        templateH: '475', // 模板高
-        templateW: '729', // 模板宽
         visible: false,
         backModal: false,
         templatePageNumber: '',
@@ -147,6 +147,15 @@
       },
       questionScoreCatch () {
         return this.$store.getters.questionScoreCatch;
+      },
+      templateHeight () {
+        return this.$store.getters.templateHeight;
+      },
+      templateWidth () {
+        return this.$store.getters.templateWidth;
+      },
+      imgScale () {
+        return this.$store.getters.imgScale;
       }
     },
     watch: {
@@ -310,7 +319,13 @@
           questionSigns.push({height, left, score, serialNumber, top, width});
         });
         let params = {
-          'questionSigns': [...questionSigns]
+          'questionSigns': [...questionSigns.map((item) => {
+            item.height = item.height * this.imgScale;
+            item.left = item.left * this.imgScale;
+            item.top = item.top * this.imgScale;
+            item.width = item.width * this.imgScale;
+            return item;
+          })]
         };
         this.query.templatePageId && this.updataTemplate(params);
         !this.query.templatePageId && this.saveTemplate(params);
@@ -363,58 +378,59 @@
   [name = 'frameTemplate']{
     .frameTemplateWrapper{
       padding: 30px;
-      width: 1365px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      .funBtnGroup{
-        width: 135px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        .mergeActive{
-          color: #1690FF!important;
-        }
-        .deleteActive{
-          color: #E46948!important;
-        }
-        .multipleChoiceActive{
-          color: #1890ff!important;
-        }
-        .btnItem{
-          .wh(54px, 54px);
-          border: 1px solid #E3EDF0;
-          box-shadow: 0 3px 5px 1px rgba(35,94,157,0.04);
-          border-radius: 4px;
-          .fj(space-around);
+      overflow: auto;
+      .topArea{
+        width: 100%;
+        .funBtnGroup{
+          width: 135px;
+          float: left;
+          display: flex;
           flex-direction: column;
-          color: #999;
-          margin-bottom: 11px;
-          .iconfont{
-            font-size: 20px;
-            .wh(20px, 20px)
+          align-items: center;
+          .mergeActive{
+            color: #1690FF!important;
           }
-          p{
-           font-size: 10px;
+          .deleteActive{
+            color: #E46948!important;
+          }
+          .multipleChoiceActive{
+            color: #1890ff!important;
+          }
+          .btnItem{
+            .wh(54px, 54px);
+            border: 1px solid #E3EDF0;
+            box-shadow: 0 3px 5px 1px rgba(35,94,157,0.04);
+            border-radius: 4px;
+            .fj(space-around);
+            flex-direction: column;
+            color: #999;
+            margin-bottom: 11px;
+            .iconfont{
+              font-size: 20px;
+              .wh(20px, 20px)
+            }
+            p{
+              font-size: 10px;
+            }
           }
         }
-      }
-      .handleArea{
-        .wh(475px, 729px);
-        box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
-        overflow: hidden;
-        position: relative;
-        &:after{
-          content: '';
-          .wh(100%, 100%);
-          z-index: 1;
-          .allcover();
+        .handleArea{
+          box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
+          overflow: hidden;
+          position: relative;
+          &:after{
+            content: '';
+            .wh(100%, 100%);
+            z-index: 1;
+            .allcover();
+          }
         }
       }
       .tableArea{
         .wh(494px, 729px);
         box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
         overflow: auto;
+        margin: 30px 0 10px 135px;
         .sort{
           &:after{ // 点击焦点阔山到整个单元格
             content: '';

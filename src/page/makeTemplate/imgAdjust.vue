@@ -3,8 +3,13 @@
     <headTop></headTop>
     <makeBody @next='submit'>
       <div class='imgArea' @mousemove='change' @mouseup='end'>
-        <div class='imgWrapper' ref='imgWrapper' :style="{transform: 'scale(' + scale +  ',' + scale + ')'}">
-          <div class='bt'></div><div class='bb'></div><div class='bl'></div><div class='br'></div>
+        <div class='imgWrapper' ref='imgWrapper' :style="{transform: 'scale(' + scale +  ',' + scale + ')', width: templateWidth + 'px', height: templateHeight + 'px'}">
+          <div v-show="!startCreate">
+            <div class='bt' :style="{width: templateWidth + 4 + 'px'}"></div>
+            <div class='bb' :style="{width: templateWidth + 4 + 'px'}"></div>
+            <div class='bl' :style="{height: templateHeight + 4 + 'px'}"></div>
+            <div class='br' :style="{height: templateHeight + 4 + 'px'}"></div>
+          </div>
           <imgBorder :attribute='attribute' :startCreate='startCreate' ref='imgBorder'>
             <img crossOrigin="anonymous" ref='dealImg' :src='`${$CJIMGURL + currentChooseImg.url}`' alt="">
           </imgBorder>
@@ -39,11 +44,22 @@
       };
     },
     mounted () {
-      this.getWH();
+      this.$nextTick(() => {
+        this.getWH();
+      });
     },
     computed: {
       currentChooseImg () {
         return JSON.parse(this.$store.getters.currentChooseImg);
+      },
+      templateHeight () {
+        return this.$store.getters.templateHeight;
+      },
+      templateWidth () {
+        return this.$store.getters.templateWidth;
+      },
+      imgScale () {
+        return this.$store.getters.imgScale;
       }
     },
     methods: {
@@ -84,8 +100,7 @@
       submit () {
         this.loadingModal = true;
         this.startCreate = true;
-        this.scale = 1.5; // 放大截图，增加清晰度
-        let scale = this.scale;
+        this.scale = this.imgScale; // 放大截图，增加清晰度
         this.$nextTick(() => {
           html2canvas(this.$refs.imgWrapper, {useCORS: true}).then(canvas => {
             this.startCreate = false;
@@ -94,9 +109,9 @@
             let saveUrl = canvas.toDataURL('image/png');
             changeTemplateImg({
               'base64String': saveUrl,
-              'height': 729 * scale,
+              'height': this.templateHeight * this.imgScale,
               'templateImageId': this.$route.query.templateImageId,
-              'width': 475 * scale
+              'width': this.templateWidth * this.imgScale
             }).then(res => {
               let data = res.data;
               if (data.code == 0) {
@@ -128,23 +143,22 @@
   @import '~@/style/mixin';
   [name = 'imgAdjust']{
     .imgArea{
-      .wh(100%, 800px);
-      min-width: 600px;
+      overflow: auto;
+      padding: 30px;
       .fac();
       .imgWrapper{
         position: relative;
-        .wh(475px, 729px);
         .bb, .bt, .br, .bl{
           z-index: 9999;
           position: absolute;
         }
         .bl, .br{
-          .wh(2px, 733px);
+          width: 2px;
           background-color: #FF0000;
           top: -2px;
         }
         .bb, .bt{
-          .wh(479px, 2px);
+          height: 2px;
           background-color: #FF0000;
           left: -2px;
         }

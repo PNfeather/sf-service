@@ -4,7 +4,10 @@ const template = {
     currentChooseImg: storage.get('currentChooseImg') || {},
     currentEditTemplate: storage.get('currentEditTemplate') || {},
     checkedQuestionList: [],
-    questionScoreCatch: []
+    questionScoreCatch: [],
+    templateHeight: 1166, // 模板宽
+    templateWidth: 760, // 模板高
+    imgScale: 1.25 // 图片相对模板缩放比例
   },
 
   mutations: {
