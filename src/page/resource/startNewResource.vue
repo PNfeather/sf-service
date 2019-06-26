@@ -74,7 +74,7 @@
               name: this.templateName
             }).then(resIn => {
               if (resIn.data.code == 0) {
-                this.$router.push({path: 'taskStart', query: {pageType: 'resourceMakeStart'}});
+                this.$router.push({path: 'taskStart', query: {pageType: 'resourceMakeStart', workId: resIn.data.data.id}});
               } else {
                 this.$message.error(resIn.data.message);
               }
