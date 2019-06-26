@@ -489,7 +489,6 @@
                   width: img.width,
                   height: img.height
                 });
-                this.$message.success(`${file.name} 上传成功`);
                 if (this.imagePopupList.length) {
                   this.popupUpload();
                 } else if (this.doneUpload === this.totalUpload) {

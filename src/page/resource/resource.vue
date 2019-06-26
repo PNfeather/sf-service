@@ -77,7 +77,7 @@
           getBookList({
             limit: this.limit,
             skip: this.skip,
-            templateName: this.templateName
+            templateBookName: this.templateName
           }).then(res => {
             let data = res.data;
             this.count = data.total;

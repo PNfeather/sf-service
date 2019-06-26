@@ -259,7 +259,7 @@
       },
       changeTemplatePageNumber ($event) {
         const { value } = $event.target;
-        const reg = /^(0|[1-9][0-9]*)$/;
+        const reg = /^([1-9][0-9]*)$/;
         if ((!isNaN(value) && reg.test(value)) || value === '') {
           this.templatePageNumber = value;
         }
