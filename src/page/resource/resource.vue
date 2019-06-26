@@ -37,6 +37,7 @@
 
 <script type='text/babel'>
   import {getBookList} from '@/api/tBook';
+  import format from '@/tools/format';
   export default {
     name: 'resource',
     data () {
@@ -46,7 +47,7 @@
         columns: [
           {className: 'tablePadding', title: '资源名称', dataIndex: 'name', width: '34%'},
           {className: 'tablePadding', title: '创建人', dataIndex: 'creatorName', width: '20%'},
-          {className: 'tablePadding', title: '最后修改时间', dataIndex: 'time', width: '18%'},
+          {className: 'tablePadding', title: '最后修改时间', dataIndex: 'updatedAt', width: '18%'},
           {className: 'tablePadding', title: '状态', dataIndex: 'statusName', width: '15%'},
           {className: 'tablePadding', title: '操作', dataIndex: 'deal', width: '13%', scopedSlots: { customRender: 'operation' }}
         ],
@@ -83,7 +84,7 @@
             if (data.code == 0) {
               this.tableData = data.data.map((item) => {
                 item.statusName = (item.bookStatus == 0) ? '草稿' : '已发布';
-                // todo 待修改或完善 接口缺失最后修改时间
+                item.updatedAt = format(new Date(item.updatedAt), 'MM月DD日 HH:mm');
                 return item;
               });
             }
