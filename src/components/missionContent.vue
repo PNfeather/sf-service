@@ -9,7 +9,7 @@
     <transition name="small-scale" mode="in-out">
       <section class="smallImg" v-show="!showBig">
         <div class="imgItem" v-for="(item, index) in imgList" :key="index">
-          <img crossOrigin="anonymous" :src="`${$CJIMGURL + item.url}`" alt="" @click="openBig(index)">
+          <img crossOrigin="anonymous" :src="`${$CJIMGURL + item.url + $OSSIMGADJUST}`" alt="" @click="openBig(index)">
         </div>
       </section>
     </transition>
@@ -31,7 +31,7 @@
             style="right: 10px">
             <a-icon type="right" />
           </div>
-          <div class="imgItem" v-for="(item, index) in imgList" :key="index" :style="{backgroundImage: 'url(' + $CJIMGURL + item.url + ')'}">
+          <div class="imgItem" v-for="(item, index) in imgList" :key="index" :style="{backgroundImage: 'url(' + $CJIMGURL + item.url + $OSSIMGADJUST + ')'}">
           </div>
         </a-carousel>
       </section>

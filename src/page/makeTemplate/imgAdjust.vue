@@ -11,7 +11,7 @@
             <div class='br' :style="{height: templateHeight + 4 + 'px'}"></div>
           </div>
           <imgBorder :attribute='attribute' :startCreate='startCreate' ref='imgBorder'>
-            <img crossOrigin="anonymous" ref='dealImg' :src='`${$CJIMGURL + currentChooseImg.url}`' alt="">
+            <img crossOrigin="anonymous" ref='dealImg' :src='`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`' alt="">
           </imgBorder>
         </div>
       </div>
@@ -66,7 +66,7 @@
       getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
         let img = document.createElement('img');
         img.setAttribute('crossOrigin', 'Anonymous');
-        img.src = this.$CJIMGURL + this.currentChooseImg.url;
+        img.src = this.$CJIMGURL + this.currentChooseImg.url + this.$OSSIMGADJUST;
         img.onload = () => {
           let wrapper = this.$refs.imgWrapper;
           let imgWHPer = img.width / img.height;

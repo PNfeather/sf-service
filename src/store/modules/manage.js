@@ -1,6 +1,6 @@
 const manage = {
   state: {
-    lastActive: ''
+    lastActive: '' // 菜单栏选中位置
   },
 
   mutations: {

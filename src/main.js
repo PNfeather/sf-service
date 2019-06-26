@@ -21,7 +21,8 @@ Vue.use(VueLazyload, {
 
 (process.env.BASE_URL == '/api') && process.env.MOCK && require('@/mock');
 
-Vue.prototype.$CJIMGURL = process.env.CJIMGURL;
+Vue.prototype.$CJIMGURL = process.env.CJIMGURL; // oss图片域名
+Vue.prototype.$OSSIMGADJUST = '?x-oss-process=image/auto-orient,1'; // oss图片自动旋正
 
 Vue.use(http.install);
 
