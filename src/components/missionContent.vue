@@ -36,8 +36,7 @@
         </a-carousel>
       </section>
     </transition>
-    <section class="missionDetail">
-      {{txtMessage}}
+    <section class="missionDetail" v-html="txtMessage">
     </section>
     <section class="voice" v-for="(item, index) in voiceMessages" :key="index">
       <div class="item" :class="{active: item.audioPlaying}" @click="playAudio(item, index)">
@@ -92,7 +91,7 @@
               if (time[0] == 0) {
                 time = time.substr(1);
               }
-              this.txtMessage = reData.txtMessage;
+              this.txtMessage = reData.txtMessage.replace(/\n/g, '<br/>').replace(/\t/g, '　　');
               this.assignTime = format(new Date(reData.assignTime), 'YYYY年MM月DD日 HH:mm');
               this.endTime = format(new Date(reData.endTime), 'YYYY年MM月DD日 HH:mm');
               this.detailName = time + reData.name;
