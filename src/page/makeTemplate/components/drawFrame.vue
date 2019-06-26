@@ -225,7 +225,9 @@
         let scoreCatch = [];
         let temList = [...this.moveDivList];
         this.clearArr(this.moveDivList);
-        this.moveDivList.push(...(temList.map((item) => { // 合并后序号调整并排序方法
+        this.moveDivList.push(...(temList.sort((a, b) => { // 排序合并再排序的方法
+          return (a.serialNumber - b.serialNumber);
+        }).map((item) => {
           if (this.activeMoveDivSort.includes(item.serialNumber)) { // 选中框序号合并成选中框中序号最小的那个
             if (item.serialNumber == minSort) {
               this.getScoreCatchCell(scoreCatch, item);
@@ -238,7 +240,7 @@
             item.serialNumber = minSort;
           } else {
             this.getScoreCatchCell(scoreCatch, item);
-            if (item.serialNumber == opre) { // 当前循环值与上一循环原始值想等，则表示当前与上一个以合并
+            if (item.serialNumber == opre) { // 当前循环值与上一循环原始值相等，则表示当前与上一个以合并
               item.serialNumber = cpre;
             } else {
               opre = item.serialNumber;
@@ -283,7 +285,9 @@
         this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
         this.$store.dispatch('changeCheckedQuestionList', []);
         this.clearArr(this.moveDivList);
-        this.moveDivList.push(...result);
+        this.moveDivList.push(...result.sort((a, b) => {
+          return (a.serialNumber - b.serialNumber);
+        }));
       }
     },
     components: {
