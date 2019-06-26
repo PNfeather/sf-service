@@ -3,7 +3,7 @@
     <headTop></headTop>
     <makeBody @next='submit'>
       <div class='imgArea' @mousemove='change' @mouseup='end'>
-        <div class='imgWrapper' ref='imgWrapper'>
+        <div class='imgWrapper' ref='imgWrapper' :style="{transform: 'scale(' + scale +  ',' + scale + ')'}">
           <div class='bt'></div><div class='bb'></div><div class='bl'></div><div class='br'></div>
           <imgBorder :attribute='attribute' :startCreate='startCreate' ref='imgBorder'>
             <img crossOrigin="anonymous" ref='dealImg' :src='`${$CJIMGURL + currentChooseImg.url}`' alt="">
@@ -27,6 +27,7 @@
       let query = this.$route.query;
       return {
         query: query,
+        scale: 1,
         attribute: {
           width: 0,
           height: 0,
@@ -83,16 +84,19 @@
       submit () {
         this.loadingModal = true;
         this.startCreate = true;
+        this.scale = 3; // 放大截图，增加清晰度
+        let scale = this.scale;
         this.$nextTick(() => {
           html2canvas(this.$refs.imgWrapper, {useCORS: true}).then(canvas => {
             this.startCreate = false;
             this.loadingModal = false;
+            this.scale = 1;
             let saveUrl = canvas.toDataURL('image/png');
             changeTemplateImg({
               'base64String': saveUrl,
-              'height': 729,
+              'height': 729 * scale,
               'templateImageId': this.$route.query.templateImageId,
-              'width': 475
+              'width': 475 * scale
             }).then(res => {
               let data = res.data;
               if (data.code == 0) {
