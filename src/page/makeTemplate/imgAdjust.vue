@@ -84,7 +84,7 @@
       submit () {
         this.loadingModal = true;
         this.startCreate = true;
-        this.scale = 3; // 放大截图，增加清晰度
+        this.scale = 1.5; // 放大截图，增加清晰度
         let scale = this.scale;
         this.$nextTick(() => {
           html2canvas(this.$refs.imgWrapper, {useCORS: true}).then(canvas => {
