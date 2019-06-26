@@ -14,7 +14,7 @@
             class="form fillcontain"
             @submit="handleSubmit">
             <a-form-item class="title">
-              <span class="title-text">闪批客作业客服系统</span>
+              <span class="title-text">习之道客服系统</span>
             </a-form-item>
             <a-form-item
               class="input-item"
