@@ -70,7 +70,7 @@
           <p><span>第{{item.serialNumber}}页</span></p>
         </div>
         <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s5 || s6">
-          <div class="img">
+          <div class="img" @click="openPreview(index)">
             <img crossOrigin="anonymous" :src='`${$CJIMGURL + item.url}`' alt="">
           </div>
           <p><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
@@ -109,6 +109,15 @@
       <missionContent ref="missionContent" :workId="workId" class="fillcontain"></missionContent>
     </a-modal>
     <a-modal
+      title="模板预览"
+      v-model="templatePreviewToggle"
+      centered
+      class="previewModal"
+      width="96%"
+      :footer="null">
+      <templatePreview :defaultIndex="previewIndex" :imgList="previewList"></templatePreview>
+    </a-modal>
+    <a-modal
       v-model="uploadModal"
       centered
       width="450px"
@@ -130,6 +139,7 @@
   import timeLimit from '@/tools/timeLimit';
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
+  import templatePreview from '@C/templatePreview.vue';
   import {fileUpload} from '@/api/fileUpload';
   import getBase64 from '@/tools/getBase64';
   export default {
@@ -140,6 +150,7 @@
         pageType: query.pageType || 'missionTemplate', // missionTemplate作业模板制作页，resourceChoiceList图文资源库选择页，templateChoiceList模板选择页，resourceMakeStart资源模板制作页,checkTemplate查看模板页
         startUploadToggle: false,
         uploadModal: false,
+        templatePreviewToggle: false,
         totalUpload: 0, // 总上传图片数
         doneUpload: 0, // 已完成上传图片数
         submitToggle: false,
@@ -149,6 +160,8 @@
         templateList: [], // 模板列表
         resourceList: [], // 资源列表
         selectedList: [], // 已选择模板数组
+        previewIndex: 0, // 图片预览初始图片下标
+        previewList: [], // 图片预览数组
         templateName: '',
         pageSizeOptions: ['5', '10', '20', '30', '40', '50'],
         templateChoiceList: [], // 模板选择列表
@@ -274,6 +287,11 @@
             this.$message.error(data.message);
           }
         });
+      },
+      openPreview (index) {
+        this.templatePreviewToggle = true;
+        this.previewIndex = index;
+        this.previewList = [...this.templateList];
       },
       openSort () {
         this.showWorkSortNum = !this.showWorkSortNum;
@@ -581,7 +599,8 @@
     },
     components: {
       titleBack,
-      missionContent
+      missionContent,
+      templatePreview
     }
   };
 </script>
@@ -600,6 +619,24 @@
       .ant-modal-body{
         flex: 1;
         overflow-y: scroll;
+      }
+    }
+  }
+  .previewModal{
+    width: 96%;
+    height: 96%;
+    .ant-modal-content{
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      .ant-modal-header{
+        flex: 55px 0 0;
+      }
+      .ant-modal-body{
+        flex: 1;
+        overflow-y: scroll;
+        padding: 10px!important;
       }
     }
   }
