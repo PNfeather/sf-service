@@ -255,7 +255,7 @@
         if (!value) {
           this.$set(item, 'score', item.currentBtn);
         }
-        this.changeQuestionCatch(item.serialNumber, item.currentBtn, item.currentBtn);
+        this.changeQuestionCatch(item.serialNumber, item.score, item.currentBtn);
       },
       changeTemplatePageNumber ($event) {
         const { value } = $event.target;
