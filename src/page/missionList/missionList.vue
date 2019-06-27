@@ -23,8 +23,8 @@
       </template>
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
-          <a style="text-decoration: underline" @click="() => handleTask(record.id)" v-show="record.workStatus != 2">制作</a>
-          <a style="text-decoration: underline" @click="() => checkTask(record)" v-show="record.workStatus == 2">查看</a>
+          <a style="text-decoration: underline" @click="() => handleTask(record.id)" v-show="record.workStatus != 2 && record.workStatus != 3">制作</a>
+          <a style="text-decoration: underline" @click="() => checkTask(record)" v-show="record.workStatus == 2 || record.workStatus == 3">查看</a>
         </div>
       </template>
     </a-table>
