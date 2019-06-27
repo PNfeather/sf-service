@@ -21,8 +21,7 @@
             accept="image/*"
             class="taskStart-upload"
             :showUploadList='false'
-            :customRequest="customRequest"
-            @change="leadImg">
+            :customRequest="customRequest">
             <a-button type="primary" class="funBtn" @click="startUpload">导入图片</a-button>
           </a-upload>
         </div>
@@ -469,7 +468,6 @@
         this.clearArr(this.imageUploadList);
         this.doneUpload = 0;
         this.totalUpload = 0;
-        console.log(this.imagePopupList, this.imageUploadList);
       },
       popupUpload () {
         if (!this.fileUploadToggle || !this.uploadModal) return;
@@ -502,16 +500,12 @@
         });
       },
       customRequest (data) { // 自定义上传事件
+        this.startUploadToggle && (this.resetUpload()) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开
         this.imagePopupList.push(data.file);
+        this.totalUpload++;
       },
       resetUpload () {
         this.uploadModal = true;
-      },
-      leadImg (info) {
-        this.startUploadToggle && (this.resetUpload()) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开
-        this.totalUpload = Array.from(new Set(info.fileList.map((item) => {
-          return item.name;
-        }))).length;
       },
       goMake (item) {
         if (!item.importStatus) { // 不是资源库导入
