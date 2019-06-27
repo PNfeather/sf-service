@@ -1,6 +1,6 @@
 import {config} from './data';
 
-let pre = 'SF_';
+let pre = 'XZD_';
 
 function setItem (name, value) {
   return window.localStorage.setItem(pre + name, JSON.stringify(value));
