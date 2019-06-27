@@ -81,6 +81,9 @@
       },
       questionScoreCatch () {
         return this.$store.getters.questionScoreCatch;
+      },
+      imgScale () {
+        return this.$store.getters.imgScale;
       }
     },
     mounted () { // 进来已有模板情况加载模板数据
@@ -102,8 +105,10 @@
               let fl = this.$refs.bg.getBoundingClientRect().left;
               if (arr && arr.length) {
                 arr.forEach((item) => {
-                  item.left = item.leftPoint;
-                  item.top = item.topPoint;
+                  item.left = item.leftPoint / this.imgScale;
+                  item.top = item.topPoint / this.imgScale;
+                  item.height = item.height / this.imgScale;
+                  item.width = item.width / this.imgScale;
                   let {serialNumber, score} = item;
                   let {width, height, top, left} = item;
                   let cell = {serialNumber, score};
