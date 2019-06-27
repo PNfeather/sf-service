@@ -23,7 +23,7 @@
           <div class="closeBtn" v-show="coverImg" @click="reMoveImg">
             <i class="iconfont iconClossAcross"></i>
           </div>
-          <img class="coverImg" v-show="coverImg" :src="coverImg" alt="">
+          <img class="coverImg" v-show="coverImg" :src="`${$CJIMGURL + coverImg + $OSSIMGADJUST}`" alt="">
         </div>
         <div class="nextBtn">
           <a-button type="primary" class="newResourceBtn" @click="startUpload" :disabled="nextToggle">下一步</a-button>
@@ -37,7 +37,6 @@
   import {createBook} from '@/api/tBook';
   import {fileUpload} from '@/api/fileUpload';
   import titleBack from '@C/titleBack';
-  import getBase64 from '@/tools/getBase64';
   export default {
     name: 'startNewResource',
     data () {
@@ -58,8 +57,12 @@
     methods: {
       beforeUpload (info) { // 只导入
         this.file = info;
-        getBase64(info, (imageUrl) => {
-          this.coverImg = imageUrl;
+        fileUpload({'file': this.file}).then(res => {
+          if (res.data.code == 0) {
+            this.coverImg = res.data.data.url;
+          } else {
+            this.$message.error(res.data.message);
+          }
         });
         return false;
       },
@@ -67,20 +70,14 @@
         this.coverImg = '';
       },
       startUpload () {
-        fileUpload({'file': this.file}).then(res => {
-          if (res.data.code == 0) {
-            createBook({
-              coverUrl: res.data.data.url,
-              name: this.templateName
-            }).then(resIn => {
-              if (resIn.data.code == 0) {
-                this.$router.push({path: 'taskStart', query: {pageType: 'resourceMakeStart', workId: resIn.data.data.id}});
-              } else {
-                this.$message.error(resIn.data.message);
-              }
-            });
+        createBook({
+          coverUrl: this.coverImg,
+          name: this.templateName
+        }).then(resIn => {
+          if (resIn.data.code == 0) {
+            this.$router.push({path: 'taskStart', query: {pageType: 'resourceMakeStart', workId: resIn.data.data.id}});
           } else {
-            this.$message.error(res.data.message);
+            this.$message.error(resIn.data.message);
           }
         });
       }
