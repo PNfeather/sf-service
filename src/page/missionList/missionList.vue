@@ -105,7 +105,8 @@
             let statusObj = {
               '0': '等待模板',
               '1': '模板制作中',
-              '2': '模板已完成'
+              '2': '模板已完成', // 模板已完成
+              '3': '模板已完成' // 模板完成已批改
             };
             this.tableData = data.data.map((item) => {
               let time = format(new Date(item.assignTime), 'MM月DD日 HH:mm');
