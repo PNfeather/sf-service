@@ -376,7 +376,7 @@
         getBookTemplate(this.workId).then(res => {
           let data = res.data;
           if (data.code == 0) {
-            let defaultTemplatePage = 1;
+            let defaultTemplatePage = 0;
             let reData = data.data;
             this.resourceMakeStartTitle = reData.name;
             this.clearArr(this.templateList);
@@ -395,7 +395,7 @@
         getWorkTemplate(this.workId).then(res => {
           let data = res.data;
           if (data.code == 0) {
-            let defaultTemplatePage = 1;
+            let defaultTemplatePage = 0;
             let reData = data.data;
             this.clearArr(this.templateList);
             this.templateList = [...reData.templatePages.map((item) => {
