@@ -8,6 +8,7 @@ const getters = {
   templateHeight: state => state.template.templateHeight,
   templateWidth: state => state.template.templateWidth,
   imgScale: state => state.template.imgScale,
-  lastActive: state => state.manage.lastActive
+  lastActive: state => state.manage.lastActive,
+  defaultTemplateSortNum: state => state.template.defaultTemplateSortNum
 };
 export default getters;

@@ -5,9 +5,10 @@ const template = {
     currentEditTemplate: storage.get('currentEditTemplate') || {},
     checkedQuestionList: [],
     questionScoreCatch: [],
+    defaultTemplateSortNum: 1, // 模板默认页号
     templateHeight: 1166, // 模板宽
     templateWidth: 760, // 模板高
-    imgScale: 1.25 // 图片相对模板缩放比例
+    imgScale: 1.5 // 图片相对模板缩放比例
   },
 
   mutations: {
@@ -22,6 +23,9 @@ const template = {
     },
     SET_QUESTIONSCORECATCH: (state, data) => {
       state.questionScoreCatch = data;
+    },
+    SET_DEFAULTTEMPLATESORTNUM: (state, data) => {
+      state.defaultTemplateSortNum = data;
     }
   },
 
@@ -39,6 +43,9 @@ const template = {
     },
     changeQuestionScoreCatch ({ commit }, data) {
       commit('SET_QUESTIONSCORECATCH', data);
+    },
+    changeDefaultTemplateSortNum ({ commit }, data) {
+      commit('SET_DEFAULTTEMPLATESORTNUM', data);
     }
   }
 };

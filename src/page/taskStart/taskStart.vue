@@ -215,6 +215,7 @@
       };
     },
     created () {
+      this.$store.dispatch('changeDefaultTemplateSortNum', 1); // 模板默认页号恢复为1
       timeLimit(this[this.currentPageConfig.pageInitMethod]);
     },
     computed: {
@@ -375,13 +376,16 @@
         getBookTemplate(this.workId).then(res => {
           let data = res.data;
           if (data.code == 0) {
+            let defaultTemplatePage = 1;
             let reData = data.data;
             this.resourceMakeStartTitle = reData.name;
             this.clearArr(this.templateList);
             this.templateList = [...reData.templatePages.map((item) => {
+              item.serialNumber > defaultTemplatePage && (defaultTemplatePage = item.serialNumber);
               item.finished = true;
               return item;
             }), ...reData.templateImages];
+            this.$store.dispatch('changeDefaultTemplateSortNum', defaultTemplatePage - 0 + 1);
           } else {
             this.$message.error(data.message);
           }
@@ -391,12 +395,15 @@
         getWorkTemplate(this.workId).then(res => {
           let data = res.data;
           if (data.code == 0) {
+            let defaultTemplatePage = 1;
             let reData = data.data;
             this.clearArr(this.templateList);
             this.templateList = [...reData.templatePages.map((item) => {
+              item.serialNumber > defaultTemplatePage && (defaultTemplatePage = item.serialNumber);
               item.finished = true;
               return item;
             }), ...reData.templateImages];
+            this.$store.dispatch('changeDefaultTemplateSortNum', defaultTemplatePage - 0 + 1);
           } else {
             this.$message.error(data.message);
           }

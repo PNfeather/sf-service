@@ -118,7 +118,7 @@
         divList: [],
         visible: false,
         backModal: false,
-        templatePageNumber: '',
+        templatePageNumber: this.$store.getters.defaultTemplateSortNum,
         isMultipleChoice: false, // 复选开关
         drawFrameInitialIdentify: 1
       };
