@@ -17,7 +17,7 @@
       </template>
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
-          <a-popconfirm v-show="record.status != 2" placement="topRight" title="你确定要删除该作业?" @confirm="deleteTask(record.id, index)" >
+          <a-popconfirm v-show="record.status != 2" placement="topRight" title="你确定要删除该作业?" @confirm="deleteTask(record.id)" >
             <a style="text-decoration: underline; color: #E98469;">删除</a>
           </a-popconfirm>
           <p v-show="record.status == 2" style="color: #999">已删除</p>
@@ -68,12 +68,6 @@
     created () {
       this.getList();
     },
-    mounted () {},
-    // activated () {
-    //   this.getList();
-    // },
-    watch: {
-    },
     computed: {
       serviceList () {
         let result = this.$store.getters.serviceList;
@@ -113,11 +107,11 @@
       check () {
         this.getList();
       },
-      deleteTask (workId, index) {
+      deleteTask (workId) {
         deleteWork(workId).then((res) => {
           if (res.data.code == 0) {
             this.$message.warn('作业删除');
-            this.tableData.splice(index, 1);
+            this.getList();
           }
         });
       },
