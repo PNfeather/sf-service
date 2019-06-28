@@ -27,6 +27,7 @@
 </template>
 
 <script type='text/babel'>
+  import timeLimit from '@/tools/timeLimit';
   export default {
     name: 'templatePreview',
     props: {
@@ -41,6 +42,11 @@
         }
       }
     },
+    data () {
+      return {
+        currentIndex: 0
+      };
+    },
     computed: {
       templateHeight () {
         return this.$store.getters.templateHeight;
@@ -52,17 +58,26 @@
         return this.$store.getters.imgScale;
       }
     },
+    mounted () {
+      this.$emit('input', this.defaultIndex + 1 + '/' + this.imgList.length);
+    },
     watch: {
       defaultIndex (val) {
         this.goIndex(val);
+      },
+      currentIndex (val) {
+        timeLimit(() => {
+          this.$emit('input', val + 1 + '/' + this.imgList.length);
+        }, 200);
       }
     },
     methods: {
       goIndex (index) {
+        this.currentIndex = index;
         this.$refs.carousel.goTo(index, true);
       },
       onChange (index) {
-        console.log(index);
+        this.currentIndex = index;
       }
     }
   };

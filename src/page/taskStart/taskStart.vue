@@ -108,13 +108,13 @@
       <missionContent ref="missionContent" :workId="workId" class="fillcontain"></missionContent>
     </a-modal>
     <a-modal
-      title="模板预览"
+      :title='`模板预览${totalCurrent}`'
       v-model="templatePreviewToggle"
       centered
       class="previewModal"
       width="96%"
       :footer="null">
-      <templatePreview :defaultIndex="previewIndex" :imgList="previewList"></templatePreview>
+      <templatePreview :defaultIndex="previewIndex" :imgList="previewList" v-model="totalCurrent"></templatePreview>
     </a-modal>
     <a-modal
       v-model="uploadModal"
@@ -161,6 +161,7 @@
         selectedList: [], // 已选择模板数组
         previewIndex: 0, // 图片预览初始图片下标
         previewList: [], // 图片预览数组
+        totalCurrent: '0 / 0',
         templateName: '',
         pageSizeOptions: ['5', '10', '20', '30', '40', '50'],
         templateChoiceList: [], // 模板选择列表
