@@ -11,7 +11,7 @@
             <div class='br' :style="{height: templateHeight + 4 + 'px'}"></div>
           </div>
           <imgBorder :attribute='attribute' :startCreate='startCreate' ref='imgBorder'>
-            <img crossOrigin="anonymous" ref='dealImg' :src='`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`' alt="">
+            <img crossOrigin="anonymous" ref='dealImg' v-imgLazy='`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`' alt="">
           </imgBorder>
         </div>
       </div>

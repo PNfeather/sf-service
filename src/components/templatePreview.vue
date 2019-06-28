@@ -15,7 +15,7 @@
       </div>
       <div class="carouselBody" v-for="(item, index) in imgList" :key="index" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
         <div class="wrapper" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
-          <img :src="$CJIMGURL + item.url + $OSSIMGADJUST" alt="">
+          <img v-imgLazy="$CJIMGURL + item.url + $OSSIMGADJUST" alt="">
           <div class="question"
                v-for="(child, childIndex) in item.questionSigns"
                :key="childIndex"
