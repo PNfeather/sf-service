@@ -17,9 +17,10 @@
       </template>
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
-          <a-popconfirm placement="topRight" title="你确定要删除该作业?" @confirm="deleteTask(record.id, index)" >
+          <a-popconfirm v-show="record.status != 2" placement="topRight" title="你确定要删除该作业?" @confirm="deleteTask(record.id, index)" >
             <a style="text-decoration: underline; color: #E98469;">删除</a>
           </a-popconfirm>
+          <p v-show="record.status == 2">已删除</p>
         </div>
       </template>
     </a-table>
@@ -88,7 +89,8 @@
             limit: this.limit,
             skip: this.skip,
             teacherInfo: this.teacherInfo,
-            service: this.service
+            service: this.service,
+            queryDelete: true
           }).then(res => {
             let data = res.data;
             this.count = data.total;
