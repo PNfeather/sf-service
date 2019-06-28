@@ -20,7 +20,7 @@
           <a-popconfirm v-show="record.status != 2" placement="topRight" title="你确定要删除该作业?" @confirm="deleteTask(record.id)" >
             <a style="text-decoration: underline; color: #E98469;">删除</a>
           </a-popconfirm>
-          <p v-show="record.status == 2" style="color: #999">已删除</p>
+          <p v-show="record.status == 2" style="color: #999; margin: 0">已删除</p>
         </div>
       </template>
     </a-table>
