@@ -4,20 +4,12 @@ import Vue from 'vue';
 import App from './App';
 import router from './router';
 import http from '@/plugins/http';
+import '@/tools/directives/imgLazy'; // 图片懒加载指令
 import store from './store/';
 import Antd from 'ant-design-vue';
 import HeadTop from '@C/headTop';
 import fcLoading from '@C/fcLoading';
 import 'ant-design-vue/dist/antd.css';
-import VueLazyload from 'vue-lazyload';
-
-Vue.use(VueLazyload, {
-  preLoad: 1.3,
-  loading: require('@IMG/loading.jpg'),
-  attempt: 1,
-  // the default is ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend']
-  listenEvents: [ 'scroll' ]
-});
 
 (process.env.BASE_URL == '/api') && process.env.MOCK && require('@/mock');
 
