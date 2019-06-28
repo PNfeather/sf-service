@@ -1,5 +1,5 @@
 import Vue from 'vue';
-let loadingImg = require('@IMG/loading.jpg');
+let loadingImg = require('@IMG/loading.gif');
 let getCss = function (obj, attribute) { // 获取元素css属性
   if (obj.currentStyle) {
     return obj.currentStyle[attribute];

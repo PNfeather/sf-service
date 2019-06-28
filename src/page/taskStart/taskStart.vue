@@ -40,7 +40,7 @@
             <i class="iconfont iconFinished2"></i>
           </div>
           <div class="img">
-            <img crossOrigin="anonymous" :src='`${$CJIMGURL + item.url + $OSSIMGADJUST}`' alt="" @click="goMake(item)">
+            <img crossOrigin="anonymous" v-imgLazy='`${$CJIMGURL + item.url + $OSSIMGADJUST}`' alt="" @click="goMake(item)">
           </div>
           <p v-show="!showWorkSortNum"><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
           <p v-show="showWorkSortNum && item.finished"><span>序号:<a-input
@@ -52,7 +52,7 @@
         </div>
         <div class="item" v-for="(item, index) in resourceList" :key="index" @click="goTemplateChoiceList(item)" v-if="s2">
           <div class="img">
-            <img crossOrigin="anonymous" :src='`${$CJIMGURL + item.coverUrl + $OSSIMGADJUST}`' alt="">
+            <img crossOrigin="anonymous" v-imgLazy='`${$CJIMGURL + item.coverUrl + $OSSIMGADJUST}`' alt="">
           </div>
           <p><span>{{item.name}}</span></p>
         </div>
@@ -64,13 +64,13 @@
             <i class="iconfont iconFinished2"></i>
           </div>
           <div class="img">
-            <img crossOrigin="anonymous" :src='`${$CJIMGURL + item.url + $OSSIMGADJUST}`' alt="">
+            <img crossOrigin="anonymous" v-imgLazy='`${$CJIMGURL + item.url + $OSSIMGADJUST}`' alt="">
           </div>
           <p><span>第{{item.serialNumber}}页</span></p>
         </div>
         <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s5 || s6">
           <div class="img" @click="openPreview(index)">
-            <img crossOrigin="anonymous" :src='`${$CJIMGURL + item.url + $OSSIMGADJUST}`' alt="">
+            <img crossOrigin="anonymous" v-imgLazy='`${$CJIMGURL + item.url + $OSSIMGADJUST}`' alt="">
           </div>
           <p><span v-show="item.serialNumber">第{{item.serialNumber}}页</span></p>
         </div>
