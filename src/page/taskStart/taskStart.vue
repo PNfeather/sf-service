@@ -751,6 +751,7 @@
             position: absolute;
             top: 0;
             left: 10px;
+            z-index: 1;
             i{
               font-size: 45px;
               color: #E46948;
