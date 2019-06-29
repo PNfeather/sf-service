@@ -27,7 +27,6 @@
 </template>
 
 <script type='text/babel'>
-  import timeLimit from '@/tools/timeLimit';
   export default {
     name: 'templatePreview',
     props: {
@@ -59,16 +58,13 @@
       }
     },
     mounted () {
-      this.$emit('input', this.defaultIndex + 1 + '/' + this.imgList.length);
+      this.goIndex(this.defaultIndex);
     },
     watch: {
-      defaultIndex (val) {
-        this.goIndex(val);
-      },
       currentIndex (val) {
-        timeLimit(() => {
+        this.$nextTick(() => {
           this.$emit('input', val + 1 + '/' + this.imgList.length);
-        }, 200);
+        });
       }
     },
     methods: {
