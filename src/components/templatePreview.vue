@@ -30,6 +30,9 @@
   export default {
     name: 'templatePreview',
     props: {
+      open: {
+        type: Boolean
+      },
       defaultIndex: {
         type: Number,
         default: 0
@@ -43,7 +46,7 @@
     },
     data () {
       return {
-        currentIndex: 0
+        currentIndex: -1
       };
     },
     computed: {
@@ -61,6 +64,9 @@
       this.goIndex(this.defaultIndex);
     },
     watch: {
+      open (val) {
+        val && this.goIndex(this.defaultIndex);
+      },
       currentIndex (val) {
         this.$nextTick(() => {
           this.$emit('input', val + 1 + '/' + this.imgList.length);

@@ -114,7 +114,7 @@
       class="previewModal"
       width="96%"
       :footer="null">
-      <templatePreview :defaultIndex="previewIndex" :imgList="previewList" v-model="totalCurrent"></templatePreview>
+      <templatePreview :defaultIndex="previewIndex" :open="templatePreviewToggle" :imgList="previewList" v-model="totalCurrent"></templatePreview>
     </a-modal>
     <a-modal
       v-model="uploadModal"
