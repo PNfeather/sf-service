@@ -742,6 +742,7 @@
             position: absolute;
             right: 0;
             top: 0;
+            z-index: 3;
             .fac();
             i{
               font-size: 26px;
