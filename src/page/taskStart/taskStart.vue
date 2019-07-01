@@ -146,7 +146,7 @@
     data () {
       let query = this.$route.query;
       return {
-        pageType: query.pageType || 'missionTemplate', // missionTemplate作业模板制作页，resourceChoiceList图文资源库选择页，templateChoiceList模板选择页，resourceMakeStart资源模板制作页,checkTemplate查看模板页
+        pageType: query.pageType || 'missionTemplate', // missionTemplate作业模板制作页，resourceChoiceList图文资源库选择页，templateChoiceList模板选择页，resourceMakeStart资源模板制作页,checkTemplate查看模板页,checkWork查看作业
         startUploadToggle: false,
         uploadModal: false,
         templatePreviewToggle: false,
@@ -423,6 +423,7 @@
         });
       },
       getTemplatePage () {
+        this.clearArr(this.selectedList);
         reviewBook(this.currentBook.id).then(res => {
           let data = res.data;
           if (data.code == 0) {
