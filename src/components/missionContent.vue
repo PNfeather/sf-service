@@ -18,7 +18,7 @@
         <div class="close" @click="showSmall">
           <i class="iconfont iconShrink"></i>
         </div>
-        <a-carousel arrows :afterChange="onChange" ref="carousel">
+        <a-carousel arrows ref="carousel">
           <div
             slot="prevArrow" slot-scope="props"
             class="custom-slick-arrow"
@@ -121,9 +121,6 @@
             }
           });
         });
-      },
-      onChange (index) {
-        console.log(index);
       },
       showSmall () {
         this.showBig = false;

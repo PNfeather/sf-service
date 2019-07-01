@@ -318,7 +318,6 @@
           }).then(res => {
             let data = res.data;
             if (data.code == 0) {
-              console.log(this.currentPageConfig.pageInitMethod);
               this[this.currentPageConfig.pageInitMethod]();
             } else {
               this.$message.error(data.message);
@@ -540,9 +539,7 @@
           detailWrokTemplate(this.workId, item.id).then(res => {
             let data = res.data;
             if (data.code == 0) {
-              let reData = data.data;
               this.templateList.splice(index, 1);
-              console.log(reData);
             } else {
               this.$message.error(data.message);
             }
@@ -551,9 +548,7 @@
           deleteTemplatePage({id: item.id}).then(res => {
             let data = res.data;
             if (data.code == 0) {
-              let reData = data.data;
               this.templateList.splice(index, 1);
-              console.log(reData);
             } else {
               this.$message.error(data.message);
             }
@@ -562,9 +557,7 @@
           deleteTemplateImg({id: item.id}).then(res => {
             let data = res.data;
             if (data.code == 0) {
-              let reData = data.data;
               this.templateList.splice(index, 1);
-              console.log(reData);
             } else {
               this.$message.error(data.message);
             }

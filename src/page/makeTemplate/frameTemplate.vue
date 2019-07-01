@@ -188,7 +188,6 @@
             questionList.push(questionListCell);
           });
           this.questionList = [...questionList];
-          console.log(this.questionList);
         },
         deep: true
       }
@@ -312,7 +311,6 @@
       submit () {
         let questionSigns = [];
         let mergeObj = {};
-        console.log(this.questionList);
         this.questionList.forEach((item) => {
           (item.mergeHeader) && (mergeObj[item.mergeHeader] = item.score); // 保存合并头对应分数
           (item.mergeBody) && (item.score = mergeObj[item.mergeBody]); // 合并身取对应合并头的分数
