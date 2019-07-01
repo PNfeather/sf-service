@@ -32,7 +32,7 @@
           <p>请导入或者从资源库选择作业图片</p>
           <p>（单次导入最多99张图片）</p>
         </div>
-        <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s1 || s4">
+        <div class="item" v-for="(item, index) in templateList" :key="item.id" v-if="s1 || s4">
           <div class="delete" @click.stop="deleteTemplate(item, index)">
             <i class="iconfont iconClose"></i>
           </div>
@@ -559,11 +559,13 @@
             }
           });
         } else {
+          console.log(this.templateList, index);
           deleteTemplateImg({id: item.id}).then(res => {
             let data = res.data;
             if (data.code == 0) {
               let reData = data.data;
               this.templateList.splice(index, 1);
+              console.log(this.templateList, index);
               console.log(reData);
             } else {
               this.$message.error(data.message);
