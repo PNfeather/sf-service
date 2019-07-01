@@ -23,7 +23,7 @@
           <div class="closeBtn" v-show="coverImg" @click="reMoveImg">
             <i class="iconfont iconClossAcross"></i>
           </div>
-          <img class="coverImg" v-if="coverImg" :src="`${$CJIMGURL + coverImg + $OSSIMGADJUST}`" alt="">
+          <img crossOrigin="anonymous" class="coverImg" v-if="coverImg" :src="`${$CJIMGURL + coverImg + $OSSIMGADJUST}`" alt="">
         </div>
         <div class="nextBtn">
           <a-button type="primary" class="newResourceBtn" @click="startUpload" :disabled="nextToggle">下一步</a-button>

@@ -15,6 +15,7 @@ import 'ant-design-vue/dist/antd.css';
 
 Vue.prototype.$CJIMGURL = process.env.CJIMGURL; // oss图片域名
 Vue.prototype.$OSSIMGADJUST = '?x-oss-process=image/auto-orient,1'; // oss图片自动旋正
+Vue.prototype.$OSSIMGADJUSTMINI = '?x-oss-process=image/resize,w_200,auto-orient,1'; // oss图片自动旋正并缩略200比例
 
 Vue.use(http.install);
 
