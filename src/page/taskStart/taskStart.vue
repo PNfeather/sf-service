@@ -559,13 +559,11 @@
             }
           });
         } else {
-          console.log(this.templateList, index);
           deleteTemplateImg({id: item.id}).then(res => {
             let data = res.data;
             if (data.code == 0) {
               let reData = data.data;
               this.templateList.splice(index, 1);
-              console.log(this.templateList, index);
               console.log(reData);
             } else {
               this.$message.error(data.message);
