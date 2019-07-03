@@ -3,11 +3,13 @@
     <div class="search">
       <div class="teacher">
         <span class="label">布置教师:</span>
-        <a-input v-model="teacherInfo" class="input" placeholder="请输入资源名称"/>
+        <a-input v-model="teacherInfo" class="input" placeholder="请输入教师名称"/>
       </div>
       <div class="service">
         <span class="label">操作客服:</span>
-        <a-input v-model="service" class="input" placeholder="请输入资源名称"/>
+        <a-select :value="serviceId" :defaultValue="serviceList[0]" style="flex: 120px 0 0; overflow: hidden" @change="changeService">
+          <a-select-option v-for="option in serviceList" :key="option.id">{{option.name}}</a-select-option>
+        </a-select>
       </div>
       <a-button type="primary" class="check" @click="check">查询</a-button>
     </div>
@@ -46,6 +48,7 @@
     name: 'missionList',
     data () {
       return {
+        serviceId: '',
         teacherInfo: '',
         service: '',
         tableData: [],
@@ -70,9 +73,7 @@
     },
     computed: {
       serviceList () {
-        let result = this.$store.getters.serviceList;
-        result.unshift({id: '', name: '全部'});
-        return result;
+        return [{id: '', name: '全部'}, ...this.$store.getters.serviceList];
       }
     },
     methods: {
@@ -83,7 +84,7 @@
             limit: this.limit,
             skip: this.skip,
             teacherInfo: this.teacherInfo,
-            service: this.service,
+            serviceId: this.serviceId,
             queryDelete: true
           }).then(res => {
             let data = res.data;
@@ -105,6 +106,10 @@
         }, 500);
       },
       check () {
+        this.getList();
+      },
+      changeService (value) {
+        this.serviceId = value;
         this.getList();
       },
       deleteTask (workId) {
