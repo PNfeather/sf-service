@@ -12,7 +12,7 @@
               </div>
             </section>
             <section class="handleArea" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
-              <drawFrame ref="drawFrame" :isMultipleChoice="isMultipleChoice" v-model="divList"></drawFrame>
+              <drawFrame ref="drawFrame" :isMultipleChoice="isMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber"></drawFrame>
               <img crossOrigin="anonymous" :src="`${$CJIMGURL + currentEditTemplate.url + $OSSIMGADJUST}`" class="fillcontain" alt="">
             </section>
           </div>
@@ -58,19 +58,41 @@
       </div>
     </a-modal>
     <a-modal
-      title="填写资料页码"
+      title="填写资料信息"
       v-model="visible"
       centered
       width="450px"
       @ok="submit"
       class="frameTemplateModal">
-      <div class="frameTemplateModalWrapper">
-        第<a-input
-        :value="templatePageNumber"
-        maxLength="6"
-        class="frameTemplateModalWrapperInput"
-        @change="changeTemplatePageNumber"/>页
-      </div>
+      <a-form
+        class="form fillcontain">
+        <a-form-item
+          class="input-item"
+          label="页码排序"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }">
+          <div class="sortInput">
+            第<a-input
+            :value="templatePageNumber"
+            maxLength="6"
+            :disabled="!!query.templatePageId"
+            class="frameTemplateModalWrapperInput"
+            @change="changeTemplatePageNumber"/>页
+          </div>
+        </a-form-item>
+        <a-form-item
+          class="input-item"
+          label="题目布局"
+          :label-col="{ span: 5 }"
+          :wrapper-col="{ span: 12 }">
+          <div class="sortInput">
+            <a-radio-group @change="changeColumnNumber" :defaultValue="defaultColumnNumber" >
+              <a-radio :value="1">单列</a-radio>
+              <a-radio :value="2">双列</a-radio>
+            </a-radio-group>
+          </div>
+        </a-form-item>
+      </a-form>
     </a-modal>
   </div>
 </template>
@@ -79,6 +101,7 @@
   import {saveTemplatePage, updateTemplatePage} from '@/api/tPage';
   import makeBody from './components/makeBody';
   import drawFrame from './components/drawFrame';
+  import timeLimit from '@/tools/timeLimit';
   export default {
     name: 'frameTemplate',
     data () {
@@ -118,9 +141,11 @@
         divList: [],
         visible: false,
         backModal: false,
-        templatePageNumber: this.$store.getters.defaultTemplateSortNum,
+        templatePageNumber: query.templatePageId ? this.$store.getters.defaultTemplateSortNum - 1 : this.$store.getters.defaultTemplateSortNum,
         isMultipleChoice: false, // 复选开关
-        drawFrameInitialIdentify: 1
+        drawFrameInitialIdentify: 1,
+        columnNumber: '',
+        defaultColumnNumber: ''
       };
     },
     created () {},
@@ -263,12 +288,14 @@
           this.templatePageNumber = value;
         }
       },
+      outputColumnNumber (data) {
+        this.columnNumber = this.defaultColumnNumber = data;
+      },
+      changeColumnNumber (e) {
+        this.columnNumber = e.target.value;
+      },
       openSurePageModal () {
-        if (this.query.templatePageId) {
-          this.submit();
-        } else {
-          this.visible = true;
-        }
+        this.visible = true;
       },
       lastStep () {
         if (this.questionList.length) {
@@ -309,6 +336,16 @@
         });
       },
       submit () {
+        if (!this.query.templatePageId && !this.templatePageNumber) {
+          return timeLimit(() => {
+            this.$message.error('请输入页码');
+          }, 800);
+        }
+        if (!this.columnNumber) {
+          return timeLimit(() => {
+            this.$message.error('请选择题目布局');
+          }, 800);
+        }
         let questionSigns = [];
         let mergeObj = {};
         this.questionList.forEach((item) => {
@@ -322,6 +359,7 @@
           }
         });
         let params = {
+          columnNumber: this.columnNumber,
           'questionSigns': [...questionSigns.map((item) => {
             item.height = item.height * this.imgScale;
             item.left = item.left * this.imgScale;
@@ -368,6 +406,11 @@
       align-items: center;
       width: 80%;
       margin: 0 auto;
+    }
+    .sortInput{
+      display: flex;
+      justify-content: center;
+      align-items: center;
       .frameTemplateModalWrapperInput{
         width: 87px;
         margin: 0 5px;

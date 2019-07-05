@@ -103,6 +103,7 @@
               let arr = reData.questionSigns;
               let ft = this.$refs.bg.getBoundingClientRect().top;
               let fl = this.$refs.bg.getBoundingClientRect().left;
+              this.$emit('outputColumnNumber', reData.columnNumber);
               if (arr && arr.length) {
                 arr.forEach((item) => {
                   item.left = item.leftPoint / this.imgScale;
