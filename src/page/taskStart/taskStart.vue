@@ -465,6 +465,8 @@
         timeLimit(this[this.currentPageConfig.pageInitMethod]);
       },
       searchResource () {
+        this.skip = 0;
+        this.currentPage = 1;
         timeLimit(this[this.currentPageConfig.pageInitMethod]);
       },
       checkTask () {

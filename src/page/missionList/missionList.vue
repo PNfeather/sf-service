@@ -129,14 +129,20 @@
         }, 500);
       },
       refresh () {
+        this.skip = 0;
+        this.currentPage = 1;
         this.getList();
       },
       changeStatus (value) {
         this.status = value;
+        this.skip = 0;
+        this.currentPage = 1;
         this.getList();
       },
       changeService (value) {
         this.serviceId = value;
+        this.skip = 0;
+        this.currentPage = 1;
         this.getList();
       },
       handleTask (workId) {

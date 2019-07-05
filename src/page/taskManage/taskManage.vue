@@ -106,6 +106,8 @@
         }, 500);
       },
       check () {
+        this.skip = 0;
+        this.currentPage = 1;
         this.getList();
       },
       changeService (value) {

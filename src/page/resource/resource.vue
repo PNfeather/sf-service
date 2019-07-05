@@ -3,7 +3,7 @@
     <div class="search">
       <div class="searchInput">
         <a-input v-model="templateName" class="input" placeholder="请输入资源名称"/>
-        <a-button type="primary" class="getList" @click="getList">搜索</a-button>
+        <a-button type="primary" class="getList" @click="search">搜索</a-button>
       </div>
       <div class="btn">
         <a-button type="primary" class="addNew" @click="addNew">新增</a-button>
@@ -71,6 +71,11 @@
     computed: {
     },
     methods: {
+      search () {
+        this.skip = 0;
+        this.currentPage = 1;
+        this.getList();
+      },
       getList () {
         if (this.getListTimer) clearTimeout(this.getListTimer);
         this.getListTimer = setTimeout(() => {
