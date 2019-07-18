@@ -216,7 +216,6 @@
       };
     },
     created () {
-      this.$store.dispatch('changeDefaultTemplateSortNum', 1); // 模板默认页号恢复为1
       timeLimit(this[this.currentPageConfig.pageInitMethod]);
     },
     computed: {
@@ -376,16 +375,13 @@
         getBookTemplate(this.workId).then(res => {
           let data = res.data;
           if (data.code == 0) {
-            let defaultTemplatePage = 0;
             let reData = data.data;
             this.resourceMakeStartTitle = reData.name;
             this.clearArr(this.templateList);
             this.templateList = [...reData.templatePages.map((item) => {
-              item.serialNumber > defaultTemplatePage && (defaultTemplatePage = item.serialNumber);
               item.finished = true;
               return item;
             }), ...reData.templateImages];
-            this.$store.dispatch('changeDefaultTemplateSortNum', defaultTemplatePage - 0 + 1);
           } else {
             this.$message.error(data.message);
           }
@@ -395,15 +391,12 @@
         getWorkTemplate(this.workId).then(res => {
           let data = res.data;
           if (data.code == 0) {
-            let defaultTemplatePage = 0;
             let reData = data.data;
             this.clearArr(this.templateList);
             this.templateList = [...reData.templatePages.map((item) => {
-              item.serialNumber > defaultTemplatePage && (defaultTemplatePage = item.serialNumber);
               item.finished = true;
               return item;
             }), ...reData.templateImages];
-            this.$store.dispatch('changeDefaultTemplateSortNum', defaultTemplatePage - 0 + 1);
           } else {
             this.$message.error(data.message);
           }
@@ -517,20 +510,31 @@
       resetUpload () {
         this.uploadModal = true;
       },
+      computeMaxFinishedSortNum () { // 已完成模板最大序号+1计算
+        let currentMaxFinishedSortNum = 1;
+        this.templateList.forEach((item) => {
+          item.finished && item.serialNumber > currentMaxFinishedSortNum && (currentMaxFinishedSortNum = item.serialNumber - 0 + 1);
+        });
+        return currentMaxFinishedSortNum;
+      },
       goMake (item) {
         if (!item.importStatus) { // 不是资源库导入
           let query;
+          let defaultTemplateSortNum;
           if (item.finished) { // 已完成模板
+            defaultTemplateSortNum = item.serialNumber; // 点击已完成末班，默认序号为当前模板序号
             this.$store.dispatch('passTemplate', JSON.stringify(item));
             query = {templatePageId: item.id}; // 模板页ID（存在则在模板制作时需要初始渲染，最后是更新）
             this.$router.push({path: 'frameTemplate', query: query});
           } else { // 导入图片模板
+            defaultTemplateSortNum = this.computeMaxFinishedSortNum(); // 点击未完成模板，默认序号为已完成模板最大序号加1
             this.$store.dispatch('passChooseImg', JSON.stringify(item));
             query = {templateImageId: item.id}; // 模板图片ID
             this.s1 && Object.assign(query, {workId: this.workId, pageType: 'missionTemplate'}); // 作业进来传作业ID
             this.s4 && Object.assign(query, {templateBookId: item.templateBookId, pageType: 'resourceMakeStart'}); // 资源进来传模板书ID
             this.$router.push({path: 'imgAdjust', query: query});
           }
+          this.$store.dispatch('changeDefaultTemplateSortNum', defaultTemplateSortNum);
         } else {
           timeLimit(() => {
             this.$message.warn('资源库导入模板不可编辑');

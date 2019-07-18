@@ -141,7 +141,7 @@
         divList: [],
         visible: false,
         backModal: false,
-        templatePageNumber: query.templatePageId ? this.$store.getters.defaultTemplateSortNum - 1 : this.$store.getters.defaultTemplateSortNum,
+        templatePageNumber: this.$store.getters.defaultTemplateSortNum,
         isMultipleChoice: false, // 复选开关
         drawFrameInitialIdentify: 1,
         columnNumber: '',
