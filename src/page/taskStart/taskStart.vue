@@ -513,7 +513,7 @@
       computeMaxFinishedSortNum () { // 已完成模板最大序号+1计算
         let currentMaxFinishedSortNum = 1;
         this.templateList.forEach((item) => {
-          item.finished && item.serialNumber > currentMaxFinishedSortNum && (currentMaxFinishedSortNum = item.serialNumber - 0 + 1);
+          item.finished && item.serialNumber >= currentMaxFinishedSortNum && (currentMaxFinishedSortNum = item.serialNumber - 0 + 1);
         });
         return currentMaxFinishedSortNum;
       },
