@@ -7,7 +7,7 @@
       <span class="endTime">截止时间：{{endTime}}</span>
     </section>
     <transition name="small-scale" mode="in-out">
-      <section class="smallImg" v-show="!showBig">
+      <section class="smallImg" v-show="!showBig && imgList.length">
         <div class="imgItem" v-for="(item, index) in imgList" :key="index">
           <img crossOrigin="anonymous" v-imgLazy="`${$CJIMGURL + item.url + $OSSIMGADJUSTMINI}`" alt="" @click="openBig(index)">
         </div>
