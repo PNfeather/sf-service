@@ -298,7 +298,7 @@
       },
       inputChangeScore (item, index, e) {
         const { value } = e.target;
-        const reg = /^(0|[1-9][0-9]*)$/;
+        const reg = /^([1-9][0-9]*)$/;
         if ((!isNaN(value) && reg.test(value)) || value === '') {
           item.serialNumber = value;
           this.templateList.splice(index, 1, item);
