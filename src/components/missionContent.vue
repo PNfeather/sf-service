@@ -87,13 +87,13 @@
             let data = res.data;
             if (data.code == 0) {
               let reData = data.data;
-              let time = format(new Date(reData.assignTime), 'MM月DD日');
+              let time = reData.assignTime && format(new Date(reData.assignTime), 'MM月DD日');
               if (time[0] == 0) {
                 time = time.substr(1);
               }
-              this.txtMessage = reData.txtMessage.replace(/\n/g, '<br/>').replace(/\t/g, '　　');
-              this.assignTime = format(new Date(reData.assignTime), 'YYYY年MM月DD日 HH:mm');
-              this.endTime = format(new Date(reData.endTime), 'YYYY年MM月DD日 HH:mm');
+              this.txtMessage = reData.txtMessage && reData.txtMessage.replace(/\n/g, '<br/>').replace(/\t/g, '　　');
+              this.assignTime = reData.assignTime && format(new Date(reData.assignTime), 'YYYY年MM月DD日 HH:mm');
+              this.endTime = reData.endTime && format(new Date(reData.endTime), 'YYYY年MM月DD日 HH:mm');
               this.detailName = time + reData.name;
               this.assignTeacherName = reData.assignTeacherName;
               this.$emit('input', this.detailName);
