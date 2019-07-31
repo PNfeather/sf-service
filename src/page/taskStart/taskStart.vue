@@ -365,7 +365,7 @@
             let reData = data.data;
             this.checkTemplateTitle = reData.name;
             this.clearArr(this.templateList);
-            this.templateList = [...reData.templatePages, ...reData.templateImages];
+            this.templateList = [...reData.templatePages];
           } else {
             this.$message.error(data.message);
           }

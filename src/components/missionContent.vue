@@ -8,7 +8,7 @@
     </section>
     <transition name="small-scale" mode="in-out">
       <section class="smallImg" v-show="!showBig && imgList.length">
-        <div class="imgItem" v-for="(item, index) in imgList" :key="index">
+        <div class="imgItem" v-for="(item, index) in imgList" :key="item.id || index">
           <img crossOrigin="anonymous" v-imgLazy="`${$CJIMGURL + item.url + $OSSIMGADJUSTMINI}`" alt="" @click="openBig(index)">
         </div>
       </section>
@@ -31,14 +31,14 @@
             style="right: 10px">
             <a-icon type="right" />
           </div>
-          <div class="imgItem" v-for="(item, index) in imgList" :key="index" :style="{backgroundImage: 'url(' + $CJIMGURL + item.url + $OSSIMGADJUST + ')'}">
+          <div class="imgItem" v-for="(item, index) in imgList" :key="item.id || index" :style="{backgroundImage: 'url(' + $CJIMGURL + item.url + $OSSIMGADJUST + ')'}">
           </div>
         </a-carousel>
       </section>
     </transition>
     <section class="missionDetail" v-html="txtMessage">
     </section>
-    <section class="voice" v-for="(item, index) in voiceMessages" :key="index">
+    <section class="voice" v-for="(item, index) in voiceMessages" :key="item.id || index">
       <div class="item" :class="{active: item.audioPlaying}" @click="playAudio(item, index)">
         <i class="iconfont iconVoice"></i>{{item.duration}}s
         <span style="flex: 1; text-align: right" v-show="item.currentTime > 0 && (item.currentTime != item.duration)">{{item.currentTime}}s</span>

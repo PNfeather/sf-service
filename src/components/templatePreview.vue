@@ -13,12 +13,12 @@
         style="right: 40px">
         <a-icon type="right" />
       </div>
-      <div class="carouselBody" v-for="(item, index) in imgList" :key="index" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
+      <div class="carouselBody" v-for="(item, index) in imgList" :key="item.id || index" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
         <div class="wrapper" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
           <img :src="$CJIMGURL + item.url + $OSSIMGADJUST" alt="">
           <div class="question"
                v-for="(child, childIndex) in item.questionSigns"
-               :key="childIndex"
+               :key="child.id || childIndex"
                :style="{top: child.topPoint / imgScale + 'px', left: child.leftPoint / imgScale + 'px', height: child.height / imgScale + 'px', width: child.width / imgScale + 'px'}"></div>
         </div>
       </div>
