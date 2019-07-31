@@ -1,7 +1,7 @@
 <template>
   <div name="moveDiv">
     <div class="subDiv" :class="{'changing': changeType}" v-if="canChange && checked" @mousemove="change" @mouseup="end"></div>
-    <div @click="checkSelf" @mousedown.stop="start('move', $event)" @mousemove="change" @mouseup="end" class="moveDiv" :class="{'active': changeType, 'canChange': canChange && checked}" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px'}" ref="moveDiv">
+    <div @click="checkSelf" @mousedown.stop="start('move', $event)" @mousemove="change" @mouseup="end" class="moveDiv" :class="{'active': changeType, 'canChange': canChange && checked, 'markerAreaCantChange': !checked && (type === 'markerArea')}" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px'}" ref="moveDiv">
       <div class="w" v-if="canChange && checked" @mousedown.stop="start('w', $event)" @mousemove="change" @mouseup="end"></div>
       <div class="wn" v-if="canChange && checked" @mousedown.stop="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
       <div class="n" v-if="canChange && checked" @mousedown.stop="start('n', $event)" @mousemove="change" @mouseup="end"></div>
@@ -18,6 +18,10 @@
   export default {
     name: 'moveDiv',
     props: {
+      type: { // 当前moveDiv代表类型： 1、markerArea识别区域
+        type: String,
+        default: ''
+      },
       originalItem: {
         type: Object,
         default: () => {
@@ -219,6 +223,10 @@
     }
     .active{
       z-index: 100;
+    }
+    .markerAreaCantChange{
+      border: 1px solid #b010ff!important;
+      z-index: 1!important;
     }
     .canChange{
       cursor: move;

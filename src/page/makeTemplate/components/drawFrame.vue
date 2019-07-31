@@ -1,6 +1,7 @@
 <template>
   <div name="drawFrame" @mousedown="createMoveDiv" @mouseup="endMoveDiv"  @mousemove="changeMoveDiv" ref="bg">
       <moveDiv v-show="currentAttribute.width && currentAttribute.height" :attribute="currentAttribute" :checked="true" :canChange="false"></moveDiv>
+      <moveDiv :attribute="markerArea" :type="'markerArea'"></moveDiv>
       <moveDiv
         v-for="item in moveDivList"
         :key="item.identify"
@@ -84,6 +85,24 @@
       },
       imgScale () {
         return this.$store.getters.imgScale;
+      },
+      markerAreaWidth () {
+        return this.$store.getters.markerAreaWidth;
+      },
+      markerAreaHeight () {
+        return this.$store.getters.markerAreaHeight;
+      },
+      markerArea () {
+        let elW = this.markerAreaWidth;
+        let elH = this.markerAreaHeight;
+        let temW = this.$store.getters.templateWidth;
+        let temH = this.$store.getters.templateHeight;
+        return {
+          width: elW,
+          height: elH,
+          top: Math.floor(temH / 2 - elH / 2),
+          left: Math.floor(temW / 2 - elW / 2)
+        };
       }
     },
     mounted () { // 进来已有模板情况加载模板数据

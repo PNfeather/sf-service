@@ -8,6 +8,8 @@ const template = {
     defaultTemplateSortNum: '', // 模板默认页号
     templateHeight: 1166, // 模板宽
     templateWidth: 760, // 模板高
+    markerAreaWidth: 300, // 识别区默认宽
+    markerAreaHeight: 100, // 识别去默认高
     imgScale: 1.5 // 图片相对模板缩放比例
   },
 
