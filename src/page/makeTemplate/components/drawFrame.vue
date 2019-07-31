@@ -271,7 +271,7 @@
         }
         this.$store.dispatch('changeCheckedQuestionList', this.activeMoveDivSort);
       },
-      getScoreCatchCell (catchArr, item) {
+      getScoreCatchCell (catchArr, item) { // 题目分数缓存
         if (item.score || item.currentBtn) {
           let {serialNumber, score, currentBtn} = item;
           catchArr.push({serialNumber, score, currentBtn});
@@ -331,9 +331,11 @@
         let cpre = 0; // 上一个循环当前值
         let result = [];
         let scoreCatch = [];
-        this.moveDivList.forEach((item) => {
-          if (!this.activeMoveDivSort.includes(item.serialNumber)) {
-            if (item.serialNumber == opre) { // 当前循环值与上一循环原始值想等，则表示当前与上一个以合并
+        this.moveDivList.sort((a, b) => {
+          return (a.serialNumber - b.serialNumber);
+        }).forEach((item) => {
+          if (!this.activeMoveDivSort.includes(item.serialNumber)) { // 不在选中的数组单元重新push
+            if (item.serialNumber == opre) { // 当前循环值与上一循环原始值相等，则表示当前与上一个是合并题
               item.serialNumber = cpre;
             } else {
               opre = item.serialNumber;
