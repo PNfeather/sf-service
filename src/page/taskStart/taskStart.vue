@@ -211,8 +211,7 @@
         },
         showWorkSortNum: false, // 排序开关
         imagePopupList: [], // 图片上传队列
-        imageUploadList: [], // 图片上传数组
-        fileUploadToggle: true // 图片上传控制开关
+        imageUploadList: [] // 图片上传数组
       };
     },
     created () {
@@ -254,13 +253,14 @@
       }
     },
     watch: {
-      'imagePopupList.length' (val, oldVal) {
-        (val > oldVal) && this.popupUpload();
-      },
       uploadModal (val) {
         if (!val) { // 关闭上传弹框，若存在imageUploadList则将图片上传后端模板
           if (this.imageUploadList.length) {
             this.uploadImgTemplate();
+          }
+        } else {
+          if (this.imagePopupList.length) {
+            this.popupUpload();
           }
         }
       },
@@ -473,15 +473,13 @@
         this.totalUpload = 0;
       },
       popupUpload () {
-        if (!this.fileUploadToggle || !this.uploadModal) return;
-        this.fileUploadToggle = false;
+        if (!this.uploadModal) return;
         let file = this.imagePopupList.shift();
         getBase64(file, (imageUrl) => {
           let img = document.createElement('img');
           img.src = imageUrl;
           img.onload = () => {
             fileUpload({'file': file}).then(res => {
-              this.fileUploadToggle = true;
               if (res.data.code == 0) {
                 this.doneUpload += 1;
                 let imgUrl = res.data.data.url;
@@ -503,17 +501,25 @@
         });
       },
       customRequest (data) { // 自定义上传事件
-        this.startUploadToggle && (this.resetUpload()) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开
+        this.resetUpload();
         this.imagePopupList.push(data.file);
-        this.totalUpload++;
-        if (this.totalUpload > 99) {
-          this.$message.error('单次上传不能大于99张');
-          this.clearArr(this.imageUploadList);
-          this.uploadModal = false;
-        }
       },
       resetUpload () {
-        this.uploadModal = true;
+        setTimeout(() => { // 将内容添加到微任务，延迟触发
+          if (this.startUploadToggle) { // 每次点击导入图片只触发一次弹框打开
+            this.startUploadToggle = false;
+            this.totalUpload = this.imagePopupList.length;
+            if (this.totalUpload > 99) {
+              this.$message.error('单次上传不能大于99张');
+              this.clearArr(this.imagePopupList);
+              this.clearArr(this.imageUploadList);
+              this.totalUpload = 0;
+              this.uploadModal = false;
+            } else {
+              this.uploadModal = true;
+            }
+          }
+        });
       },
       computeMaxFinishedSortNum () { // 已完成模板最大序号+1计算
         let currentMaxFinishedSortNum = 1;
