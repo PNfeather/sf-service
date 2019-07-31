@@ -187,6 +187,9 @@
         return result;
       },
       createMoveDiv ($event) { // 开始拉框
+        if (this.pickCRD) {
+          return this.$message.error('您正在调整识别区，请先结束');
+        }
         this.createToggle = true;
         this.currentAttribute = {}; // 消除临时moveDiv
         this.startCreateMoveDivComputed($event);
@@ -255,10 +258,10 @@
         this.$set(this.currentAttribute, 'height', Math.abs(ch));
       },
       checkMoveDiv (serialNumber, $event) { // 点击选择框
-        $event.stopPropagation();
         if (this.pickCRD) {
-          return this.$message.error('识别区选中状态，无法选择其他题目选区');
+          return this.$message.error('您正在调整识别区，请先结束');
         }
+        $event.stopPropagation();
         let index = this.activeMoveDivSort.indexOf(serialNumber);
         if (index > -1) {
           this.activeMoveDivSort.splice(index, 1);
@@ -278,9 +281,6 @@
         }
       },
       mergeTem () { // 合并当前选择的框
-        if (this.pickCRD) {
-          return this.$message.error('识别区无法合并');
-        }
         let minSort = _.min(this.activeMoveDivSort);
         let sort = 1;
         let opre = 0; // 上一个循环原始值
@@ -295,7 +295,7 @@
             if (item.serialNumber == minSort) {
               this.getScoreCatchCell(scoreCatch, item);
               item.mergeHeader = minSort; // 将合并的最小序列号对象标记为合并头，属性值定为当前合并序列号
-              sort++;
+              sort == minSort && sort++;
             } else {
               item.mergeHeader && (item.mergeHeader = null); // 若本身为合并头，删除标记
               item.mergeBody = minSort; // 合并的其他对象标记为合并身，属性值定为当前合并序列号
@@ -323,9 +323,6 @@
         this.serialNumber = sort; // 后续添加序号重赋值
       },
       deleteTem () { // 删除选中框,并重排序
-        if (this.pickCRD) {
-          return this.$message.error('识别区无法删除');
-        }
         let sort = 1;
         let opre = 0; // 上一个循环原始值
         let cpre = 0; // 上一个循环当前值

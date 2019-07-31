@@ -232,7 +232,7 @@
     methods: {
       checkQuestion (sort) {
         if (this.pickCRD) {
-          return this.$message.error('识别区选中状态，无法选择其他题目选区');
+          return this.$message.error('您正在调整识别区，请先结束');
         }
         let checkedList = [];
         checkedList = [...this.checkedQuestionList];
@@ -249,14 +249,20 @@
         this.$store.dispatch('changeCheckedQuestionList', checkedList);
       },
       mergeTem () {
+        if (this.pickCRD) {
+          return this.$message.error('您正在调整识别区，请先结束');
+        }
         this.$refs.drawFrame.mergeTem();
       },
       deleteTem () {
+        if (this.pickCRD) {
+          return this.$message.error('您正在调整识别区，请先结束');
+        }
         this.$refs.drawFrame.deleteTem();
       },
       multipleChoice (item) { //  复选区选择
         if (this.pickCRD) {
-          return this.$message.error('识别区选中状态，无法多选');
+          return this.$message.error('您正在调整识别区，请先结束');
         }
         this.isMultipleChoice = !item.active;
         this.$set(item, 'active', !item.active);
