@@ -226,7 +226,7 @@
     }
     .markerAreaCantChange{
       border: 1px solid #b010ff!important;
-      z-index: 1!important;
+      z-index: 11;
     }
     .canChange{
       cursor: move;
