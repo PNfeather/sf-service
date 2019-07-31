@@ -1,7 +1,7 @@
 <template>
   <div name="drawFrame" @mousedown="createMoveDiv" @mouseup="endMoveDiv"  @mousemove="changeMoveDiv" ref="bg">
       <moveDiv v-show="currentAttribute.width && currentAttribute.height" :attribute="currentAttribute" :checked="true" :canChange="false"></moveDiv>
-      <moveDiv :attribute="markerArea" :checked="pickCRD" :type="'markerArea'"></moveDiv>
+      <moveDiv :attribute="markerArea" :checked="pickCRD" :type="'markerArea'" @change="reChangeMarkerArea"></moveDiv>
       <moveDiv
         v-for="item in moveDivList"
         :key="item.identify"
@@ -226,6 +226,9 @@
             this.moveDivList.splice(index, 1, obj);
           }
         });
+      },
+      reChangeMarkerArea (obj) {
+        Object.assign(this.markerArea, obj.attribute);
       },
       startCreateMoveDivComputed (e) { // 初始状态计算
         let ft = this.$refs.bg.getBoundingClientRect().top;
