@@ -32,7 +32,7 @@
           <p>请导入或者从资源库选择作业图片</p>
           <p>（单次导入最多99张图片）</p>
         </div>
-        <div class="item" v-for="(item, index) in templateList" :key="item.id" v-if="s1 || s4">
+        <div class="item" v-for="(item, index) in templateList" :key="item.id || index" v-if="s1 || s4">
           <div class="delete" @click.stop="deleteTemplate(item, index)">
             <i class="iconfont iconClose"></i>
           </div>
@@ -50,13 +50,13 @@
             @blur="onBlur(item)"
           /></span></p>
         </div>
-        <div class="item" v-for="(item, index) in resourceList" :key="index" @click="goTemplateChoiceList(item)" v-if="s2">
+        <div class="item" v-for="(item, index) in resourceList" :key="item.id || index" @click="goTemplateChoiceList(item)" v-if="s2">
           <div class="img">
             <img crossOrigin="anonymous" v-imgLazy='`${$CJIMGURL + item.coverUrl + $OSSIMGADJUSTMINI}`' alt="">
           </div>
           <p><span>{{item.name}}</span></p>
         </div>
-        <div class="item" v-for="(item, index) in templateChoiceList" :key="index" @click="choiceTemplate(item)" v-if="s3">
+        <div class="item" v-for="(item, index) in templateChoiceList" :key="item.id || index" @click="choiceTemplate(item)" v-if="s3">
           <div class="choiceIcon">
             <i class="iconfont iconFinished" :class="{'selected': selectedList.includes(item.id)}"></i>
           </div>
@@ -68,7 +68,7 @@
           </div>
           <p><span>第{{item.serialNumber}}页</span></p>
         </div>
-        <div class="item" v-for="(item, index) in templateList" :key="index" v-if="s5 || s6">
+        <div class="item" v-for="(item, index) in templateList" :key="item.id || index" v-if="s5 || s6">
           <div class="img" @click="openPreview(index)">
             <img crossOrigin="anonymous" v-imgLazy='`${$CJIMGURL + item.url + $OSSIMGADJUSTMINI}`' alt="">
           </div>
