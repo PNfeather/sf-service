@@ -173,6 +173,8 @@
               this.$message.error(data.message);
             }
           });
+        } else {
+          this.getMarkArea();
         }
       },
       checkCapture (type, currentData) { // 捕获计算
