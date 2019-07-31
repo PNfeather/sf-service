@@ -12,7 +12,7 @@
               </div>
             </section>
             <section class="handleArea" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
-              <drawFrame ref="drawFrame" :isMultipleChoice="isMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber"></drawFrame>
+              <drawFrame ref="drawFrame" :pickCRD="pickCRD" :isMultipleChoice="isMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber"></drawFrame>
               <img crossOrigin="anonymous" :src="`${$CJIMGURL + currentEditTemplate.url + $OSSIMGADJUST}`" class="fillcontain" alt="">
             </section>
           </div>
@@ -110,6 +110,7 @@
         query: query,
         funBtnList: [
           {
+            id: 1,
             icon: 'iconMerge',
             activeClass: 'mergeActive',
             activeType: 'mouseDown',
@@ -117,6 +118,7 @@
             fun: this.mergeTem,
             active: false
           }, {
+            id: 2,
             icon: 'iconDelete',
             activeClass: 'deleteActive',
             activeType: 'mouseDown',
@@ -124,12 +126,21 @@
             fun: this.deleteTem,
             active: false
           }, {
+            id: 3,
             icon: 'iconMultipleChoice',
             activeClass: 'multipleChoiceActive',
             activeType: 'click',
             text: '多选',
             fun: this.multipleChoice,
             active: this.isMultipleChoice
+          }, {
+            id: 4,
+            icon: 'iconCRD',
+            activeClass: 'CRDChoiceActive',
+            activeType: 'click',
+            text: '识别区',
+            fun: this.pickCRDMethod,
+            active: this.pickCRD
           }
         ],
         questionList: [],
@@ -143,6 +154,7 @@
         backModal: false,
         templatePageNumber: this.$store.getters.defaultTemplateSortNum,
         isMultipleChoice: false, // 复选开关
+        pickCRD: false, // 识别区选中开关
         drawFrameInitialIdentify: 1,
         columnNumber: '',
         defaultColumnNumber: ''
@@ -239,9 +251,17 @@
       deleteTem () {
         this.$refs.drawFrame.deleteTem();
       },
-      multipleChoice (item) {
+      multipleChoice (item) { //  复选区选择
         this.isMultipleChoice = !item.active;
         this.$set(item, 'active', !item.active);
+      },
+      pickCRDMethod (item) { // 识别区选中，自动去掉复选选中
+        this.pickCRD = !item.active;
+        this.$set(item, 'active', !item.active);
+        if (this.pickCRD) {
+          this.isMultipleChoice = false;
+          this.$set(this.funBtnList.filter(item => item.id === 3)[0], 'active', false);
+        }
       },
       addActive (item) {
         (item.activeType === 'mouseDown') && this.$set(item, 'active', true);
@@ -441,7 +461,7 @@
           .deleteActive{
             color: #E46948!important;
           }
-          .multipleChoiceActive{
+          .multipleChoiceActive, .CRDChoiceActive{
             color: #1890ff!important;
           }
           .btnItem{

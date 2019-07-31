@@ -1,7 +1,7 @@
 <template>
   <div name="drawFrame" @mousedown="createMoveDiv" @mouseup="endMoveDiv"  @mousemove="changeMoveDiv" ref="bg">
       <moveDiv v-show="currentAttribute.width && currentAttribute.height" :attribute="currentAttribute" :checked="true" :canChange="false"></moveDiv>
-      <moveDiv :attribute="markerArea" :type="'markerArea'"></moveDiv>
+      <moveDiv :attribute="markerArea" :checked="pickCRD" :type="'markerArea'"></moveDiv>
       <moveDiv
         v-for="item in moveDivList"
         :key="item.identify"
@@ -21,6 +21,10 @@
     name: 'drawFrame',
     props: {
       isMultipleChoice: { // 复选开关
+        type: Boolean,
+        default: false
+      },
+      pickCRD: { // 识别区选中开关
         type: Boolean,
         default: false
       }
@@ -74,6 +78,11 @@
           this.activeMoveDivSort = [...val];
         },
         deep: true
+      },
+      pickCRD (val) {
+        if (val) {
+          this.clearArr(this.activeMoveDivSort);
+        }
       }
     },
     computed: {
