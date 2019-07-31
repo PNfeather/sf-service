@@ -506,6 +506,11 @@
         this.startUploadToggle && (this.resetUpload()) && (this.startUploadToggle = false); // 每次点击导入图片只触发一次弹框打开
         this.imagePopupList.push(data.file);
         this.totalUpload++;
+        if (this.totalUpload > 99) {
+          this.$message.error('单次上传不能大于99张');
+          this.clearArr(this.imageUploadList);
+          this.uploadModal = false;
+        }
       },
       resetUpload () {
         this.uploadModal = true;
