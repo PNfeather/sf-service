@@ -231,6 +231,9 @@
     },
     methods: {
       checkQuestion (sort) {
+        if (this.pickCRD) {
+          return this.$message.error('识别区选中状态，无法选择其他题目选区');
+        }
         let checkedList = [];
         checkedList = [...this.checkedQuestionList];
         let index = checkedList.indexOf(sort);
@@ -252,6 +255,9 @@
         this.$refs.drawFrame.deleteTem();
       },
       multipleChoice (item) { //  复选区选择
+        if (this.pickCRD) {
+          return this.$message.error('识别区选中状态，无法多选');
+        }
         this.isMultipleChoice = !item.active;
         this.$set(item, 'active', !item.active);
       },
@@ -259,6 +265,7 @@
         this.pickCRD = !item.active;
         this.$set(item, 'active', !item.active);
         if (this.pickCRD) {
+          this.$store.dispatch('changeCheckedQuestionList', []); // 去掉已选中的缓存list
           this.isMultipleChoice = false;
           this.$set(this.funBtnList.filter(item => item.id === 3)[0], 'active', false);
         }
@@ -355,6 +362,14 @@
           }
         });
       },
+      computeMarkerArea () {
+        let markerArea = {...this.$refs.drawFrame.markerArea};
+        let keys = Object.keys(markerArea);
+        for (let i in keys) {
+          markerArea[keys[i]] = markerArea[keys[i]] * this.imgScale;
+        }
+        return markerArea;
+      },
       submit () {
         if (!this.query.templatePageId && !this.templatePageNumber) {
           return timeLimit(() => {
@@ -379,6 +394,7 @@
           }
         });
         let params = {
+          markerArea: this.computeMarkerArea(),
           columnNumber: this.columnNumber,
           'questionSigns': [...questionSigns.map((item) => {
             item.height = item.height * this.imgScale;

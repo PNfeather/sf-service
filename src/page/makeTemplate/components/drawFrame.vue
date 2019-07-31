@@ -31,6 +31,7 @@
     },
     data () {
       return {
+        markerArea: {},
         moveDivList: [], // moveDiv数据list
         identify: 1, // moveDiv 唯一辨识码
         serialNumber: 1, // 对应序号，可合并用
@@ -100,18 +101,6 @@
       },
       markerAreaHeight () {
         return this.$store.getters.markerAreaHeight;
-      },
-      markerArea () {
-        let elW = this.markerAreaWidth;
-        let elH = this.markerAreaHeight;
-        let temW = this.$store.getters.templateWidth;
-        let temH = this.$store.getters.templateHeight;
-        return {
-          width: elW,
-          height: elH,
-          top: Math.floor(temH / 2 - elH / 2),
-          left: Math.floor(temW / 2 - elW / 2)
-        };
       }
     },
     mounted () { // 进来已有模板情况加载模板数据
@@ -120,6 +109,27 @@
     methods: {
       clearArr (arr) { // 不改变数组指正清空数组
         arr.splice(0, arr.length);
+      },
+      getMarkArea (markerArea) {
+        if (markerArea) {
+          let params = {...markerArea};
+          let keys = Object.keys(params);
+          for (let i in keys) {
+            params[keys[i]] = params[keys[i]] / this.imgScale;
+          }
+          this.markerArea = params;
+        } else {
+          let elW = this.markerAreaWidth;
+          let elH = this.markerAreaHeight;
+          let temW = this.$store.getters.templateWidth;
+          let temH = this.$store.getters.templateHeight;
+          this.markerArea = {
+            width: elW,
+            height: elH,
+            top: Math.floor(temH / 2 - elH / 2),
+            left: Math.floor(temW / 2 - elW / 2)
+          };
+        }
       },
       pageInit () {
         let templatePageId = this.$route.query.templatePageId;
@@ -132,6 +142,7 @@
               let ft = this.$refs.bg.getBoundingClientRect().top;
               let fl = this.$refs.bg.getBoundingClientRect().left;
               this.$emit('outputColumnNumber', reData.columnNumber);
+              this.getMarkArea(reData.markerArea);
               if (arr && arr.length) {
                 arr.forEach((item) => {
                   item.left = item.leftPoint / this.imgScale;
@@ -240,6 +251,9 @@
       },
       checkMoveDiv (serialNumber, $event) { // 点击选择框
         $event.stopPropagation();
+        if (this.pickCRD) {
+          return this.$message.error('识别区选中状态，无法选择其他题目选区');
+        }
         let index = this.activeMoveDivSort.indexOf(serialNumber);
         if (index > -1) {
           this.activeMoveDivSort.splice(index, 1);
@@ -259,6 +273,9 @@
         }
       },
       mergeTem () { // 合并当前选择的框
+        if (this.pickCRD) {
+          return this.$message.error('识别区无法合并');
+        }
         let minSort = _.min(this.activeMoveDivSort);
         let sort = 1;
         let opre = 0; // 上一个循环原始值
@@ -301,6 +318,9 @@
         this.serialNumber = sort; // 后续添加序号重赋值
       },
       deleteTem () { // 删除选中框,并重排序
+        if (this.pickCRD) {
+          return this.$message.error('识别区无法删除');
+        }
         let sort = 1;
         let opre = 0; // 上一个循环原始值
         let cpre = 0; // 上一个循环当前值
