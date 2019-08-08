@@ -16,6 +16,8 @@
       <div class="carouselBody" v-for="(item, index) in imgList" :key="item.id || index" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
         <div class="wrapper" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
           <img :src="$CJIMGURL + item.url + $OSSIMGADJUST" alt="">
+          <div class="markerArea"
+            :style="{top: item.markerArea.top / imgScale + 'px', left: item.markerArea.left / imgScale + 'px', height: item.markerArea.height / imgScale + 'px', width: item.markerArea.width / imgScale + 'px'}"></div>
           <div class="question"
                v-for="(child, childIndex) in item.questionSigns"
                :key="child.id || childIndex"
@@ -116,6 +118,10 @@
         .question{
           position: absolute;
           border: 1px solid #1690FF;
+        }
+        .markerArea{
+          position: absolute;
+          border: 1px solid #b010ff;
         }
       }
     }
