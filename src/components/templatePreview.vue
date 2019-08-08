@@ -17,6 +17,7 @@
         <div class="wrapper" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
           <img :src="$CJIMGURL + item.url + $OSSIMGADJUST" alt="">
           <div class="markerArea"
+               v-if="item.markerArea"
             :style="{top: item.markerArea.top / imgScale + 'px', left: item.markerArea.left / imgScale + 'px', height: item.markerArea.height / imgScale + 'px', width: item.markerArea.width / imgScale + 'px'}"></div>
           <div class="question"
                v-for="(child, childIndex) in item.questionSigns"
