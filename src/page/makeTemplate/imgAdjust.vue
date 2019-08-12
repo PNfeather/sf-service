@@ -2,7 +2,7 @@
   <div name='imgAdjust' class='fillcontain'>
     <headTop></headTop>
     <makeBody @next='submit'>
-      <div class='imgArea' @mousemove='change' @mouseup='end'>
+      <div class='imgArea' :style="{minWidth: templateWidth + 60 + 'px'}" @mousemove='change' @mouseup='end'>
         <div class='imgWrapper' ref='imgWrapper' :style="{transform: 'scale(' + scale +  ',' + scale + ')', width: templateWidth + 'px', height: templateHeight + 'px'}">
           <div v-show="!startCreate">
             <div class='bt' :style="{width: templateWidth + 4 + 'px'}"></div>
