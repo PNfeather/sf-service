@@ -98,9 +98,10 @@
         this.$refs.imgBorder.rotateEnd(e);
       },
       submit () {
+        const DPR = window.devicePixelRatio; // 设备像素比
         this.loadingModal = true;
         this.startCreate = true;
-        this.scale = this.imgScale; // 放大截图，增加清晰度
+        this.scale = this.imgScale / DPR; // 放大截图，增加清晰度
         this.$nextTick(() => {
           html2canvas(this.$refs.imgWrapper, {useCORS: true}).then(canvas => {
             this.startCreate = false;
