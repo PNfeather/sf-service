@@ -156,8 +156,8 @@
                     let exitHeader = this.moveDivList.some((child) => {
                         return (child.serialNumber == item.serialNumber);
                     });
-                    exitHeader && (cell.mergeHeader = item.serialNumber);
-                    !exitHeader && (cell.mergeBody = item.serialNumber);
+                    !exitHeader && (cell.mergeHeader = item.serialNumber);
+                    exitHeader && (cell.mergeBody = item.serialNumber);
                   }
                   cell.attribute = {width, height, top, left};
                   cell.attribute.startX = fl + item.left;
