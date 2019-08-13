@@ -3,5 +3,5 @@ module.exports = {
   NODE_ENV: '"production"',
   MOCK: 'false',
   BASE_URL: '"https://demoapi.ecaiedu.com/api"',
-  CJIMGURL: '"https://cjfc-prod.oss-cn-shenzhen.aliyuncs.com/"'
+  CJIMGURL: '"https://cjfc-dev.oss-cn-shenzhen.aliyuncs.com/"'
 }
