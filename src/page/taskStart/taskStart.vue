@@ -210,6 +210,7 @@
           }
         },
         showWorkSortNum: false, // 排序开关
+        maxSortNum: 1, // 排序最大值
         imagePopupList: [], // 图片上传队列
         imageUploadList: [] // 图片上传数组
       };
@@ -299,6 +300,9 @@
       inputChangeScore (item, index, e) {
         const { value } = e.target;
         const reg = /^([1-9][0-9]*)$/;
+        if (value > this.maxSortNum) {
+          return this.$message.error('序号不能超过当前已完成模板数');
+        }
         if ((!isNaN(value) && reg.test(value)) || value === '') {
           item.serialNumber = value;
           this.templateList.splice(index, 1, item);
@@ -378,6 +382,7 @@
             let reData = data.data;
             this.resourceMakeStartTitle = reData.name;
             this.clearArr(this.templateList);
+            reData.templatePages && (this.maxSortNum = reData.templatePages.length);
             this.templateList = [...reData.templatePages.map((item) => {
               item.finished = true;
               return item;
@@ -393,6 +398,7 @@
           if (data.code == 0) {
             let reData = data.data;
             this.clearArr(this.templateList);
+            reData.templatePages && (this.maxSortNum = reData.templatePages.length);
             this.templateList = [...reData.templatePages.map((item) => {
               item.finished = true;
               return item;
