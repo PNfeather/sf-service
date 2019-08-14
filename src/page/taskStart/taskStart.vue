@@ -47,6 +47,7 @@
             :value="item.serialNumber"
             style="width: 60px;margin-left: 5px;text-align: center;"
             @change="inputChangeScore(item, index, $event)"
+            @focus="cacheOldSort(item.serialNumber)"
             @blur="onBlur(item)"
           /></span></p>
         </div>
@@ -211,6 +212,7 @@
         },
         showWorkSortNum: false, // 排序开关
         maxSortNum: 1, // 排序最大值
+        oldSortNum: '', // 正在改变序号项的原序号
         imagePopupList: [], // 图片上传队列
         imageUploadList: [] // 图片上传数组
       };
@@ -297,6 +299,9 @@
       openSort () {
         this.showWorkSortNum = !this.showWorkSortNum;
       },
+      cacheOldSort (val) { // 记录改变前序号
+        this.oldSortNum = val;
+      },
       inputChangeScore (item, index, e) {
         const { value } = e.target;
         const reg = /^([1-9][0-9]*)$/;
@@ -309,6 +314,10 @@
         }
       },
       onBlur (item) {
+        if (item.serialNumber === '') {
+          item.serialNumber = this.oldSortNum;
+          return this.$message.error('序号不能为空');
+        }
         let type = (this.s4 ? 'book' : 'work');
         timeLimit(() => {
           upadataTemplateSerialNum(this.workId, type, {
