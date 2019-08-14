@@ -301,7 +301,7 @@
         const { value } = e.target;
         const reg = /^([1-9][0-9]*)$/;
         if (value > this.maxSortNum) {
-          return this.$message.error('序号不能超过当前已完成模板数');
+          return this.$message.error('序号不能超过' + this.maxSortNum);
         }
         if ((!isNaN(value) && reg.test(value)) || value === '') {
           item.serialNumber = value;
