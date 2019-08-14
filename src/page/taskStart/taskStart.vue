@@ -77,7 +77,7 @@
         </div>
       </section>
       <section class="submitBtn" v-show="s1 || s4">
-        <a-button type="primary" class="submit" @click="submit" :disabled="submitToggle">发布</a-button>
+        <a-button type="primary" class="submit" @click="submit" :disabled="showWorkSortNum">发布</a-button>
       </section>
       <section class="paginationArea" v-show="s2">
         <a-pagination
@@ -153,7 +153,6 @@
         templatePreviewToggle: false,
         totalUpload: 0, // 总上传图片数
         doneUpload: 0, // 已完成上传图片数
-        submitToggle: false,
         workId: query.workId,
         visible: false,
         currentBook: null,
