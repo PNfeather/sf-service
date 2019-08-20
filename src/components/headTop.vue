@@ -1,7 +1,7 @@
 <template>
   <section name="headTop">
     <div class="text">
-      <div class="title">习之道客服系统</div>
+      <div class="title">传而习客服系统</div>
       <div class="name">{{userName}}</div>
     </div>
     <a-dropdown class="logout" :trigger="['click']">
