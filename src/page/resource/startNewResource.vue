@@ -3,7 +3,7 @@
     <titleBack class="backTitle" title="返回资源库"></titleBack>
     <section class="newResourceBody">
       <div class="wrapper">
-        <div class="subTitle">新增资源</div>
+        <div class="subTitle">{{type === 'edit' ? '编辑': '新增'}}资源</div>
         <div class="nameInput">
           <span>资源名称:</span>
           <a-input v-model="templateName" class="input" placeholder="请输入资源名称"/>
@@ -26,7 +26,7 @@
           <img crossOrigin="anonymous" class="coverImg" v-if="coverImg" :src="`${$CJIMGURL + coverImg + $OSSIMGADJUST}`" alt="">
         </div>
         <div class="nextBtn">
-          <a-button type="primary" class="newResourceBtn" @click="startUpload" :disabled="nextToggle">下一步</a-button>
+          <a-button type="primary" class="newResourceBtn" @click="startUpload" :disabled="nextToggle">{{type === 'edit' ? '保存' : '下一步'}}</a-button>
         </div>
       </div>
     </section>
@@ -34,20 +34,29 @@
 </template>
 
 <script type='text/babel'>
-  import {createBook} from '@/api/tBook';
+  import {createBook, updateBook} from '@/api/tBook';
   import {fileUpload} from '@/api/fileUpload';
   import titleBack from '@C/titleBack';
   export default {
     name: 'startNewResource',
     data () {
+      const { type, workId, resourceTemplateCoverInfo } = this.$route.query;
       return {
+        type: type,
+        workId: workId,
+        resourceTemplateCoverInfo: resourceTemplateCoverInfo,
         templateName: '',
         coverImg: '',
         file: null
       };
     },
-    created () {},
-    mounted () {},
+    mounted () {
+      if (this.type === 'edit') {
+        const info = JSON.parse(this.resourceTemplateCoverInfo);
+        this.templateName = info.name;
+        this.coverImg = info.coverUrl;
+      }
+    },
     computed: {
       nextToggle () {
         return (this.templateName == '' || this.coverImg == '');
@@ -70,16 +79,30 @@
         this.coverImg = '';
       },
       startUpload () {
-        createBook({
-          coverUrl: this.coverImg,
-          name: this.templateName
-        }).then(resIn => {
-          if (resIn.data.code == 0) {
-            this.$router.push({path: 'taskStart', query: {pageType: 'resourceMakeStart', workId: resIn.data.data.id}});
-          } else {
-            this.$message.error(resIn.data.message);
-          }
-        });
+        if (this.type === 'edit') { // 编辑
+          updateBook({
+            coverUrl: this.coverImg,
+            name: this.templateName,
+            bookId: this.workId
+          }).then(resIn => {
+            if (resIn.data.code == 0) {
+              this.$router.back();
+            } else {
+              this.$message.error(resIn.data.message);
+            }
+          });
+        } else { // 新建
+          createBook({
+            coverUrl: this.coverImg,
+            name: this.templateName
+          }).then(resIn => {
+            if (resIn.data.code == 0) {
+              this.$router.push({path: 'taskStart', query: {pageType: 'resourceMakeStart', workId: resIn.data.data.id}});
+            } else {
+              this.$message.error(resIn.data.message);
+            }
+          });
+        }
       }
     },
     components: {

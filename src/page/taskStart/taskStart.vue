@@ -5,7 +5,12 @@
     </div>
     <div class="template fillcontain">
       <section class="functional">
-        <div class="title" v-show="s1 || s3 || s4 || s5 || s6" v-text="title"></div>
+        <div class="title" v-show="s1 || s3 || s4 || s5 || s6">
+          <span v-text="title"></span>
+          <div class="edit" v-show="s4" @click="goEditResource">
+            <i class="iconfont iconEdit"></i>
+          </div>
+        </div>
         <div class="search" v-show="s2">
           <a-input v-model="templateName" class="input" placeholder="请输入资源名称"/>
           <a-button type="primary" @click="searchResource">搜索</a-button>
@@ -153,7 +158,7 @@
         templatePreviewToggle: false,
         totalUpload: 0, // 总上传图片数
         doneUpload: 0, // 已完成上传图片数
-        workId: query.workId,
+        workId: query.workId, // 根据不同情况获取当前id
         visible: false,
         currentBook: null,
         templateList: [], // 模板列表
@@ -170,6 +175,7 @@
         currentPage: 1,
         count: 0,
         resourceMakeStartTitle: '',
+        resourceTemplateCoverInfo: {}, // 资源模板封面信息
         checkTemplateTitle: '',
         missionTemplateTitle: query.title,
         pageTypeConfig: {
@@ -358,6 +364,9 @@
         this.currentBook = item;
         this.pageType = 'templateChoiceList';
       },
+      goEditResource () { // 编辑资源封面信息
+        this.$router.push({path: 'startNewResource', query: {type: 'edit', workId: this.workId, resourceTemplateCoverInfo: JSON.stringify(this.resourceTemplateCoverInfo)}});
+      },
       getWorkCheckTemplate () {
         getWorkTemplate(this.workId).then(res => {
           let data = res.data;
@@ -389,6 +398,8 @@
           if (data.code == 0) {
             let reData = data.data;
             this.resourceMakeStartTitle = reData.name;
+            this.resourceTemplateCoverInfo.name = reData.name;
+            this.resourceTemplateCoverInfo.coverUrl = reData.coverUrl;
             this.clearArr(this.templateList);
             reData.templatePages && (this.maxSortNum = reData.templatePages.length);
             this.templateList = [...reData.templatePages.map((item) => {
@@ -704,6 +715,21 @@
           flex: 1;
           font-size: 22px;
           color: #333333;
+          display: flex;
+          justify-content: flex-start;
+          align-content: center;
+          .edit{
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            margin-left: 10px;
+            .fac();
+            .iconfont{
+              padding-top: 3px;
+              font-size: 24px;
+              color: #1890ff;
+            }
+          }
         }
         .search{
           flex: 1;
