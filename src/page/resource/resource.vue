@@ -16,6 +16,7 @@
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
           <a style="text-decoration: underline" @click="checkResource(record.id)" v-show="record.bookStatus == 1">查看</a>
+          <a style="text-decoration: underline" @click="soldOutResource(record.id)" v-show="record.bookStatus == 1">下架</a>
           <a style="text-decoration: underline" @click="editResource(record.id)" v-show="record.bookStatus == 0">编辑</a>
         </div>
       </template>
@@ -36,7 +37,7 @@
 </template>
 
 <script type='text/babel'>
-  import {getBookList} from '@/api/tBook';
+  import {getBookList, soldOutBook} from '@/api/tBook';
   import format from '@/tools/format';
   export default {
     name: 'resource',
@@ -101,6 +102,17 @@
       },
       checkResource (workId) {
         this.$router.push({path: 'taskStart', query: {pageType: 'checkTemplate', workId: workId}});
+      },
+      soldOutResource (workId) {
+        soldOutBook(workId).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            this.getList();
+            this.$message.success('资源下架成功');
+          } else {
+            this.$message.error(data.message);
+          }
+        });
       },
       editResource (workId) {
         this.$router.push({path: 'taskStart', query: {pageType: 'resourceMakeStart', workId: workId}});

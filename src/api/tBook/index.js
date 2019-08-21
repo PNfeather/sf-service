@@ -8,6 +8,8 @@ export const updateBook = (data) => Http.post('/service/template-books/update', 
 export const getBookTemplate = (bookId) => Http.get('/service/template-books/' + bookId);
 // 发布模板书
 export const releaseBook = (bookId) => Http.put('/service/template-books/' + bookId + '/release');
+// 下架模板书
+export const soldOutBook = (bookId) => Http.put('/service/template-books/' + bookId + '/off-shelves');
 // 查看模板书
 export const reviewBook = (bookId) => Http.get('/service/template-books/' + bookId + '/review');
 // 模板书列表
