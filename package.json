@@ -14,6 +14,7 @@
     "zip": "zip -q -r -o dist.zip dist",
     "build-pro": "cross-env env_config=prod node build/build.js",
     "build-cs": "cross-env env_config=cs node build/build.js",
+    "build-csdev": "cross-env env_config=csdev node build/build.js",
     "build-ys": "cross-env env_config=ys node build/build.js"
   },
   "dependencies": {
