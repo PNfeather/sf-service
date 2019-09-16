@@ -295,11 +295,13 @@
         let scoreCatch = [];
         let temList = [...this.moveDivList];
         this.clearArr(this.moveDivList);
+        let noHeader = true;
         this.moveDivList.push(...(temList.sort((a, b) => { // 排序合并再排序的方法
           return (a.serialNumber - b.serialNumber);
         }).map((item) => {
           if (this.activeMoveDivSort.includes(item.serialNumber)) { // 选中框序号合并成选中框中序号最小的那个
-            if (item.serialNumber == minSort) {
+            if (item.serialNumber == minSort && noHeader) {
+              noHeader = false;
               this.getScoreCatchCell(scoreCatch, item);
               item.mergeHeader = minSort; // 将合并的最小序列号对象标记为合并头，属性值定为当前合并序列号
               sort == minSort && sort++;
