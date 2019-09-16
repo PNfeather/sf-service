@@ -12,7 +12,7 @@
               </div>
             </section>
             <section class="handleArea" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
-              <drawFrame ref="drawFrame" :pickCRD="pickCRD" :isMultipleChoice="isMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber"></drawFrame>
+              <drawFrame ref="drawFrame" :pickCRD="pickCRD" :isMultipleChoice="isMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber" @checkMarkerArea="checkMarkerArea"></drawFrame>
               <img crossOrigin="anonymous" :src="`${$CJIMGURL + currentEditTemplate.url + $OSSIMGADJUST}`" class="fillcontain" alt="">
             </section>
           </div>
@@ -106,7 +106,7 @@
     name: 'frameTemplate',
     data () {
       let query = this.$route.query;
-      return {
+      return { // 页面数据初始化在组件drawFrame中
         query: query,
         funBtnList: [
           {
@@ -267,7 +267,12 @@
         this.isMultipleChoice = !item.active;
         this.$set(item, 'active', !item.active);
       },
-      pickCRDMethod (item) { // 识别区选中，自动去掉复选选中
+      checkMarkerArea (callback) { // 初始化默认选中标识区
+        this.funBtnList.forEach(item => {
+          item.id === 4 && this.pickCRDMethod(item, callback);
+        });
+      },
+      pickCRDMethod (item, callback) { // 识别区选中，自动去掉复选选中
         this.pickCRD = !item.active;
         this.$set(item, 'active', !item.active);
         if (this.pickCRD) {
@@ -275,6 +280,9 @@
           this.isMultipleChoice = false;
           this.$set(this.funBtnList.filter(item => item.id === 3)[0], 'active', false);
         }
+        this.$nextTick(() => {
+          callback && callback();
+        });
       },
       addActive (item) {
         (item.activeType === 'mouseDown') && this.$set(item, 'active', true);

@@ -110,7 +110,7 @@
       clearArr (arr) { // 不改变数组指正清空数组
         arr.splice(0, arr.length);
       },
-      getMarkArea (markerArea) {
+      getMarkArea (markerArea) { // 标识区渲染
         if (markerArea) {
           let params = {...markerArea};
           let keys = Object.keys(params);
@@ -130,6 +130,9 @@
             left: Math.floor(temW / 2 - elW / 2)
           };
         }
+        this.$nextTick(() => {
+          this.$emit('checkMarkerArea');
+        });
       },
       pageInit () {
         let templatePageId = this.$route.query.templatePageId;
@@ -187,12 +190,16 @@
         return result;
       },
       createMoveDiv ($event) { // 开始拉框
-        if (this.pickCRD) {
-          return this.$message.error('您正在调整识别区，请先结束');
+        const fun = () => {
+          this.createToggle = true;
+          this.currentAttribute = {}; // 消除临时moveDiv
+          this.startCreateMoveDivComputed($event);
+        };
+        if (this.pickCRD) { // 若标识区选中状态，关闭标识区开始执行画框
+          this.$emit('checkMarkerArea', fun);
+        } else {
+          fun();
         }
-        this.createToggle = true;
-        this.currentAttribute = {}; // 消除临时moveDiv
-        this.startCreateMoveDivComputed($event);
       },
       endMoveDiv ($event) { // 结束拉框
         if (this.createToggle) {
