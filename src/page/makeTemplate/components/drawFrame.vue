@@ -206,12 +206,7 @@
         if (this.createToggle) {
           this.createToggle = false;
           this.changeMoveDivComputed($event);
-          if (this.currentAttribute.width <= 10 || this.currentAttribute.height <= 5) {
-            // if (this.warnTimer) return;
-            // this.$message.warn('无法框定过小区域');
-            // this.warnTimer = setTimeout(() => {
-            //   this.warnTimer = null;
-            // }, 1000);
+          if (this.currentAttribute.width <= 10 || this.currentAttribute.height <= 5) { // 画框过小直接取消此次画框
             return (this.currentAttribute = {}); // 消除临时moveDiv;
           }
           this.moveDivList.push({
