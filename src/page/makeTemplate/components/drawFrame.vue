@@ -63,6 +63,7 @@
           if (!val.length) return;
           this.$emit('input', val);
           val.forEach((item) => {
+            console.log(item.score);
             let attr = item.attribute;
             this.capturePoints.x.push(attr.startX, attr.startX + attr.width);
             this.capturePoints.y.push(attr.startY, attr.startY + attr.height);
@@ -133,7 +134,7 @@
               const arr = reData.questionSigns;
               const ft = this.$refs.bg.getBoundingClientRect().top;
               const fl = this.$refs.bg.getBoundingClientRect().left;
-              let exitHeaderCatch = {}; // 已存在合并头缓存
+              let exitHeaderCatch = {}; // 已存在序号缓存
               let isMergeSort = {}; // 当前序号是否是存在合并项序号数组
               this.$emit('outputColumnNumber', reData.columnNumber);
               this.getMarkArea(reData.markerArea);
@@ -147,10 +148,8 @@
                   let cell = {serialNumber, score};
                   if (exitHeaderCatch[item.serialNumber]) {
                     isMergeSort[item.serialNumber] = true;
-                    cell.mergeBody = item.serialNumber;
                   } else {
                     exitHeaderCatch[item.serialNumber] = true;
-                    cell.mergeHeader = item.serialNumber;
                   }
                   cell.attribute = {width, height, top, left};
                   cell.attribute.startX = fl + item.left;
@@ -290,30 +289,28 @@
           return (a.serialNumber - b.serialNumber);
         }).forEach((item) => {
           if (!activeList.includes(item.serialNumber)) { // 不在选中的数组单元重新push
-            if (!changeCatch[item.serialNumber]) { // 未在变化缓存中，缓存并标记为头
-              item.serialNumber = item.mergeHeader = changeCatch[item.serialNumber] = sort++;
+            if (!changeCatch[item.serialNumber]) { // 缓存无当前序号，则添加缓存
+              item.serialNumber = changeCatch[item.serialNumber] = sort++;
               this.getScoreCatchCell(scoreCatch, item);
-            } else { // 存在于变化缓存中，去掉合并头标记，标记为合并身
-              item.mergeHeader = null;
-              item.serialNumber = item.mergeBody = changeCatch[item.serialNumber];
+            } else { // 序号存在于缓存中，取缓存序号赋值
+              item.serialNumber = changeCatch[item.serialNumber];
               isMergeSort[item.serialNumber] = true;
             }
             result.push(item);
           } else { // 在选中数组中时
             if (type === 'type-merge') { // 合并时
-              if (!changeCatch.mergeSort) { // 未在缓存中，缓存并标记为头
-                item.serialNumber = item.mergeHeader = changeCatch.mergeSort = sort++;
+              if (!changeCatch.mergeSort) { // 缓存无当前序号，则添加缓存，合并缓存为特殊键mergeSort
+                item.serialNumber = changeCatch.mergeSort = sort++;
                 resultActiveMoveDivSort = [item.serialNumber];
                 isMergeSort[item.serialNumber] = true;
                 this.getScoreCatchCell(scoreCatch, item);
-              } else { // 在缓存中，标记为身，去掉标记头
-                item.mergeHeader = null;
-                item.serialNumber = item.mergeBody = changeCatch.mergeSort;
+              } else { // 在缓存中，取缓存赋值
+                item.serialNumber = changeCatch.mergeSort;
               }
               result.push(item);
             }
             if (type === 'type-cancel') { // 取消合并时，每个选中项都拆分为单一序号
-              item.serialNumber = item.mergeHeader = changeCatch[item.serialNumber] = sort++;
+              item.serialNumber = changeCatch[item.serialNumber] = sort++;
               resultActiveMoveDivSort.push(item.serialNumber);
               this.getScoreCatchCell(scoreCatch, item);
               result.push(item);

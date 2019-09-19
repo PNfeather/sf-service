@@ -233,8 +233,8 @@
             };
             let atr = item.attribute;
             let {height, left, top, width} = atr;
-            let {identify, serialNumber, mergeHeader, mergeBody} = item;
-            questionListCell = {...questionListCell, ...{height, left, top, width}, ...{identify, serialNumber, mergeHeader, mergeBody}};
+            let {identify, serialNumber} = item;
+            questionListCell = {...questionListCell, ...{height, left, top, width}, ...{identify, serialNumber}};
             this.checkedQuestionList.includes(questionListCell.serialNumber) && (this.$set(questionListCell, 'checked', true));
             this.$set(questionListCell, 'showSign', questionList.every(item => { return (item.serialNumber !== questionListCell.serialNumber); })); // 重复序号只添加一次题目,其他隐藏
             questionList.push(questionListCell);
@@ -432,10 +432,8 @@
           }, 800);
         }
         let questionSigns = [];
-        let mergeObj = {};
         let isMergeSort = this.$store.getters.isMergeSort;
         this.questionList.forEach((item) => {
-          item.mergeHeader ? (mergeObj[item.mergeHeader] = item.score) : (item.score = mergeObj[item.mergeBody]); // 保存合并头对应分数,合并身取对应合并头的分数
           let {height, left, score, serialNumber, top, width} = item;
           questionSigns.push(Object.assign({height, left, score, serialNumber, top, width}, {assembleStatus: isMergeSort[serialNumber] ? 1 : 0}));
         });
