@@ -11,6 +11,7 @@ const getters = {
   markerAreaHeight: state => state.template.markerAreaHeight,
   imgScale: state => state.template.imgScale,
   lastActive: state => state.manage.lastActive,
-  defaultTemplateSortNum: state => state.template.defaultTemplateSortNum
+  defaultTemplateSortNum: state => state.template.defaultTemplateSortNum,
+  isMergeSort: state => state.template.isMergeSort
 };
 export default getters;

@@ -16,7 +16,6 @@
 <script type='text/babel'>
   import {getTemplatePage} from '@/api/tPage';
   import moveDiv from './moveDiv.vue';
-  import _ from '@/plugins/lodash';
   export default {
     name: 'drawFrame',
     props: {
@@ -44,7 +43,7 @@
       };
     },
     watch: {
-      questionScoreCatch: { // 分数变化时将分数挂到对应div上
+      questionScoreCatch: { // 分数变化时将分数挂到对应选框上
         handler (val) {
           let c = {};
           val.forEach((item) => {
@@ -135,6 +134,7 @@
               const ft = this.$refs.bg.getBoundingClientRect().top;
               const fl = this.$refs.bg.getBoundingClientRect().left;
               let exitHeaderCatch = {}; // 已存在合并头缓存
+              let isMergeSort = {}; // 当前序号是否是存在合并项序号数组
               this.$emit('outputColumnNumber', reData.columnNumber);
               this.getMarkArea(reData.markerArea);
               if (arr && arr.length) {
@@ -145,22 +145,21 @@
                   item.width = item.width / this.imgScale;
                   const {serialNumber, score, width, height, top, left} = item;
                   let cell = {serialNumber, score};
-                  if (item.assembleStatus == 1) {
-                    if (exitHeaderCatch[item.serialNumber]) {
-                      cell.mergeBody = item.serialNumber;
-                    } else {
-                      exitHeaderCatch[item.serialNumber] = true;
-                      cell.mergeHeader = item.serialNumber;
-                    }
+                  if (exitHeaderCatch[item.serialNumber]) {
+                    isMergeSort[item.serialNumber] = true;
+                    cell.mergeBody = item.serialNumber;
+                  } else {
+                    exitHeaderCatch[item.serialNumber] = true;
+                    cell.mergeHeader = item.serialNumber;
                   }
                   cell.attribute = {width, height, top, left};
                   cell.attribute.startX = fl + item.left;
                   cell.attribute.startY = ft + item.top; // 拱捕获使用
                   cell.identify = this.identify++;
                   (item.serialNumber + 1 > this.serialNumber) && (this.serialNumber = item.serialNumber + 1); // 循环玩当序号排列为已存在的最大序号加1，id一次排过来
+                  this.$store.dispatch('changeIsMergeSort', isMergeSort);
                   this.moveDivList.push(cell);
                 });
-                console.log(this.moveDivList);
               }
             } else {
               this.$message.error(data.message);
@@ -273,123 +272,73 @@
           catchArr.push({serialNumber, score, currentBtn});
         }
       },
-      mergeTem () { // 合并当前选择的框
-        let activeList = [...this.checkedQuestionList];
-        let minSort = _.min(activeList);
-        let sort = 1;
-        let opre = 0; // 上一个循环原始值
-        let cpre = 0; // 上一个循环当前值
-        let scoreCatch = [];
-        let temList = [...this.moveDivList];
-        this.moveDivList.length = 0;
-        let noHeader = true;
-        this.moveDivList.push(...(temList.sort((a, b) => { // 排序合并再排序的方法
-          return (a.serialNumber - b.serialNumber);
-        }).map((item) => {
-          if (activeList.includes(item.serialNumber)) { // 选中框序号合并成选中框中序号最小的那个
-            if (item.serialNumber == minSort && noHeader) {
-              noHeader = false;
-              this.getScoreCatchCell(scoreCatch, item);
-              item.mergeHeader = minSort; // 将合并的最小序列号对象标记为合并头，属性值定为当前合并序列号
-              sort == minSort && sort++;
-            } else {
-              item.mergeHeader && (item.mergeHeader = null); // 若本身为合并头，删除标记
-              item.mergeBody = minSort; // 合并的其他对象标记为合并身，属性值定为当前合并序列号
-            }
-            item.serialNumber = minSort;
-          } else {
-            this.getScoreCatchCell(scoreCatch, item);
-            if (item.serialNumber == opre) { // 当前循环值与上一循环原始值相等，则表示当前与上一个以合并
-              item.serialNumber = cpre;
-            } else {
-              opre = item.serialNumber;
-              if (item.serialNumber >= sort) { // 序号大于等于排列序号则重赋值序号
-                cpre = item.serialNumber = sort;
-                sort++;
-              }
-            }
-          }
-          return item;
-        }).sort((a, b) => {
-          return (a.serialNumber - b.serialNumber);
-        })));
-        this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
-        this.$store.dispatch('changeCheckedQuestionList', [minSort]);
-        this.serialNumber = sort; // 后续添加序号重赋值
-        this.$message.success('合并成功');
-      },
-      cancelMergeTem () {
-        let activeList = [...this.checkedQuestionList];
-        let sort = 1;
-        let opre = 0; // 上一个循环原始值
-        let cpre = 0; // 上一个循环当前值
-        let result = [];
-        let scoreCatch = [];
-        let resultActiveMoveDivSort = [];
-        this.moveDivList.sort((a, b) => {
+      reSortList (type) { // 数据从排序方法 type: type-merge合并重排序、type-cancel取消合并重排序、type-delete删除重排序
+        let activeList = [...this.checkedQuestionList]; // 选中题目序号数组
+        let sort = 1; // 题目序号
+        let result = []; // 结果数组
+        let scoreCatch = []; // 分数换粗数组
+        let resultActiveMoveDivSort = []; // 结果选中状态数组
+        let changeCatch = {}; // 储存序号变化
+        let isMergeSort = {}; // 当前序号是否是存在合并项序号数组
+        let msg = {
+          'type-merge': '合并成功',
+          'type-cancel': '取消合并',
+          'type-delete': '删除选题'
+        };
+
+        this.moveDivList.sort((a, b) => { // 排序后开始处理
           return (a.serialNumber - b.serialNumber);
         }).forEach((item) => {
           if (!activeList.includes(item.serialNumber)) { // 不在选中的数组单元重新push
-            if (item.serialNumber == opre) { // 当前循环值与上一循环原始值相等，则表示当前与上一个是合并题
-              item.serialNumber = cpre;
-            } else {
-              opre = item.serialNumber;
-              cpre = item.serialNumber = sort;
-              sort++;
+            if (!changeCatch[item.serialNumber]) { // 未在变化缓存中，缓存并标记为头
+              item.serialNumber = item.mergeHeader = changeCatch[item.serialNumber] = sort++;
+              this.getScoreCatchCell(scoreCatch, item);
+            } else { // 存在于变化缓存中，去掉合并头标记，标记为合并身
+              item.mergeHeader = null;
+              item.serialNumber = item.mergeBody = changeCatch[item.serialNumber];
+              isMergeSort[item.serialNumber] = true;
             }
-            this.getScoreCatchCell(scoreCatch, item);
             result.push(item);
-          } else {
-            item.serialNumber = sort;
-            resultActiveMoveDivSort.push(sort);
-            item.mergeHeader && (item.mergeHeader = null);
-            item.mergeBody && (item.mergeBody = null);
-            sort++;
-            this.getScoreCatchCell(scoreCatch, item);
-            result.push(item);
+          } else { // 在选中数组中时
+            if (type === 'type-merge') { // 合并时
+              if (!changeCatch.mergeSort) { // 未在缓存中，缓存并标记为头
+                item.serialNumber = item.mergeHeader = changeCatch.mergeSort = sort++;
+                resultActiveMoveDivSort = [item.serialNumber];
+                isMergeSort[item.serialNumber] = true;
+                this.getScoreCatchCell(scoreCatch, item);
+              } else { // 在缓存中，标记为身，去掉标记头
+                item.mergeHeader = null;
+                item.serialNumber = item.mergeBody = changeCatch.mergeSort;
+              }
+              result.push(item);
+            }
+            if (type === 'type-cancel') { // 取消合并时，每个选中项都拆分为单一序号
+              item.serialNumber = item.mergeHeader = changeCatch[item.serialNumber] = sort++;
+              resultActiveMoveDivSort.push(item.serialNumber);
+              this.getScoreCatchCell(scoreCatch, item);
+              result.push(item);
+            }
           }
         });
+
         this.serialNumber = sort; // 后续添加序号重赋值
+        this.$store.dispatch('changeIsMergeSort', isMergeSort);
         this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
         this.$store.dispatch('changeCheckedQuestionList', [...resultActiveMoveDivSort]);
-        this.moveDivList.length = 0;
-        this.moveDivList.push(...result.sort((a, b) => {
+        this.moveDivList.length = 0; // 清空题目数组，重新push，不改变指针
+        this.moveDivList.push(...result.sort((a, b) => { // 排序后重新push
           return (a.serialNumber - b.serialNumber);
         }));
-        this.$message.success('取消合并');
+        this.$message.success(msg[type]);
+      },
+      mergeTem () { // 合并当前选择的框
+        this.reSortList('type-merge');
+      },
+      cancelMergeTem () { // 取消合并
+        this.reSortList('type-cancel');
       },
       deleteTem () { // 删除选中框,并重排序
-        let activeList = [...this.checkedQuestionList];
-        let sort = 1;
-        let opre = 0; // 上一个循环原始值
-        let cpre = 0; // 上一个循环当前值
-        let result = [];
-        let scoreCatch = [];
-        this.moveDivList.sort((a, b) => {
-          return (a.serialNumber - b.serialNumber);
-        }).forEach((item) => {
-          if (!activeList.includes(item.serialNumber)) { // 不在选中的数组单元重新push
-            if (item.serialNumber == opre) { // 当前循环值与上一循环原始值相等，则表示当前与上一个是合并题
-              item.serialNumber = cpre;
-            } else {
-              opre = item.serialNumber;
-              if (item.serialNumber >= sort) { // 序号大于等于排列序号则重赋值序号
-                cpre = item.serialNumber = sort;
-                sort++;
-              }
-            }
-            this.getScoreCatchCell(scoreCatch, item);
-            result.push(item);
-          }
-        });
-        this.serialNumber = sort; // 后续添加序号重赋值
-        this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
-        this.$store.dispatch('changeCheckedQuestionList', []);
-        this.moveDivList.length = 0;
-        this.moveDivList.push(...result.sort((a, b) => {
-          return (a.serialNumber - b.serialNumber);
-        }));
-        this.$message.success('删除选题');
+        this.reSortList('type-delete');
       }
     },
     components: {

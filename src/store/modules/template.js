@@ -5,6 +5,7 @@ const template = {
     currentEditTemplate: storage.get('currentEditTemplate') || {},
     checkedQuestionList: [],
     questionScoreCatch: [],
+    isMergeSort: {},
     defaultTemplateSortNum: '', // 模板默认页号
     templateHeight: 1166, // 模板宽
     templateWidth: 760, // 模板高
@@ -28,6 +29,9 @@ const template = {
     },
     SET_DEFAULTTEMPLATESORTNUM: (state, data) => {
       state.defaultTemplateSortNum = data;
+    },
+    SET_ISMERGESORT: (state, data) => {
+      state.isMergeSort = data;
     }
   },
 
@@ -48,6 +52,9 @@ const template = {
     },
     changeDefaultTemplateSortNum ({ commit }, data) {
       commit('SET_DEFAULTTEMPLATESORTNUM', data);
+    },
+    changeIsMergeSort ({ commit }, data) {
+      commit('SET_ISMERGESORT', data);
     }
   }
 };
