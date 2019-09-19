@@ -126,14 +126,15 @@
       },
       pageInit () {
         let templatePageId = this.$route.query.templatePageId;
-        if (templatePageId) {
+        if (templatePageId) { // 存在模板id调接口获取模板数据，否则是新建模板
           getTemplatePage({id: templatePageId}).then(res => {
-            let data = res.data;
+            const data = res.data;
             if (data.code == 0) {
-              let reData = data.data;
-              let arr = reData.questionSigns;
-              let ft = this.$refs.bg.getBoundingClientRect().top;
-              let fl = this.$refs.bg.getBoundingClientRect().left;
+              const reData = data.data;
+              const arr = reData.questionSigns;
+              const ft = this.$refs.bg.getBoundingClientRect().top;
+              const fl = this.$refs.bg.getBoundingClientRect().left;
+              let exitHeaderCatch = {}; // 已存在合并头缓存
               this.$emit('outputColumnNumber', reData.columnNumber);
               this.getMarkArea(reData.markerArea);
               if (arr && arr.length) {
@@ -142,26 +143,24 @@
                   item.top = item.topPoint / this.imgScale;
                   item.height = item.height / this.imgScale;
                   item.width = item.width / this.imgScale;
-                  let {serialNumber, score} = item;
-                  let {width, height, top, left} = item;
+                  const {serialNumber, score, width, height, top, left} = item;
                   let cell = {serialNumber, score};
                   if (item.assembleStatus == 1) {
-                    let exitHeader = this.moveDivList.some((child) => {
-                        return (child.serialNumber == item.serialNumber);
-                    });
-                    !exitHeader && (cell.mergeHeader = item.serialNumber);
-                    exitHeader && (cell.mergeBody = item.serialNumber);
+                    if (exitHeaderCatch[item.serialNumber]) {
+                      cell.mergeBody = item.serialNumber;
+                    } else {
+                      exitHeaderCatch[item.serialNumber] = true;
+                      cell.mergeHeader = item.serialNumber;
+                    }
                   }
                   cell.attribute = {width, height, top, left};
                   cell.attribute.startX = fl + item.left;
                   cell.attribute.startY = ft + item.top; // 拱捕获使用
-                  cell.identify = this.identify;
-                  this.identify++;
-                  (item.serialNumber > this.serialNumber) && (this.serialNumber = item.serialNumber);
+                  cell.identify = this.identify++;
+                  (item.serialNumber + 1 > this.serialNumber) && (this.serialNumber = item.serialNumber + 1); // 循环玩当序号排列为已存在的最大序号加1，id一次排过来
                   this.moveDivList.push(cell);
                 });
                 console.log(this.moveDivList);
-                this.serialNumber++; // 循环玩当序号排列为已存在的最大序号加1，id一次排过来
               }
             } else {
               this.$message.error(data.message);
