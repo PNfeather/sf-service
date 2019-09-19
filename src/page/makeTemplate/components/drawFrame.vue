@@ -63,7 +63,6 @@
           if (!val.length) return;
           this.$emit('input', val);
           val.forEach((item) => {
-            console.log(item.score);
             let attr = item.attribute;
             this.capturePoints.x.push(attr.startX, attr.startX + attr.width);
             this.capturePoints.y.push(attr.startY, attr.startY + attr.height);
