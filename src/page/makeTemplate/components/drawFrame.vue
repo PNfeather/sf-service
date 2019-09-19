@@ -7,7 +7,7 @@
         :key="item.identify"
         :attribute="item.attribute"
         :originalItem="item"
-        :checked="activeMoveDivSort.includes(item.serialNumber)"
+        :checked="checkedQuestionList.includes(item.serialNumber)"
         @click="checkMoveDiv(item.serialNumber, $event)"
         @change="reChangeMoveDiv"></moveDiv>
   </div>
@@ -39,8 +39,7 @@
         captureToggle: true,
         changeTimer: null,
         currentAttribute: {},
-        activeMoveDivSort: [],
-        capturePoints: {x: [], y: []},
+        capturePoints: {x: [], y: []}, // 捕捉点缓存
         warnTimer: null
       };
     },
@@ -74,15 +73,9 @@
         },
         deep: true
       },
-      checkedQuestionList: {
-        handler (val) {
-          this.activeMoveDivSort = [...val];
-        },
-        deep: true
-      },
       pickCRD (val) {
         if (val) {
-          this.clearArr(this.activeMoveDivSort);
+          this.$store.dispatch('changeCheckedQuestionList', []);
         }
       }
     },
@@ -107,9 +100,6 @@
       this.pageInit();
     },
     methods: {
-      clearArr (arr) { // 不改变数组指正清空数组
-        arr.splice(0, arr.length);
-      },
       getMarkArea (markerArea) { // 标识区渲染
         if (markerArea) {
           let params = {...markerArea};
@@ -265,17 +255,18 @@
           return this.$message.error('您正在调整识别区，请先结束');
         }
         $event.stopPropagation();
-        let index = this.activeMoveDivSort.indexOf(serialNumber);
+        let activeList = [...this.checkedQuestionList];
+        let index = activeList.indexOf(serialNumber);
         if (index > -1) {
-          this.activeMoveDivSort.splice(index, 1);
+          activeList.splice(index, 1);
         } else {
           if (this.isMultipleChoice) {
-            this.activeMoveDivSort.push(serialNumber);
+            activeList.push(serialNumber);
           } else {
-            this.activeMoveDivSort = [serialNumber];
+            activeList = [serialNumber];
           }
         }
-        this.$store.dispatch('changeCheckedQuestionList', this.activeMoveDivSort);
+        this.$store.dispatch('changeCheckedQuestionList', activeList);
       },
       getScoreCatchCell (catchArr, item) { // 题目分数缓存
         if (item.score || item.currentBtn) {
@@ -284,18 +275,19 @@
         }
       },
       mergeTem () { // 合并当前选择的框
-        let minSort = _.min(this.activeMoveDivSort);
+        let activeList = [...this.checkedQuestionList];
+        let minSort = _.min(activeList);
         let sort = 1;
         let opre = 0; // 上一个循环原始值
         let cpre = 0; // 上一个循环当前值
         let scoreCatch = [];
         let temList = [...this.moveDivList];
-        this.clearArr(this.moveDivList);
+        this.moveDivList.length = 0;
         let noHeader = true;
         this.moveDivList.push(...(temList.sort((a, b) => { // 排序合并再排序的方法
           return (a.serialNumber - b.serialNumber);
         }).map((item) => {
-          if (this.activeMoveDivSort.includes(item.serialNumber)) { // 选中框序号合并成选中框中序号最小的那个
+          if (activeList.includes(item.serialNumber)) { // 选中框序号合并成选中框中序号最小的那个
             if (item.serialNumber == minSort && noHeader) {
               noHeader = false;
               this.getScoreCatchCell(scoreCatch, item);
@@ -322,13 +314,13 @@
         }).sort((a, b) => {
           return (a.serialNumber - b.serialNumber);
         })));
-        this.activeMoveDivSort = [minSort]; // 合并后选中序号只有之前未合并前最小序号
         this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
         this.$store.dispatch('changeCheckedQuestionList', [minSort]);
         this.serialNumber = sort; // 后续添加序号重赋值
         this.$message.success('合并成功');
       },
       cancelMergeTem () {
+        let activeList = [...this.checkedQuestionList];
         let sort = 1;
         let opre = 0; // 上一个循环原始值
         let cpre = 0; // 上一个循环当前值
@@ -338,7 +330,7 @@
         this.moveDivList.sort((a, b) => {
           return (a.serialNumber - b.serialNumber);
         }).forEach((item) => {
-          if (!this.activeMoveDivSort.includes(item.serialNumber)) { // 不在选中的数组单元重新push
+          if (!activeList.includes(item.serialNumber)) { // 不在选中的数组单元重新push
             if (item.serialNumber == opre) { // 当前循环值与上一循环原始值相等，则表示当前与上一个是合并题
               item.serialNumber = cpre;
             } else {
@@ -358,17 +350,17 @@
             result.push(item);
           }
         });
-        this.activeMoveDivSort = [...resultActiveMoveDivSort];
         this.serialNumber = sort; // 后续添加序号重赋值
         this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
-        this.$store.dispatch('changeCheckedQuestionList', [...this.activeMoveDivSort]);
-        this.clearArr(this.moveDivList);
+        this.$store.dispatch('changeCheckedQuestionList', [...resultActiveMoveDivSort]);
+        this.moveDivList.length = 0;
         this.moveDivList.push(...result.sort((a, b) => {
           return (a.serialNumber - b.serialNumber);
         }));
         this.$message.success('取消合并');
       },
       deleteTem () { // 删除选中框,并重排序
+        let activeList = [...this.checkedQuestionList];
         let sort = 1;
         let opre = 0; // 上一个循环原始值
         let cpre = 0; // 上一个循环当前值
@@ -377,7 +369,7 @@
         this.moveDivList.sort((a, b) => {
           return (a.serialNumber - b.serialNumber);
         }).forEach((item) => {
-          if (!this.activeMoveDivSort.includes(item.serialNumber)) { // 不在选中的数组单元重新push
+          if (!activeList.includes(item.serialNumber)) { // 不在选中的数组单元重新push
             if (item.serialNumber == opre) { // 当前循环值与上一循环原始值相等，则表示当前与上一个是合并题
               item.serialNumber = cpre;
             } else {
@@ -392,10 +384,9 @@
           }
         });
         this.serialNumber = sort; // 后续添加序号重赋值
-        this.activeMoveDivSort = [];
         this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
         this.$store.dispatch('changeCheckedQuestionList', []);
-        this.clearArr(this.moveDivList);
+        this.moveDivList.length = 0;
         this.moveDivList.push(...result.sort((a, b) => {
           return (a.serialNumber - b.serialNumber);
         }));
