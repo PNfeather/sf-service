@@ -170,6 +170,7 @@
                   (item.serialNumber > this.serialNumber) && (this.serialNumber = item.serialNumber);
                   this.moveDivList.push(cell);
                 });
+                console.log(this.moveDivList);
                 this.serialNumber++; // 循环玩当序号排列为已存在的最大序号加1，id一次排过来
               }
             } else {
@@ -330,6 +331,47 @@
         this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
         this.$store.dispatch('changeCheckedQuestionList', [minSort]);
         this.serialNumber = sort; // 后续添加序号重赋值
+        this.$message.success('合并成功');
+      },
+      cancelMergeTem () {
+        let sort = 1;
+        let opre = 0; // 上一个循环原始值
+        let cpre = 0; // 上一个循环当前值
+        let result = [];
+        let scoreCatch = [];
+        let resultActiveMoveDivSort = [];
+        this.moveDivList.sort((a, b) => {
+          return (a.serialNumber - b.serialNumber);
+        }).forEach((item) => {
+          if (!this.activeMoveDivSort.includes(item.serialNumber)) { // 不在选中的数组单元重新push
+            if (item.serialNumber == opre) { // 当前循环值与上一循环原始值相等，则表示当前与上一个是合并题
+              item.serialNumber = cpre;
+            } else {
+              opre = item.serialNumber;
+              cpre = item.serialNumber = sort;
+              sort++;
+            }
+            this.getScoreCatchCell(scoreCatch, item);
+            result.push(item);
+          } else {
+            item.serialNumber = sort;
+            resultActiveMoveDivSort.push(sort);
+            item.mergeHeader && (item.mergeHeader = null);
+            item.mergeBody && (item.mergeBody = null);
+            sort++;
+            this.getScoreCatchCell(scoreCatch, item);
+            result.push(item);
+          }
+        });
+        this.activeMoveDivSort = [...resultActiveMoveDivSort];
+        this.serialNumber = sort; // 后续添加序号重赋值
+        this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
+        this.$store.dispatch('changeCheckedQuestionList', [...this.activeMoveDivSort]);
+        this.clearArr(this.moveDivList);
+        this.moveDivList.push(...result.sort((a, b) => {
+          return (a.serialNumber - b.serialNumber);
+        }));
+        this.$message.success('取消合并');
       },
       deleteTem () { // 删除选中框,并重排序
         let sort = 1;
@@ -362,6 +404,7 @@
         this.moveDivList.push(...result.sort((a, b) => {
           return (a.serialNumber - b.serialNumber);
         }));
+        this.$message.success('删除选题');
       }
     },
     components: {

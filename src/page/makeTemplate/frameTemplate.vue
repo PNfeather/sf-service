@@ -157,7 +157,8 @@
         pickCRD: false, // 识别区选中开关
         drawFrameInitialIdentify: 1,
         columnNumber: '',
-        defaultColumnNumber: ''
+        defaultColumnNumber: '',
+        mergeBtnType: ''
       };
     },
     created () {},
@@ -196,15 +197,29 @@
       }
     },
     watch: {
-      checkedQuestionList: {
+      checkedQuestionList: { // 监听当前选中框的题目序号组成的数组
         handler (val) {
+          let mergeCount = 0;
           this.questionList.forEach((item) => {
             if (val.includes(item.serialNumber)) {
+              val.length === 1 && mergeCount++; // 当前选中的题目序号只有一个，而选中区不止一个，则将合并调整为取消合并
               this.$set(item, 'checked', true);
             } else {
               this.$set(item, 'checked', false);
             }
           });
+          switch (this.mergeBtnType) {
+            case 'merge':
+              this.mergeBtnChange(true);
+              break;
+            case 'cancel':
+              this.mergeBtnChange(false);
+              break;
+            default:
+              this.mergeBtnChange(mergeCount <= 1);
+              break;
+          }
+          this.mergeBtnType = '';
         },
         deep: true
       },
@@ -248,10 +263,31 @@
         }
         this.$store.dispatch('changeCheckedQuestionList', checkedList);
       },
+      mergeBtnChange (toMerge) { // 切换合并按钮状态
+        const mergeObj = {
+          icon: 'iconMerge',
+          text: '合并',
+          fun: this.mergeTem
+        };
+        const cancelMergeObj = {
+          icon: 'iconCancelMerge',
+          text: '取消合并',
+          fun: this.cancelMergeTem
+        };
+        Object.assign(this.funBtnList[0], !toMerge ? cancelMergeObj : mergeObj);
+      },
+      cancelMergeTem () {
+        if (this.pickCRD) {
+          return this.$message.error('您正在调整识别区，请先结束');
+        }
+        this.mergeBtnType = 'merge';
+        this.$refs.drawFrame.cancelMergeTem();
+      },
       mergeTem () {
         if (this.pickCRD) {
           return this.$message.error('您正在调整识别区，请先结束');
         }
+        this.mergeBtnType = 'cancel';
         this.$refs.drawFrame.mergeTem();
       },
       deleteTem () {
