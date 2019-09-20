@@ -6,7 +6,7 @@ const template = {
     checkedQuestionList: [],
     questionScoreCatch: [],
     isMergeSort: {},
-    defaultTemplateSortNum: '', // 模板默认页号
+    defaultTemplateSortNum: storage.get('defaultTemplateSortNum') || '', // 模板默认页号
     templateHeight: 1166, // 模板宽
     templateWidth: 760, // 模板高
     markerAreaWidth: 300, // 识别区默认宽
@@ -51,6 +51,7 @@ const template = {
       commit('SET_QUESTIONSCORECATCH', data);
     },
     changeDefaultTemplateSortNum ({ commit }, data) {
+      storage.set('defaultTemplateSortNum', data);
       commit('SET_DEFAULTTEMPLATESORTNUM', data);
     },
     changeIsMergeSort ({ commit }, data) {
