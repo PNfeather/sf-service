@@ -287,6 +287,12 @@
         if (this.pickCRD) {
           return this.$message.error('您正在调整识别区，请先结束');
         }
+        if (!this.checkedQuestionList.length) {
+          return this.$message.error('请选择合并选区');
+        }
+        if (this.checkedQuestionList.length === 1) {
+          return this.$message.error('当前选区只存在一个题目');
+        }
         this.mergeBtnType = 'cancel';
         this.$refs.drawFrame.mergeTem();
       },
