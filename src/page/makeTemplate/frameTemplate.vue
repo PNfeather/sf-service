@@ -12,7 +12,7 @@
               </div>
             </section>
             <section class="handleArea" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
-              <drawFrame ref="drawFrame" :pickCRD="pickCRD" :isMultipleChoice="isMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber" @checkMarkerArea="checkMarkerArea"></drawFrame>
+              <drawFrame ref="drawFrame" :pickCRD="pickCRD" :isMultipleChoice="isMultipleChoice" @cancelMultipleChoice="cancelMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber" @checkMarkerArea="checkMarkerArea"></drawFrame>
               <img crossOrigin="anonymous" :src="`${$CJIMGURL + currentEditTemplate.url + $OSSIMGADJUST}`" class="fillcontain" alt="">
             </section>
           </div>
@@ -108,7 +108,7 @@
       let query = this.$route.query;
       return { // 页面数据初始化在组件drawFrame中
         query: query,
-        funBtnList: [
+        funBtnList: [ // 功能按钮区配置，对应id不可随意调整
           {
             id: 1,
             icon: 'iconMerge',
@@ -301,6 +301,12 @@
           return this.$message.error('您正在调整识别区，请先结束');
         }
         this.$refs.drawFrame.deleteTem();
+      },
+      cancelMultipleChoice () { // 子组件取消合并时取消复选
+        this.isMultipleChoice = false;
+        this.funBtnList.forEach(item => {
+          item.id === 3 && this.$set(item, 'active', !item.active);
+        });
       },
       multipleChoice (item) { //  复选区选择
         if (this.pickCRD) {

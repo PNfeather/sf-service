@@ -332,6 +332,9 @@
       },
       cancelMergeTem () { // 取消合并
         this.reSortList('type-cancel');
+        if (this.isMultipleChoice) { // 取消合并时取消多选状态
+          this.$emit('cancelMultipleChoice');
+        }
       },
       deleteTem () { // 删除选中框,并重排序
         this.reSortList('type-delete');
