@@ -12,7 +12,7 @@
               </div>
             </section>
             <section class="handleArea" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
-              <drawFrame ref="drawFrame" :pickCRD="pickCRD" :isMultipleChoice="isMultipleChoice" @cancelMultipleChoice="cancelMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber" @checkMarkerArea="checkMarkerArea"></drawFrame>
+              <drawFrame ref="drawFrame" :pickCRD="pickCRD" :isMultipleChoice="isMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber" @checkMarkerArea="checkMarkerArea"></drawFrame>
               <img crossOrigin="anonymous" :src="`${$CJIMGURL + currentEditTemplate.url + $OSSIMGADJUST}`" class="fillcontain" alt="">
             </section>
           </div>
@@ -293,6 +293,7 @@
         if (this.checkedQuestionList.length === 1) {
           return this.$message.warn('当前选区只存在一个题目');
         }
+        this.isMultipleChoice && this.cancelMultipleChoice();
         this.mergeBtnType = 'cancel';
         this.$refs.drawFrame.mergeTem();
       },
