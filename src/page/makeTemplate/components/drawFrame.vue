@@ -95,6 +95,11 @@
         return this.$store.getters.markerAreaHeight;
       }
     },
+    created () { // 页面初始化清空页面vuex
+      this.$store.dispatch('changeIsMergeSort', {});
+      this.$store.dispatch('changeQuestionScoreCatch', []);
+      this.$store.dispatch('changeCheckedQuestionList', []);
+    },
     mounted () { // 进来已有模板情况加载模板数据
       this.pageInit();
     },
