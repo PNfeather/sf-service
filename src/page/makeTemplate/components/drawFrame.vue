@@ -248,7 +248,7 @@
       },
       checkMoveDiv (serialNumber, $event) { // 点击选择框
         if (this.pickCRD) {
-          return this.$message.error('您正在调整识别区，请先结束');
+          return this.$message.warn('您正在调整识别区，请先结束');
         }
         $event.stopPropagation();
         let activeList = [...this.checkedQuestionList];
@@ -271,6 +271,9 @@
         }
       },
       reSortList (type) { // 数据从排序方法 type: type-merge合并重排序、type-cancel取消合并重排序、type-delete删除重排序
+        if (!this.checkedQuestionList.length) {
+          return this.$message.warn('未选择选区');
+        }
         let activeList = [...this.checkedQuestionList]; // 选中题目序号数组
         let sort = 1; // 题目序号
         let result = []; // 结果数组

@@ -247,7 +247,7 @@
     methods: {
       checkQuestion (sort) {
         if (this.pickCRD) {
-          return this.$message.error('您正在调整识别区，请先结束');
+          return this.$message.warn('您正在调整识别区，请先结束');
         }
         let checkedList = [];
         checkedList = [...this.checkedQuestionList];
@@ -278,27 +278,27 @@
       },
       cancelMergeTem () {
         if (this.pickCRD) {
-          return this.$message.error('您正在调整识别区，请先结束');
+          return this.$message.warn('您正在调整识别区，请先结束');
         }
         this.mergeBtnType = 'merge';
         this.$refs.drawFrame.cancelMergeTem();
       },
       mergeTem () {
         if (this.pickCRD) {
-          return this.$message.error('您正在调整识别区，请先结束');
+          return this.$message.warn('您正在调整识别区，请先结束');
         }
         if (!this.checkedQuestionList.length) {
-          return this.$message.error('请选择合并选区');
+          return this.$message.warn('请选择合并选区');
         }
         if (this.checkedQuestionList.length === 1) {
-          return this.$message.error('当前选区只存在一个题目');
+          return this.$message.warn('当前选区只存在一个题目');
         }
         this.mergeBtnType = 'cancel';
         this.$refs.drawFrame.mergeTem();
       },
       deleteTem () {
         if (this.pickCRD) {
-          return this.$message.error('您正在调整识别区，请先结束');
+          return this.$message.warn('您正在调整识别区，请先结束');
         }
         this.$refs.drawFrame.deleteTem();
       },
@@ -310,7 +310,7 @@
       },
       multipleChoice (item) { //  复选区选择
         if (this.pickCRD) {
-          return this.$message.error('您正在调整识别区，请先结束');
+          return this.$message.warn('您正在调整识别区，请先结束');
         }
         this.isMultipleChoice = !item.active;
         this.$set(item, 'active', !item.active);
