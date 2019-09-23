@@ -52,7 +52,10 @@ const routes = [
         component: home
       }, {
         path: '/missionList',
-        component: missionList
+        component: missionList,
+        meta: {
+          keepAlive: true
+        }
       }, {
         path: '/missionDetail',
         component: missionDetail
@@ -61,13 +64,19 @@ const routes = [
         component: taskStart
       }, {
         path: '/resource',
-        component: resource
+        component: resource,
+        meta: {
+          keepAlive: true
+        }
       }, {
         path: '/startNewResource',
         component: startNewResource
       }, {
         path: '/taskManage',
-        component: taskManage
+        component: taskManage,
+        meta: {
+          keepAlive: true
+        }
       }
     ]
   }

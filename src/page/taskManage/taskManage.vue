@@ -76,33 +76,37 @@
         return [{id: '', name: '全部'}, ...this.$store.getters.serviceList];
       }
     },
+    activated () {
+      this.getList();
+    },
     methods: {
       getList () {
-        if (this.getListTimer) clearTimeout(this.getListTimer);
+        if (this.getListTimer) return;
+        worksList({
+          limit: this.limit,
+          skip: this.skip,
+          teacherInfo: this.teacherInfo,
+          serviceId: this.serviceId,
+          queryDelete: true
+        }).then(res => {
+          let data = res.data;
+          this.count = data.total;
+          if (data.code == 0) {
+            this.tableData = data.data.map((item) => {
+              let time = format(new Date(item.assignTime), 'MM月DD日 HH:mm');
+              if (time[0] == 0) {
+                time = time.substr(1);
+              }
+              item.assignTime = time;
+              item.detailName = time.split(' ')[0] + item.name;
+              item.detailClassName = item.schoolName + item.className;
+              item.teacher = item.assignTeacherName + (item.assignTeacherMobile ? '(' + item.assignTeacherMobile + ')' : '');
+              return item;
+            });
+          }
+        });
         this.getListTimer = setTimeout(() => {
-          worksList({
-            limit: this.limit,
-            skip: this.skip,
-            teacherInfo: this.teacherInfo,
-            serviceId: this.serviceId,
-            queryDelete: true
-          }).then(res => {
-            let data = res.data;
-            this.count = data.total;
-            if (data.code == 0) {
-              this.tableData = data.data.map((item) => {
-                let time = format(new Date(item.assignTime), 'MM月DD日 HH:mm');
-                if (time[0] == 0) {
-                  time = time.substr(1);
-                }
-                item.assignTime = time;
-                item.detailName = time.split(' ')[0] + item.name;
-                item.detailClassName = item.schoolName + item.className;
-                item.teacher = item.assignTeacherName + (item.assignTeacherMobile ? '(' + item.assignTeacherMobile + ')' : '');
-                return item;
-              });
-            }
-          });
+          this.getListTimer = null;
         }, 500);
       },
       check () {

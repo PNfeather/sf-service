@@ -87,9 +87,9 @@
         return [{id: '', name: '全部'}, ...this.$store.getters.serviceList];
       }
     },
-    // activated () {
-    //   this.getList();
-    // },
+    activated () {
+      this.getList();
+    },
     methods: {
       getList () {
         if (this.getListTimer) return;

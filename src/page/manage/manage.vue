@@ -23,7 +23,10 @@
           </a-menu>
         </a-layout-sider>
         <a-layout-content class="layout-content">
-          <router-view></router-view>
+          <keep-alive>
+            <router-view v-if="$route.meta && $route.meta.keepAlive"></router-view>
+          </keep-alive>
+          <router-view v-if="!$route.meta || ($route.meta && !$route.meta.keepAlive)"></router-view>
         </a-layout-content>
       </a-layout>
     </a-layout>

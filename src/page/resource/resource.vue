@@ -63,9 +63,9 @@
     created () {
       this.getList();
     },
-    // activated () {
-    //   this.getList();
-    // },
+    activated () {
+      this.getList();
+    },
     mounted () {},
     watch: {
     },
@@ -78,23 +78,24 @@
         this.getList();
       },
       getList () {
-        if (this.getListTimer) clearTimeout(this.getListTimer);
+        if (this.getListTimer) return;
+        getBookList({
+          limit: this.limit,
+          skip: this.skip,
+          templateBookName: this.templateName
+        }).then(res => {
+          let data = res.data;
+          this.count = data.total;
+          if (data.code == 0) {
+            this.tableData = data.data.map((item) => {
+              item.statusName = (item.bookStatus == 0) ? '草稿' : '已发布';
+              item.updatedAt = format(new Date(item.updatedAt), 'MM月DD日 HH:mm');
+              return item;
+            });
+          }
+        });
         this.getListTimer = setTimeout(() => {
-          getBookList({
-            limit: this.limit,
-            skip: this.skip,
-            templateBookName: this.templateName
-          }).then(res => {
-            let data = res.data;
-            this.count = data.total;
-            if (data.code == 0) {
-              this.tableData = data.data.map((item) => {
-                item.statusName = (item.bookStatus == 0) ? '草稿' : '已发布';
-                item.updatedAt = format(new Date(item.updatedAt), 'MM月DD日 HH:mm');
-                return item;
-              });
-            }
-          });
+          this.getListTimer = null;
         }, 500);
       },
       addNew () {
