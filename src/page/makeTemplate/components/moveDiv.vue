@@ -132,7 +132,7 @@
 </script>
 <style scoped lang="less">
   [name = 'moveDiv']{
-    .subDiv{
+    .subDiv{ // 辅助全区域div，防止点击图片干扰
       position: absolute;
       top: 0;
       right: 0;
@@ -140,14 +140,14 @@
       left: 0;
       z-index: 9;
     }
-    .changing{
+    .changing{ // 正在调整时调整到99，防止其他选区干扰调整
       z-index: 99;
     }
-    .moveDiv{
+    .moveDiv{ // 没选中的选区题目选区比识别区没选中情况下高一级为11
       box-sizing: border-box;
       position: absolute;
       border: 1px solid #1690FF;
-      z-index: 10;
+      z-index: 11;
       .w{
         position: absolute;
         height: 100%;
@@ -222,16 +222,16 @@
       }
     }
     .active{
-      z-index: 100!important;
+      z-index: 100!important; // 正在进行大小调整或者平移的选区层级为100
     }
     .markerAreaCantChange{
       border: 1px solid #b010ff!important;
-      z-index: 1;
+      z-index: 10; // 没有选中情况下识别区层级为10
     }
     .canChange{
       cursor: move;
       border: 1px solid #FF0000!important;
-      z-index: 11;
+      z-index: 12; // 任何选中框的层级为12
     }
   }
 </style>

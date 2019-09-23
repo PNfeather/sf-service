@@ -1,7 +1,7 @@
 <template>
   <div name="drawFrame" @mousedown="createMoveDiv" @mouseup="endMoveDiv"  @mousemove="changeMoveDiv" ref="bg">
       <moveDiv v-show="currentAttribute.width && currentAttribute.height" :attribute="currentAttribute" :checked="true" :canChange="false"></moveDiv>
-      <moveDiv :attribute="markerArea" :checked="pickCRD" :type="'markerArea'" @change="reChangeMarkerArea"></moveDiv>
+      <moveDiv :attribute="markerArea" :checked="pickCRD" :type="'markerArea'" @change="reChangeMarkerArea" @click="() => { this.$emit('pickCRDMethod'); }"></moveDiv>
       <moveDiv
         v-for="item in moveDivList"
         :key="item.identify"
@@ -119,8 +119,8 @@
             left: Math.floor(temW / 2 - elW / 2)
           };
         }
-        this.$nextTick(() => {
-          this.$emit('checkMarkerArea');
+        this.$nextTick(() => { // 获取到识别区后，选中
+          this.$emit('pickCRDMethod');
         });
       },
       pageInit () {
@@ -178,7 +178,7 @@
       },
       createMoveDiv ($event) { // 开始拉框制作选区
         if (this.pickCRD) { // 若标识区选中状态，关闭标识区开始执行画框
-          this.$emit('checkMarkerArea');
+          this.$emit('pickCRDMethod');
         }
         this.createToggle = true;
         this.currentAttribute = {}; // 消除临时moveDiv
@@ -263,10 +263,48 @@
           catchArr.push({serialNumber, score, currentBtn});
         }
       },
-      reSortList (type) { // 数据从排序方法 type: type-merge合并重排序、type-cancel取消合并重排序、type-delete删除重排序
-        if (!this.checkedQuestionList.length) {
-          return this.$message.warn('请选择选区');
+      getSortTypeInfo (type) {
+        const len = this.checkedQuestionList.length;
+        const allInfo = {
+          'type-merge': {
+            'successMsg': '合并成功',
+            'validate': () => {
+              let validateMsg = '';
+              if (!len) {
+                validateMsg = '请通过多选选择需要合并的选区';
+              } else if (len === 1) {
+                validateMsg = '当前选区对应同一题目';
+              }
+              return validateMsg;
+            }
+          },
+          'type-cancel': {
+            'successMsg': '取消合并',
+            'validate': () => { // 取消合并不需要做验证
+              return false;
+            }
+          },
+          'type-delete': {
+            'successMsg': '删除选题',
+            'validate': () => { // 取消合并不需要做验证
+              let validateMsg = '';
+              if (!len) {
+                validateMsg = '请选择选区(识别区除外)';
+              }
+              return validateMsg;
+            }
+          }
+        };
+        return allInfo[type];
+      },
+      reSortList (type, callback) { // 数据重排序方法 type: type-merge合并重排序、type-cancel取消合并重排序、type-delete删除重排序
+        const typeInfo = this.getSortTypeInfo(type);
+        const successMsg = typeInfo.successMsg;
+        const validateMsg = typeInfo.validate();
+        if (validateMsg) {
+          return this.$message.warn(validateMsg);
         }
+
         let activeList = [...this.checkedQuestionList]; // 选中题目序号数组
         let sort = 1; // 题目序号
         let result = []; // 结果数组
@@ -274,11 +312,6 @@
         let resultActiveMoveDivSort = []; // 结果选中状态数组
         let changeCatch = {}; // 储存序号变化
         let isMergeSort = {}; // 当前序号是否是存在合并项序号数组
-        let msg = {
-          'type-merge': '合并成功',
-          'type-cancel': '取消合并',
-          'type-delete': '删除选题'
-        };
 
         this.moveDivList.sort((a, b) => { // 排序后开始处理
           return (a.serialNumber - b.serialNumber);
@@ -321,10 +354,11 @@
         this.moveDivList.push(...result.sort((a, b) => { // 排序后重新push
           return (a.serialNumber - b.serialNumber);
         }));
-        this.$message.success(msg[type]);
+        callback && callback();
+        this.$message.success(successMsg);
       },
-      mergeTem () { // 合并当前选择的框
-        this.reSortList('type-merge');
+      mergeTem (callback) { // 合并当前选择的框
+        this.reSortList('type-merge', callback);
       },
       cancelMergeTem () { // 取消合并
         this.reSortList('type-cancel');

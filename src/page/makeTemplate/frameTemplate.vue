@@ -6,13 +6,13 @@
         <div class="frameTemplateWrapper">
           <div class="topArea">
             <section class="funBtnGroup">
-              <div class="btnItem" :class="[item.active ? item.activeClass : '']" v-for="(item, index) in funBtnList" :key="index" @mousedown="addActive(item)" @mouseup="removeActive(item)" @click="item.fun(item)">
+              <div class="btnItem" :class="[item.active ? item.activeClass : '']" v-for="(item, index) in funBtnList" :key="index" @mousedown="addActive(item)" @mouseup="removeActive(item)" @click="item.fun">
                 <i class="iconfont" :class="[item.icon]"></i>
                 <p>{{item.text}}</p>
               </div>
             </section>
             <section class="handleArea" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
-              <drawFrame ref="drawFrame" :pickCRD="pickCRD" :isMultipleChoice="isMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber" @checkMarkerArea="checkMarkerArea"></drawFrame>
+              <drawFrame ref="drawFrame" :pickCRD="pickCRD" :isMultipleChoice="isMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber" @pickCRDMethod="pickCRDMethod"></drawFrame>
               <img crossOrigin="anonymous" :src="`${$CJIMGURL + currentEditTemplate.url + $OSSIMGADJUST}`" class="fillcontain" alt="">
             </section>
           </div>
@@ -199,7 +199,9 @@
       checkedQuestionList: { // 监听当前选中框的题目序号组成的数组
         handler (val) {
           let mergeCount = 0;
-          !!val.length && (this.pickCRD = false);
+          if (val.length && this.pickCRD) { // 选区后识别区是选中状态的话，则切换识别区状态为关闭
+            this.pickCRDMethod();
+          }
           setTimeout(() => { // 确保questionList变更完毕，已拿到新的题目序号serialNumber
             this.questionList.forEach((item) => {
               if (val.includes(item.serialNumber)) {
@@ -252,7 +254,7 @@
         this.$store.dispatch('changeCheckedQuestionList', checkedList);
       },
       mergeBtnChange (toMerge) { // 切换合并按钮状态
-        const [currentObj] = this.funBtnList.filter(item => (item.id === 1));
+        let [currentObj] = this.funBtnList.filter(item => (item.id === 1));
         const mergeObj = {
           icon: 'iconMerge',
           text: '合并',
@@ -269,40 +271,32 @@
         this.$refs.drawFrame.cancelMergeTem();
       },
       mergeTem () {
-        if (!this.checkedQuestionList.length) {
-          return this.$message.warn('请选择需要合并的选区');
-        }
-        if (this.checkedQuestionList.length === 1) {
-          return this.$message.warn('当前选区对应同一题目');
-        }
-        this.isMultipleChoice && this.cancelMultipleChoice();
-        this.$refs.drawFrame.mergeTem();
+        this.$refs.drawFrame.mergeTem(() => {
+          this.isMultipleChoice && this.multipleChoice();
+        });
       },
       deleteTem () {
         this.$refs.drawFrame.deleteTem();
       },
-      cancelMultipleChoice () { // 子组件取消合并时取消复选
-        this.isMultipleChoice = false;
-        this.funBtnList.forEach(item => {
-          item.id === 3 && this.$set(item, 'active', !item.active);
-        });
+      multipleChoice () { //  复选区选择切换，选中后自动去掉识别区选中状态
+        let [pickCRDBtn] = this.funBtnList.filter(item => (item.id === 4));
+        let [multipleChoice] = this.funBtnList.filter(item => (item.id === 3));
+        this.isMultipleChoice = !multipleChoice.active;
+        this.$set(multipleChoice, 'active', !multipleChoice.active);
+        if (this.pickCRD) {
+          this.pickCRD = false;
+          this.$set(pickCRDBtn, 'active', false);
+        }
       },
-      multipleChoice (item) { //  复选区选择
-        this.isMultipleChoice = !item.active;
-        this.$set(item, 'active', !item.active);
-      },
-      checkMarkerArea () { // 初始化默认选中标识区
-        this.funBtnList.forEach(item => {
-          item.id === 4 && this.pickCRDMethod(item);
-        });
-      },
-      pickCRDMethod (item) { // 识别区选中，自动去掉复选选中
-        this.pickCRD = !item.active;
-        this.$set(item, 'active', !item.active);
+      pickCRDMethod () { // 识别区选中，自动去掉复选选中状态,清除其他已选中选区
+        let [pickCRDBtn] = this.funBtnList.filter(item => (item.id === 4));
+        let [multipleChoice] = this.funBtnList.filter(item => (item.id === 3));
+        this.pickCRD = !pickCRDBtn.active;
+        this.$set(pickCRDBtn, 'active', !pickCRDBtn.active);
         if (this.pickCRD) {
           this.$store.dispatch('changeCheckedQuestionList', []); // 去掉已选中的缓存list
           this.isMultipleChoice = false;
-          this.$set(this.funBtnList.filter(item => item.id === 3)[0], 'active', false);
+          this.$set(multipleChoice, 'active', false);
         }
       },
       addActive (item) {
