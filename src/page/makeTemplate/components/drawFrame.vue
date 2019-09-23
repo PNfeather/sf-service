@@ -265,7 +265,7 @@
       },
       reSortList (type) { // 数据从排序方法 type: type-merge合并重排序、type-cancel取消合并重排序、type-delete删除重排序
         if (!this.checkedQuestionList.length) {
-          return this.$message.warn('未选择选区');
+          return this.$message.warn('请选择选区');
         }
         let activeList = [...this.checkedQuestionList]; // 选中题目序号数组
         let sort = 1; // 题目序号

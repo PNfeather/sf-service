@@ -279,11 +279,8 @@
         this.$refs.drawFrame.cancelMergeTem();
       },
       mergeTem () {
-        if (!this.checkedQuestionList.length) {
-          return this.$message.warn('请选择合并选区');
-        }
         if (this.checkedQuestionList.length === 1) {
-          return this.$message.warn('当前选区只存在一个题目');
+          return this.$message.warn('当前选区对应同一题目');
         }
         this.isMultipleChoice && this.cancelMultipleChoice();
         this.mergeBtnType = 'cancel';
