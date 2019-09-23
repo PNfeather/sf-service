@@ -71,11 +71,6 @@
           });
         },
         deep: true
-      },
-      pickCRD (val) {
-        if (val) {
-          this.$store.dispatch('changeCheckedQuestionList', []);
-        }
       }
     },
     computed: {
@@ -181,17 +176,13 @@
         });
         return result;
       },
-      createMoveDiv ($event) { // 开始拉框
-        const fun = () => {
-          this.createToggle = true;
-          this.currentAttribute = {}; // 消除临时moveDiv
-          this.startCreateMoveDivComputed($event);
-        };
+      createMoveDiv ($event) { // 开始拉框制作选区
         if (this.pickCRD) { // 若标识区选中状态，关闭标识区开始执行画框
-          this.$emit('checkMarkerArea', fun);
-        } else {
-          fun();
+          this.$emit('checkMarkerArea');
         }
+        this.createToggle = true;
+        this.currentAttribute = {}; // 消除临时moveDiv
+        this.startCreateMoveDivComputed($event);
       },
       endMoveDiv ($event) { // 结束拉框
         if (this.createToggle) {
@@ -252,9 +243,6 @@
         this.$set(this.currentAttribute, 'height', Math.abs(ch));
       },
       checkMoveDiv (serialNumber, $event) { // 点击选择框
-        if (this.pickCRD) {
-          return this.$message.warn('您正在调整识别区，请先结束');
-        }
         $event.stopPropagation();
         let activeList = [...this.checkedQuestionList];
         let index = activeList.indexOf(serialNumber);

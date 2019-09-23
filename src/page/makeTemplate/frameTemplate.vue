@@ -200,9 +200,10 @@
       checkedQuestionList: { // 监听当前选中框的题目序号组成的数组
         handler (val) {
           let mergeCount = 0;
+          !!val.length && (this.pickCRD = false);
           this.questionList.forEach((item) => {
             if (val.includes(item.serialNumber)) {
-              val.length === 1 && mergeCount++; // 当前选中的题目序号只有一个，而选中区不止一个，则将合并调整为取消合并
+              val.length === 1 && mergeCount++;
               this.$set(item, 'checked', true);
             } else {
               this.$set(item, 'checked', false);
@@ -246,9 +247,6 @@
     },
     methods: {
       checkQuestion (sort) {
-        if (this.pickCRD) {
-          return this.$message.warn('您正在调整识别区，请先结束');
-        }
         let checkedList = [];
         checkedList = [...this.checkedQuestionList];
         let index = checkedList.indexOf(sort);
@@ -274,19 +272,13 @@
           text: '取消合并',
           fun: this.cancelMergeTem
         };
-        Object.assign(this.funBtnList[0], !toMerge ? cancelMergeObj : mergeObj);
+        Object.assign(this.funBtnList[0], !toMerge ? cancelMergeObj : mergeObj); // 当前选中的选区题目序号只有一个，而选中区不止一个，表示当前只选中一个由多个选区合并成的题目，则将合并按钮变更为为取消合并
       },
       cancelMergeTem () {
-        if (this.pickCRD) {
-          return this.$message.warn('您正在调整识别区，请先结束');
-        }
         this.mergeBtnType = 'merge';
         this.$refs.drawFrame.cancelMergeTem();
       },
       mergeTem () {
-        if (this.pickCRD) {
-          return this.$message.warn('您正在调整识别区，请先结束');
-        }
         if (!this.checkedQuestionList.length) {
           return this.$message.warn('请选择合并选区');
         }
@@ -298,9 +290,6 @@
         this.$refs.drawFrame.mergeTem();
       },
       deleteTem () {
-        if (this.pickCRD) {
-          return this.$message.warn('您正在调整识别区，请先结束');
-        }
         this.$refs.drawFrame.deleteTem();
       },
       cancelMultipleChoice () { // 子组件取消合并时取消复选
@@ -310,18 +299,15 @@
         });
       },
       multipleChoice (item) { //  复选区选择
-        if (this.pickCRD) {
-          return this.$message.warn('您正在调整识别区，请先结束');
-        }
         this.isMultipleChoice = !item.active;
         this.$set(item, 'active', !item.active);
       },
-      checkMarkerArea (callback) { // 初始化默认选中标识区
+      checkMarkerArea () { // 初始化默认选中标识区
         this.funBtnList.forEach(item => {
-          item.id === 4 && this.pickCRDMethod(item, callback);
+          item.id === 4 && this.pickCRDMethod(item);
         });
       },
-      pickCRDMethod (item, callback) { // 识别区选中，自动去掉复选选中
+      pickCRDMethod (item) { // 识别区选中，自动去掉复选选中
         this.pickCRD = !item.active;
         this.$set(item, 'active', !item.active);
         if (this.pickCRD) {
@@ -329,9 +315,6 @@
           this.isMultipleChoice = false;
           this.$set(this.funBtnList.filter(item => item.id === 3)[0], 'active', false);
         }
-        this.$nextTick(() => {
-          callback && callback();
-        });
       },
       addActive (item) {
         (item.activeType === 'mouseDown') && this.$set(item, 'active', true);
