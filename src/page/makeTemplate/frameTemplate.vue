@@ -157,8 +157,7 @@
         pickCRD: false, // 识别区选中开关
         drawFrameInitialIdentify: 1,
         columnNumber: '',
-        defaultColumnNumber: '',
-        mergeBtnType: ''
+        defaultColumnNumber: ''
       };
     },
     created () {},
@@ -201,26 +200,17 @@
         handler (val) {
           let mergeCount = 0;
           !!val.length && (this.pickCRD = false);
-          this.questionList.forEach((item) => {
-            if (val.includes(item.serialNumber)) {
-              val.length === 1 && mergeCount++;
-              this.$set(item, 'checked', true);
-            } else {
-              this.$set(item, 'checked', false);
-            }
+          setTimeout(() => { // 确保questionList变更完毕，已拿到新的题目序号serialNumber
+            this.questionList.forEach((item) => {
+              if (val.includes(item.serialNumber)) {
+                val.length === 1 && mergeCount++;
+                this.$set(item, 'checked', true);
+              } else {
+                this.$set(item, 'checked', false);
+              }
+            });
+            this.mergeBtnChange(mergeCount <= 1);
           });
-          switch (this.mergeBtnType) {
-            case 'merge':
-              this.mergeBtnChange(true);
-              break;
-            case 'cancel':
-              this.mergeBtnChange(false);
-              break;
-            default:
-              this.mergeBtnChange(mergeCount <= 1);
-              break;
-          }
-          this.mergeBtnType = '';
         },
         deep: true
       },
@@ -262,6 +252,7 @@
         this.$store.dispatch('changeCheckedQuestionList', checkedList);
       },
       mergeBtnChange (toMerge) { // 切换合并按钮状态
+        const [currentObj] = this.funBtnList.filter(item => (item.id === 1));
         const mergeObj = {
           icon: 'iconMerge',
           text: '合并',
@@ -272,18 +263,19 @@
           text: '取消合并',
           fun: this.cancelMergeTem
         };
-        Object.assign(this.funBtnList[0], !toMerge ? cancelMergeObj : mergeObj); // 当前选中的选区题目序号只有一个，而选中区不止一个，表示当前只选中一个由多个选区合并成的题目，则将合并按钮变更为为取消合并
+        Object.assign(currentObj, !toMerge ? cancelMergeObj : mergeObj); // 当前选中的选区题目序号只有一个，而选中区不止一个，表示当前只选中一个由多个选区合并成的题目，则将合并按钮变更为为取消合并
       },
       cancelMergeTem () {
-        this.mergeBtnType = 'merge';
         this.$refs.drawFrame.cancelMergeTem();
       },
       mergeTem () {
+        if (!this.checkedQuestionList.length) {
+          return this.$message.warn('请选择需要合并的选区');
+        }
         if (this.checkedQuestionList.length === 1) {
           return this.$message.warn('当前选区对应同一题目');
         }
         this.isMultipleChoice && this.cancelMultipleChoice();
-        this.mergeBtnType = 'cancel';
         this.$refs.drawFrame.mergeTem();
       },
       deleteTem () {
