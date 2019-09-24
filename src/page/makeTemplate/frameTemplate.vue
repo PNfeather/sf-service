@@ -20,7 +20,7 @@
             <a-table :columns="columns" :dataSource="questionList" rowKey="identify" :pagination="false" bordered :rowClassName="rowClassName">
               <template slot="serialNumber" slot-scope="text, record, index">
                 <div class='editable-row-operations sort' @click="checkQuestion(record.serialNumber)">
-                  {{record.serialNumber}}、
+                  {{record.serialNumber}}.
                 </div>
               </template>
               <template slot="questionKind" slot-scope="text, record, index">

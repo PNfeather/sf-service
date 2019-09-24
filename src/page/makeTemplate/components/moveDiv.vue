@@ -1,15 +1,15 @@
 <template>
   <div name="moveDiv">
     <div class="subDiv" :class="{'changing': changeType}" v-if="canChange && checked" @mousemove="change" @mouseup="end"></div>
-    <div @click="checkSelf" @mousedown.stop="start('move', $event)" @mousemove="change" @mouseup="end" class="moveDiv" :class="{'active': changeType, 'canChange': canChange && checked, 'markerAreaCantChange': !checked && (type === 'markerArea')}" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px'}" ref="moveDiv">
-      <div class="w" v-if="canChange && checked" @mousedown.stop="start('w', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="wn" v-if="canChange && checked" @mousedown.stop="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="n" v-if="canChange && checked" @mousedown.stop="start('n', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="en" v-if="canChange && checked" @mousedown.stop="start('en', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="e" v-if="canChange && checked" @mousedown.stop="start('e', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="es" v-if="canChange && checked" @mousedown.stop="start('es', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="s" v-if="canChange && checked" @mousedown.stop="start('s', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="ws" v-if="canChange && checked" @mousedown.stop="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
+    <div @click="checkSelf" @mousedown="start('move', $event)" @mousemove="change" @mouseup="end" class="moveDiv" :class="{'active': changeType, 'canChange': canChange && checked, 'markerAreaCantChange': !checked && (type === 'markerArea')}" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px'}" ref="moveDiv">
+      <div class="w" v-if="canChange && checked" @mousedown="start('w', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="wn" v-if="canChange && checked" @mousedown="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="n" v-if="canChange && checked" @mousedown="start('n', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="en" v-if="canChange && checked" @mousedown="start('en', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="e" v-if="canChange && checked" @mousedown="start('e', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="es" v-if="canChange && checked" @mousedown="start('es', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="s" v-if="canChange && checked" @mousedown="start('s', $event)" @mousemove="change" @mouseup="end"></div>
+      <div class="ws" v-if="canChange && checked" @mousedown="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
     </div>
   </div>
 </template>
@@ -74,6 +74,9 @@
         this.divNoChange && this.$emit('click', $event);
       },
       start (type, e) { // 元素改变开始
+        if (this.type !== 'markerArea' || this.checked) { // 不是标记区或者被选中状态时阻止冒泡
+          e.stopPropagation();
+        }
         this.divNoChange = true; // 若元素有变动改为false阻止放出点击事件
         if (!this.canChange || !this.checked) return;
         this.startX = e.pageX;
