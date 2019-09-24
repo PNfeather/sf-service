@@ -350,7 +350,7 @@
         this.$store.dispatch('changeIsMergeSort', isMergeSort);
         this.$store.dispatch('changeQuestionScoreCatch', [...scoreCatch]);
         this.$store.dispatch('changeCheckedQuestionList', [...resultActiveMoveDivSort]);
-        this.moveDivList.length = 0; // 清空题目数组，重新push，不改变指针
+        this.moveDivList.splice(0, this.moveDivList.length); // 用length=0监听不到
         this.moveDivList.push(...result.sort((a, b) => { // 排序后重新push
           return (a.serialNumber - b.serialNumber);
         }));
