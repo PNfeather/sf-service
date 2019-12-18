@@ -10,8 +10,13 @@
             <div class='bl' :style="{height: templateHeight + 4 + 'px'}"></div>
             <div class='br' :style="{height: templateHeight + 4 + 'px'}"></div>
           </div>
-          <imgBorder :attribute='attribute' :startCreate='startCreate' onlyRotate ref='imgBorder' :imgUrl="`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`"></imgBorder>
-          <imgBorder :attribute='attribute' :startCreate='startCreate' onlyFrame ref='imgBorder' :imgUrl="`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`"></imgBorder>
+          <div class="firstCanvas" v-show="!firstCanvasFinished">
+            <imgBorder :attribute='attribute' onlyRotate :imgUrl="`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`"></imgBorder>
+            <imgBorder ref="imgFrame" :attribute='attribute' onlyFrame :imgUrl="`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`"></imgBorder>
+          </div>
+          <div class="secondCanvas" :style="{'left': attribute.left + 'px', 'top': attribute.top + 'px', 'width': attribute.width + 'px', 'height': attribute.height + 'px'}" v-show="firstCanvasFinished">
+            <img :src="firstUrl" alt="">
+          </div>
         </div>
       </div>
     </makeBody>
@@ -39,12 +44,14 @@
           top: 0
         },
         startCreate: false, // 与加载弹框控制变量不能使用同一个，生成图片过程不能手动关闭该开关。
-        loadingModal: false
+        loadingModal: false,
+        firstCanvasFinished: false,
+        firstUrl: ''
       };
     },
     mounted () {
       this.$nextTick(() => {
-        this.getWH();
+        this.getWH(this.$CJIMGURL + this.currentChooseImg.url + this.$OSSIMGADJUST);
       });
     },
     computed: {
@@ -62,10 +69,10 @@
       }
     },
     methods: {
-      getWH () { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
+      getWH (url, callback) { // 计算图片放到框中居中沾满且不改变比例(获取初始attribute)
         let img = document.createElement('img');
         img.setAttribute('crossOrigin', 'Anonymous');
-        img.src = this.$CJIMGURL + this.currentChooseImg.url + this.$OSSIMGADJUST;
+        img.src = url;
         img.onload = () => {
           let wrapper = this.$refs.imgWrapper;
           let imgWHPer = img.width / img.height;
@@ -83,52 +90,61 @@
                 this.$set(this.attribute, 'width', whNum * imgWHPer);
                 this.$set(this.attribute, 'left', wwNum / 2 - this.attribute.width / 2);
               }
+              if (callback) callback();
             });
           };
           posCenter(imgWHPer > wrapperWHPer);
         };
       },
       change (e) {
-        this.$refs.imgBorder.change(e);
-        this.$refs.imgBorder.rotateChange(e);
+        this.$refs.imgFrame.change(e);
+        this.$refs.imgFrame.rotateChange(e);
       },
       end (e) {
-        this.$refs.imgBorder.end(e);
-        this.$refs.imgBorder.rotateEnd(e);
+        this.$refs.imgFrame.end(e);
+        this.$refs.imgFrame.rotateEnd(e);
       },
       submit () {
-        const DPR = window.devicePixelRatio; // 设备像素比
         this.loadingModal = true;
-        this.startCreate = true;
-        this.scale = this.imgScale / DPR; // 放大截图，增加清晰度
-        this.$nextTick(() => {
-          html2canvas(this.$refs.imgWrapper, {useCORS: true}).then(canvas => {
-            this.startCreate = false;
-            this.scale = 1;
-            let saveUrl = canvas.toDataURL('image/png');
-            changeTemplateImg({
-              'base64String': saveUrl,
-              'height': this.templateHeight * this.imgScale,
-              'templateImageId': this.$route.query.templateImageId,
-              'width': this.templateWidth * this.imgScale
-            }).then(res => {
-              let data = res.data;
-              this.loadingModal = false;
-              if (data.code == 0) {
-                let reData = data.data;
-                let c = Object.assign({}, this.currentChooseImg, {url: reData.url});
-                this.$store.dispatch('passTemplate', JSON.stringify(c));
-                this.$router.replace({path: 'frameTemplate', query: this.query});
-              } else {
-                this.$message.error(data.message);
-              }
+        this.$refs.imgFrame.submit((url) => {
+          this.firstCanvasFinished = true;
+          this.getWH(url, () => {
+            this.firstUrl = url; // 第一次截图完成获取路径
+            this.$nextTick(() => {
+              const DPR = window.devicePixelRatio; // 设备像素比
+              this.startCreate = true;
+              this.scale = this.imgScale / DPR; // 放大截图，增加清晰度
+              this.$nextTick(() => {
+                html2canvas(this.$refs.imgWrapper, {useCORS: true}).then(canvas => {
+                  this.startCreate = false;
+                  this.scale = 1;
+                  let saveUrl = canvas.toDataURL('image/png');
+                  changeTemplateImg({
+                    'base64String': saveUrl,
+                    'height': this.templateHeight * this.imgScale,
+                    'templateImageId': this.$route.query.templateImageId,
+                    'width': this.templateWidth * this.imgScale
+                  }).then(res => {
+                    let data = res.data;
+                    this.loadingModal = false;
+                    if (data.code == 0) {
+                      let reData = data.data;
+                      let c = Object.assign({}, this.currentChooseImg, {url: reData.url});
+                      this.$store.dispatch('passTemplate', JSON.stringify(c));
+                      this.$router.replace({path: 'frameTemplate', query: this.query});
+                    } else {
+                      this.$message.error(data.message);
+                    }
+                  });
+                  // 点击生成图片并自动下载方法：
+                  // let a = document.createElement('a');
+                  // document.body.appendChild(a);
+                  // a.href = saveUrl;
+                  // a.download = '这是图片标题';
+                  // a.click();
+                });
+              });
             });
-            // 点击生成图片并自动下载方法：
-            // let a = document.createElement('a');
-            // document.body.appendChild(a);
-            // a.href = saveUrl;
-            // a.download = '这是图片标题';
-            // a.click();
           });
         });
       }
@@ -148,6 +164,13 @@
       .fac();
       .imgWrapper{
         position: relative;
+        .secondCanvas{
+          position: absolute;
+          img{
+            width: 100%;
+            height: auto;
+          }
+        }
         .bb, .bt, .br, .bl{
           z-index: 9999;
           position: absolute;

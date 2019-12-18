@@ -1,5 +1,5 @@
 <template>
-  <section name="imgBorder" :class="{'noBorder': startCreate || onlyRotate}" :style="{'left': attribute.left + 'px', 'top': attribute.top + 'px', 'width': attribute.width + 'px', 'height': attribute.height + 'px', transform: 'rotateZ(' + currentDeg + 'deg)'}" ref="moveDiv">
+  <section name="imgBorder" :style="{'left': attribute.left + 'px', 'top': attribute.top + 'px', 'width': attribute.width + 'px', 'height': attribute.height + 'px', transform: 'rotateZ(' + currentDeg + 'deg)'}" ref="moveDiv">
     <article class="shade fillcontain" v-if="onlyRotate"></article>
     <article class="fillcontain" v-if="onlyRotate">
       <img crossOrigin="anonymous" :src='imgUrl' alt="">
@@ -9,22 +9,25 @@
         <i class="iconfont iconRotate"></i>
       </div>
     </article>
-    <article class="frameArea" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px'}" v-if="onlyFrame" v-show="!startCreate">
+    <article class="frameArea" :class="{'noBorder': startCreate}" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px', transform: 'scale(' + scale +  ',' + scale + ')'}" v-if="onlyFrame" ref="imgWrapper">
       <img class="inImg" crossOrigin="anonymous" :style="{'left': -currentAttribute.left - 1 + 'px', 'top': -currentAttribute.top - 1 + 'px', 'width': attribute.width + 'px', 'height': attribute.height + 'px',transform: 'rotateZ(' + currentImageAdjustRotate + 'deg)'}" :src='imgUrl' alt="">
-      <div class="top" @mousedown="start('move', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="w" @mousedown="start('w', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="wn" @mousedown="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="n" @mousedown="start('n', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="en" @mousedown="start('en', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="e" @mousedown="start('e', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="es" @mousedown="start('es', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="s" @mousedown="start('s', $event)" @mousemove="change" @mouseup="end"></div>
-      <div class="ws" @mousedown="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
+      <div v-show="!startCreate">
+        <div class="top" @mousedown="start('move', $event)" @mousemove="change" @mouseup="end"></div>
+        <div class="w" @mousedown="start('w', $event)" @mousemove="change" @mouseup="end"></div>
+        <div class="wn" @mousedown="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
+        <div class="n" @mousedown="start('n', $event)" @mousemove="change" @mouseup="end"></div>
+        <div class="en" @mousedown="start('en', $event)" @mousemove="change" @mouseup="end"></div>
+        <div class="e" @mousedown="start('e', $event)" @mousemove="change" @mouseup="end"></div>
+        <div class="es" @mousedown="start('es', $event)" @mousemove="change" @mouseup="end"></div>
+        <div class="s" @mousedown="start('s', $event)" @mousemove="change" @mouseup="end"></div>
+        <div class="ws" @mousedown="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
+      </div>
     </article>
   </section>
 </template>
 
 <script type='text/babel'>
+  import html2canvas from 'html2canvas';
   export default {
     name: 'imgBorder',
     props: {
@@ -33,10 +36,6 @@
         default: () => {
           return {};
         }
-      },
-      startCreate: {
-        type: Boolean,
-        default: false
       },
       onlyRotate: { // 使当前组件只用来旋转
         type: Boolean,
@@ -54,6 +53,8 @@
       return {
         startX: 0,
         startY: 0,
+        scale: 1,
+        startCreate: false,
         currentAttribute: {}, // 当前状态
         orangeAttribute: {}, // 初始状态
         changeType: '',
@@ -68,6 +69,9 @@
     computed: {
       currentImageAdjustRotate () {
         return this.onlyFrame ? this.$store.getters.currentImageAdjustRotate : 0;
+      },
+      imgScale () {
+        return this.$store.getters.imgScale;
       }
     },
     mounted () {
@@ -162,6 +166,18 @@
           let itemKey = Object.keys(changeArr[i])[0];
           this.$set(this.currentAttribute, itemKey, changeArr[i][itemKey]);
         }
+      },
+      submit (callback) {
+        const DPR = window.devicePixelRatio; // 设备像素比
+        this.startCreate = true;
+        this.scale = this.imgScale / DPR; // 放大截图，增加清晰度
+        this.$nextTick(() => {
+          html2canvas(this.$refs.imgWrapper, {useCORS: true}).then(canvas => {
+            this.startCreate = false;
+            this.scale = 1;
+            callback(canvas.toDataURL('image/png'));
+          });
+        });
       }
     }
   };
@@ -175,6 +191,9 @@
     img{
       width: 100%;
       height: auto;
+    }
+    .noBorder{
+      border: none!important;
     }
     .frameArea{
       position: absolute;
