@@ -46,7 +46,8 @@
         currentDeg: 0,
         rotateCenterX: 0,
         rotateCenterY: 0,
-        startRotate: false
+        startRotate: false,
+        centerComputeToggle: true
       };
     },
     mounted () {
@@ -62,9 +63,12 @@
     },
     methods: {
       getRotateCenter () { // 点击开始定位转动中心，在转动过中定位圆心会闪动
-        let moveDiv = this.$refs.moveDiv;
-        this.rotateCenterX = moveDiv.getBoundingClientRect().left + this.currentAttribute.width / 2;
-        this.rotateCenterY = moveDiv.getBoundingClientRect().top + this.currentAttribute.height / 2;
+        if (this.centerComputeToggle) {
+          this.centerComputeToggle = false;
+          let moveDiv = this.$refs.moveDiv;
+          this.rotateCenterX = moveDiv.getBoundingClientRect().left + this.currentAttribute.width / 2;
+          this.rotateCenterY = moveDiv.getBoundingClientRect().top + this.currentAttribute.height / 2;
+        }
       },
       computedAngle (e) { // 计算当前转动角度
         let cx = e.pageX - this.rotateCenterX;
