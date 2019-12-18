@@ -10,9 +10,8 @@
             <div class='bl' :style="{height: templateHeight + 4 + 'px'}"></div>
             <div class='br' :style="{height: templateHeight + 4 + 'px'}"></div>
           </div>
-          <imgBorder :attribute='attribute' :startCreate='startCreate' ref='imgBorder'>
-            <img crossOrigin="anonymous" ref='dealImg' :src='`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`' alt="">
-          </imgBorder>
+          <imgBorder :attribute='attribute' :startCreate='startCreate' onlyRotate ref='imgBorder' :imgUrl="`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`"></imgBorder>
+          <imgBorder :attribute='attribute' :startCreate='startCreate' onlyFrame ref='imgBorder' :imgUrl="`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`"></imgBorder>
         </div>
       </div>
     </makeBody>
@@ -174,9 +173,6 @@
         }
         .bt{
           top: -2px;
-        }
-        img{
-          .wh(100%, auto)
         }
       }
     }

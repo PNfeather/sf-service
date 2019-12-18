@@ -1,12 +1,16 @@
 <template>
-  <div name="imgBorder" :class="{'noBorder': startCreate}" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px', transform: 'rotateZ(' + currentDeg + 'deg)'}" ref="moveDiv">
-    <div class="fillcontain" style="overflow:hidden;">
-      <slot></slot>
-    </div>
-    <div class="funArea" v-show="!startCreate">
+  <section name="imgBorder" :class="{'noBorder': startCreate || onlyRotate}" :style="{'left': attribute.left + 'px', 'top': attribute.top + 'px', 'width': attribute.width + 'px', 'height': attribute.height + 'px', transform: 'rotateZ(' + currentDeg + 'deg)'}" ref="moveDiv">
+    <article class="shade fillcontain" v-if="onlyRotate"></article>
+    <article class="fillcontain" v-if="onlyRotate">
+      <img crossOrigin="anonymous" :src='imgUrl' alt="">
+    </article>
+    <article class="rotateArea" v-if="onlyRotate" v-show="!startCreate">
       <div class="rotateBtn"  @mousedown="rotateStart" @mousemove="rotateChange" @mouseup="rotateEnd">
         <i class="iconfont iconRotate"></i>
       </div>
+    </article>
+    <article class="frameArea" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px'}" v-if="onlyFrame" v-show="!startCreate">
+      <img class="inImg" crossOrigin="anonymous" :style="{'left': -currentAttribute.left - 1 + 'px', 'top': -currentAttribute.top - 1 + 'px', 'width': attribute.width + 'px', 'height': attribute.height + 'px',transform: 'rotateZ(' + currentImageAdjustRotate + 'deg)'}" :src='imgUrl' alt="">
       <div class="top" @mousedown="start('move', $event)" @mousemove="change" @mouseup="end"></div>
       <div class="w" @mousedown="start('w', $event)" @mousemove="change" @mouseup="end"></div>
       <div class="wn" @mousedown="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
@@ -16,8 +20,8 @@
       <div class="es" @mousedown="start('es', $event)" @mousemove="change" @mouseup="end"></div>
       <div class="s" @mousedown="start('s', $event)" @mousemove="change" @mouseup="end"></div>
       <div class="ws" @mousedown="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
-    </div>
-  </div>
+    </article>
+  </section>
 </template>
 
 <script type='text/babel'>
@@ -33,6 +37,17 @@
       startCreate: {
         type: Boolean,
         default: false
+      },
+      onlyRotate: { // 使当前组件只用来旋转
+        type: Boolean,
+        default: false
+      },
+      onlyFrame: { // 当前组件只用来截取
+        type: Boolean,
+        default: false
+      },
+      imgUrl: {
+        type: String
       }
     },
     data () {
@@ -50,6 +65,11 @@
         centerComputeToggle: true
       };
     },
+    computed: {
+      currentImageAdjustRotate () {
+        return this.onlyFrame ? this.$store.getters.currentImageAdjustRotate : 0;
+      }
+    },
     mounted () {
       this.currentAttribute = {...this.attribute};
     },
@@ -63,7 +83,7 @@
     },
     methods: {
       getRotateCenter () { // 点击开始定位转动中心，在转动过中定位圆心会闪动
-        if (this.centerComputeToggle) {
+        if (this.centerComputeToggle) { // 旋转中心只计算一次
           this.centerComputeToggle = false;
           let moveDiv = this.$refs.moveDiv;
           this.rotateCenterX = moveDiv.getBoundingClientRect().left + this.currentAttribute.width / 2;
@@ -82,6 +102,7 @@
         } else if (cx >= 0 && cy > 0) { // 初始转动位置在正下方，数学坐标系第四象限为-0~-90度
           angle = -angle;
         }
+        this.$store.dispatch('changeCurrentImageAdjustRotate', angle);
         return angle;
       },
       rotateStart () {
@@ -146,18 +167,32 @@
   };
 </script>
 <style scoped lang="less">
-  .noBorder{
-    border: none!important;
-  }
   [name = 'imgBorder']{
     box-sizing: border-box;
     position: absolute;
-    border: 1px solid #999;
     z-index: 100;
     cursor: move;
+    img{
+      width: 100%;
+      height: auto;
+    }
+    .frameArea{
+      position: absolute;
+      border: 1px solid #999;
+      overflow: hidden;
+      .inImg{
+        position: absolute;
+      }
+    }
+    .shade{
+      position: absolute;
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.4);
+    }
     .rotateBtn{
       cursor: pointer;
       position: absolute;
+      z-index: 3;
       left: 50%;
       transform: translateX(-15px);
       bottom: -42px;

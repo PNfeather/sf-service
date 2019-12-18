@@ -2,6 +2,7 @@ import storage from '@/tools/storage';
 const template = {
   state: {
     currentChooseImg: storage.get('currentChooseImg') || {},
+    currentImageAdjustRotate: 0, // 图片调整时，当前旋转角度
     currentEditTemplate: storage.get('currentEditTemplate') || {},
     checkedQuestionList: [],
     questionScoreCatch: [],
@@ -17,6 +18,9 @@ const template = {
   mutations: {
     SET_CURRENTCHOOSEIMG: (state, data) => {
       state.currentChooseImg = data;
+    },
+    SET_CURRENTIMAGEADJUSTROTATE: (state, data) => {
+      state.currentImageAdjustRotate = data;
     },
     SET_CURRENTEDITTEMPLATE: (state, data) => {
       state.currentEditTemplate = data;
@@ -39,6 +43,9 @@ const template = {
     passChooseImg ({ commit }, data) {
       storage.set('currentChooseImg', data);
       commit('SET_CURRENTCHOOSEIMG', data);
+    },
+    changeCurrentImageAdjustRotate ({ commit }, data) {
+      commit('SET_CURRENTIMAGEADJUSTROTATE', data);
     },
     passTemplate ({ commit }, data) {
       storage.set('currentEditTemplate', data);
