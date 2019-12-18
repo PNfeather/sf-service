@@ -105,7 +105,6 @@
         this.$nextTick(() => {
           html2canvas(this.$refs.imgWrapper, {useCORS: true}).then(canvas => {
             this.startCreate = false;
-            this.loadingModal = false;
             this.scale = 1;
             let saveUrl = canvas.toDataURL('image/png');
             changeTemplateImg({
@@ -115,6 +114,7 @@
               'width': this.templateWidth * this.imgScale
             }).then(res => {
               let data = res.data;
+              this.loadingModal = false;
               if (data.code == 0) {
                 let reData = data.data;
                 let c = Object.assign({}, this.currentChooseImg, {url: reData.url});
