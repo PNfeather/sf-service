@@ -354,7 +354,7 @@
       backResource () {
         this.$router.push('resource');
       },
-      goMissionTemplate () { // 页面切换到任务末班
+      goMissionTemplate () { // 页面切换到任务模板
         this.pageType = 'missionTemplate';
       },
       goResourceChoiceList () { // 页面切换到资源列表

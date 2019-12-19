@@ -2,10 +2,17 @@
   <div name='imgAdjust' class='fillcontain'>
     <headTop></headTop>
     <makeBody @finish='submit'>
-      <section class='imgArea' :style="{minWidth: templateWidth + 250 + 'px'}" @mousemove='change' @mouseup='end'>
+      <section class='imgArea fillcontain' :style="{minWidth: templateWidth + 250 + 'px'}" @mousemove='change' @mouseup='end'>
         <article class="changeImgBtn">
-          <a-button class="btn" @click="changeImg('fromSource')">从资源库替换</a-button>
-          <a-button class="btn" @click="changeImg('fromLocal')">从本地替换</a-button>
+          <a-button @click="changeImg('fromSource')">从资源库替换</a-button>
+          <a-upload
+            name="file"
+            accept="image/*"
+            class="taskStart-upload"
+            :showUploadList='false'
+            :customRequest="customRequest">
+            <a-button class="uploadBtn" @click="changeImg('fromLocal')">从本地替换</a-button>
+          </a-upload>
         </article>
         <article class='imgWrapper' ref='imgWrapper' :style="{transform: 'scale(' + scale +  ',' + scale + ')', width: templateWidth + 'px', minWidth: templateWidth + 'px', height: templateHeight + 'px'}">
           <section v-show="!startCreate">
@@ -15,8 +22,8 @@
             <div class='br' :style="{height: templateHeight + 4 + 'px'}"></div>
           </section>
           <section class="firstCanvas" v-show="!firstCanvasFinished">
-            <imgBorder :attribute='attribute' onlyRotate :imgUrl="`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`"></imgBorder>
-            <imgBorder ref="imgFrame" :attribute='attribute' onlyFrame :imgUrl="`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`"></imgBorder>
+            <imgBorder ref="imgRotate" :attribute='attribute' onlyRotate :imgUrl="`${$CJIMGURL + pageImgUrl + $OSSIMGADJUST}`"></imgBorder>
+            <imgBorder ref="imgFrame" :attribute='attribute' onlyFrame :imgUrl="`${$CJIMGURL + pageImgUrl + $OSSIMGADJUST}`"></imgBorder>
           </section>
           <section class="secondCanvas" :style="{'left': attribute.left + 'px', 'top': attribute.top + 'px', 'width': attribute.width + 'px', 'height': attribute.height + 'px'}" v-show="firstCanvasFinished">
             <img :src="firstUrl" alt="">
@@ -34,6 +41,7 @@
   import {getCss} from './js';
   import html2canvas from 'html2canvas';
   import {changeTemplateImg} from '@/api/uploadImgTemplate';
+  import {fileUpload} from '@/api/fileUpload';
   export default {
     name: 'imgAdjust',
     data () {
@@ -42,20 +50,26 @@
         query: query,
         scale: 1,
         attribute: {
-          width: 0,
-          height: 0,
+          width: () => {
+            return this.templateWidth;
+          },
+          height: () => {
+            return this.templateHeight;
+          },
           left: 0,
           top: 0
         },
         startCreate: false, // 与加载弹框控制变量不能使用同一个，生成图片过程不能手动关闭该开关。
         loadingModal: false,
         firstCanvasFinished: false,
-        firstUrl: ''
+        firstUrl: '',
+        pageImgUrl: ''
       };
     },
     mounted () {
+      this.pageImgUrl = this.currentChooseImg.url;
       this.$nextTick(() => {
-        this.getWH(this.$CJIMGURL + this.currentChooseImg.url + this.$OSSIMGADJUST);
+        this.getWH(this.$CJIMGURL + this.pageImgUrl + this.$OSSIMGADJUST);
       });
     },
     computed: {
@@ -100,16 +114,39 @@
           posCenter(imgWHPer > wrapperWHPer);
         };
       },
+      resetImg () { // 重置图片的调整
+        Object.assign(this.attribute, {
+          width: this.templateWidth,
+          height: this.templateHeight,
+          left: 0,
+          top: 0
+        });
+        this.$nextTick(() => {
+          this.$refs.imgFrame.resetFrame();
+          this.$refs.imgRotate.resetRotate();
+        });
+      },
       changeImg (type) {
         console.log(type);
       },
+      customRequest (data) { // 自定义上传事件
+        const {file} = data;
+        fileUpload({'file': file}).then(res => {
+          if (res.data.code == 0) {
+            this.pageImgUrl = res.data.data.url;
+            this.resetImg();
+          } else {
+            this.$message.error(res.data.message);
+          }
+        });
+      },
       change (e) {
-        this.$refs.imgFrame.change(e);
-        this.$refs.imgFrame.rotateChange(e);
+        this.$refs.imgRotate.change(e);
+        this.$refs.imgRotate.rotateChange(e);
       },
       end (e) {
-        this.$refs.imgFrame.end(e);
-        this.$refs.imgFrame.rotateEnd(e);
+        this.$refs.imgRotate.end(e);
+        this.$refs.imgRotate.rotateEnd(e);
       },
       submit () {
         this.loadingModal = true;
@@ -162,6 +199,19 @@
     }
   };
 </script>
+<style lang="less">
+  [name = 'imgAdjust']{
+    .taskStart-upload {
+      width: 100%;
+      .ant-upload{
+        width: 100%;
+        .uploadBtn {
+          width: 100%;
+        }
+      }
+    }
+  }
+</style>
 <style scoped lang='less'>
   @import '~@/style/mixin';
   [name = 'imgAdjust']{
@@ -169,7 +219,7 @@
       overflow: auto;
       display: flex;
       justify-content: flex-start;
-      padding: 30px 50px 30px 200px;
+      padding: 30px 50px 90px 200px;
       position: relative;
       .changeImgBtn{
         position: absolute;
@@ -180,6 +230,7 @@
         height: 80px;
         left: 30px;
         top: 80px;
+        z-index: 99999;
       }
       .imgWrapper{
         position: relative;

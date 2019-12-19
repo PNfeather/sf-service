@@ -86,6 +86,16 @@
       }
     },
     methods: {
+      resetRotate () { // 重置旋转角度
+        this.currentDeg = 0;
+        this.$store.dispatch('changeCurrentImageAdjustRotate', 0);
+      },
+      resetFrame () { // 重置截图区域
+        console.log(this.attribute);
+        for (let key in this.currentAttribute) {
+          this.$set(this.currentAttribute, key, this.attribute[key]);
+        }
+      },
       getRotateCenter () { // 点击开始定位转动中心，在转动过中定位圆心会闪动
         if (this.centerComputeToggle) { // 旋转中心只计算一次
           this.centerComputeToggle = false;
@@ -168,6 +178,7 @@
         }
       },
       submit (callback) {
+        if (!this.onlyFrame) return;
         const DPR = window.devicePixelRatio; // 设备像素比
         this.startCreate = true;
         this.scale = this.imgScale / DPR; // 放大截图，增加清晰度
