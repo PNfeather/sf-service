@@ -565,7 +565,7 @@
           } else { // 导入图片模板
             defaultTemplateSortNum = this.computeMaxFinishedSortNum(); // 点击未完成模板，默认序号为已完成模板最大序号加1
             this.$store.dispatch('passChooseImg', JSON.stringify(item));
-            query = {templateImageId: item.id}; // 模板图片ID
+            query = {templateImageId: item.id, autoFrame: 'true'}; // 模板图片ID
             this.s1 && Object.assign(query, {workId: this.workId, pageType: 'missionTemplate'}); // 作业进来传作业ID
             this.s4 && Object.assign(query, {templateBookId: item.templateBookId, pageType: 'resourceMakeStart'}); // 资源进来传模板书ID
             this.$router.push({path: 'imgAdjust', query: query});

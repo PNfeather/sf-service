@@ -110,12 +110,12 @@
         query: query,
         funBtnList: [ // 功能按钮区配置，对应id不可随意调整
           {
-            id: 1,
-            icon: 'iconMerge',
-            activeClass: 'mergeActive',
+            id: 5,
+            icon: 'iconAdjust',
+            activeClass: 'adjustActive',
             activeType: 'mouseDown',
-            text: '合并',
-            fun: this.mergeTem,
+            text: '图片调整',
+            fun: this.adjust,
             active: false
           }, {
             id: 2,
@@ -133,6 +133,14 @@
             text: '多选',
             fun: this.multipleChoice,
             active: this.isMultipleChoice
+          }, {
+            id: 1,
+            icon: 'iconMerge',
+            activeClass: 'mergeActive',
+            activeType: 'mouseDown',
+            text: '合并',
+            fun: this.mergeTem,
+            active: false
           }, {
             id: 4,
             icon: 'iconCRD',
@@ -238,6 +246,10 @@
       }
     },
     methods: {
+      adjust () {
+        this.$store.dispatch('passChooseImg', JSON.stringify(this.currentEditTemplate));
+        this.$router.push({path: 'imgAdjust', query: this.query});
+      },
       checkQuestion (sort) {
         let checkedList = [];
         checkedList = [...this.checkedQuestionList];
@@ -500,7 +512,7 @@
           .deleteActive{
             color: #E46948!important;
           }
-          .multipleChoiceActive, .CRDChoiceActive{
+          .multipleChoiceActive, .CRDChoiceActive, .adjustActive{
             color: #1890ff!important;
           }
           .btnItem{

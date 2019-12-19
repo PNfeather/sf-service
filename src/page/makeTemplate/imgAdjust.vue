@@ -69,7 +69,14 @@
     mounted () {
       this.pageImgUrl = this.currentChooseImg.url;
       this.$nextTick(() => {
-        this.getWH(this.$CJIMGURL + this.pageImgUrl + this.$OSSIMGADJUST);
+        this.getWH(this.$CJIMGURL + this.pageImgUrl + this.$OSSIMGADJUST, () => {
+          this.$nextTick(() => {
+            if (this.query.autoFrame) {
+              delete this.query.autoFrame;
+              this.submit();
+            }
+          });
+        });
       });
     },
     computed: {
@@ -216,7 +223,7 @@
       overflow: auto;
       display: flex;
       justify-content: flex-start;
-      padding: 30px 50px 90px 200px;
+      padding: 30px 50px 90px 165px;
       position: relative;
       .changeImgBtn{
         position: absolute;
