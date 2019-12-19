@@ -4,44 +4,59 @@
     <makeBody :isStepOne="false" @last="lastStep" @finish="openSurePageModal">
       <div class="fillcontain" style="overflow: auto">
         <div class="frameTemplateWrapper">
-          <div class="topArea">
-            <section class="funBtnGroup">
-              <div class="btnItem" :class="[item.active ? item.activeClass : '']" v-for="(item, index) in funBtnList" :key="index" @mousedown="addActive(item)" @mouseup="removeActive(item)" @click="item.fun">
-                <i class="iconfont" :class="[item.icon]"></i>
-                <p>{{item.text}}</p>
-              </div>
+          <section class="funBtnGroup">
+            <div class="btnItem" :class="[item.active ? item.activeClass : '']" v-for="(item, index) in funBtnList" :key="index" @mousedown="addActive(item)" @mouseup="removeActive(item)" @click="item.fun">
+              <i class="iconfont" :class="[item.icon]"></i>
+              <p>{{item.text}}</p>
+            </div>
+          </section>
+          <section class="handleArea" :style="{flex: `${templateWidth + 'px'} 0 0`, height: templateHeight + 'px'}">
+            <drawFrame ref="drawFrame" :pickCRD="pickCRD" :isMultipleChoice="isMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber" @pickCRDMethod="pickCRDMethod"></drawFrame>
+            <img crossOrigin="anonymous" :src="`${$CJIMGURL + currentEditTemplate.url + $OSSIMGADJUST}`" class="fillcontain" alt="">
+          </section>
+          <section class="right">
+            <a-form
+              class="rightForm">
+              <a-form-item
+                class="input-item"
+                :label-col="{ span: 5 }"
+                :wrapper-col="{ span: 12 }">
+                <div class="sortInput">
+                  <span class="labelText"><span>*</span>题目布局</span>
+                  <a-radio-group v-if="!query.templatePageId || defaultColumnNumber" @change="changeColumnNumber" :defaultValue="defaultColumnNumber" >
+                    <a-radio :value="1">单列</a-radio>
+                    <a-radio :value="2">双列</a-radio>
+                  </a-radio-group>
+                </div>
+              </a-form-item>
+            </a-form>
+            <section class="tableArea frameTemplateTable">
+              <a-table :columns="columns" :dataSource="questionList" rowKey="identify" :pagination="false" bordered :rowClassName="rowClassName">
+                <template slot="serialNumber" slot-scope="text, record, index">
+                  <div class='editable-row-operations sort' @click="checkQuestion(record.serialNumber)">
+                    {{record.serialNumber}}.
+                  </div>
+                </template>
+                <template slot="questionKind" slot-scope="text, record, index">
+                  <div class='editable-row-operations' style="display: flex;justify-content: space-between">
+                    <a-button :class="{'activeBtn': record.currentBtn == 5}" @click="changeScore(record, 5)" style="width: 74px">小题</a-button>
+                    <a-button :class="{'activeBtn': record.currentBtn == 10}" @click="changeScore(record, 10)" style="width: 74px">中题</a-button>
+                    <a-button :class="{'activeBtn': record.currentBtn == 15}" @click="changeScore(record, 15)" style="width: 74px">大题</a-button>
+                  </div>
+                </template>
+                <template slot="score" slot-scope="text, record, index">
+                  <div class='editable-row-operations'>
+                    <a-input
+                      :value="record.score"
+                      maxLength="4"
+                      style="width: 60px"
+                      @change="inputChangeScore(record, $event)"
+                      @blur="onBlur(record, $event)"
+                    /><span style="margin-left: 6px">分</span>
+                  </div>
+                </template>
+              </a-table>
             </section>
-            <section class="handleArea" :style="{width: templateWidth + 'px', height: templateHeight + 'px'}">
-              <drawFrame ref="drawFrame" :pickCRD="pickCRD" :isMultipleChoice="isMultipleChoice" v-model="divList" @outputColumnNumber="outputColumnNumber" @pickCRDMethod="pickCRDMethod"></drawFrame>
-              <img crossOrigin="anonymous" :src="`${$CJIMGURL + currentEditTemplate.url + $OSSIMGADJUST}`" class="fillcontain" alt="">
-            </section>
-          </div>
-          <section class="tableArea frameTemplateTable">
-            <a-table :columns="columns" :dataSource="questionList" rowKey="identify" :pagination="false" bordered :rowClassName="rowClassName">
-              <template slot="serialNumber" slot-scope="text, record, index">
-                <div class='editable-row-operations sort' @click="checkQuestion(record.serialNumber)">
-                  {{record.serialNumber}}.
-                </div>
-              </template>
-              <template slot="questionKind" slot-scope="text, record, index">
-                <div class='editable-row-operations' style="display: flex;justify-content: space-between">
-                  <a-button :class="{'activeBtn': record.currentBtn == 5}" @click="changeScore(record, 5)" style="width: 74px">小题</a-button>
-                  <a-button :class="{'activeBtn': record.currentBtn == 10}" @click="changeScore(record, 10)" style="width: 74px">中题</a-button>
-                  <a-button :class="{'activeBtn': record.currentBtn == 15}" @click="changeScore(record, 15)" style="width: 74px">大题</a-button>
-                </div>
-              </template>
-              <template slot="score" slot-scope="text, record, index">
-                <div class='editable-row-operations'>
-                  <a-input
-                    :value="record.score"
-                    maxLength="4"
-                    style="width: 60px"
-                    @change="inputChangeScore(record, $event)"
-                    @blur="onBlur(record, $event)"
-                  /><span style="margin-left: 6px">分</span>
-                </div>
-              </template>
-            </a-table>
           </section>
         </div>
       </div>
@@ -78,18 +93,6 @@
             :disabled="!!query.templatePageId"
             class="frameTemplateModalWrapperInput"
             @change="changeTemplatePageNumber"/>页
-          </div>
-        </a-form-item>
-        <a-form-item
-          class="input-item"
-          label="题目布局"
-          :label-col="{ span: 5 }"
-          :wrapper-col="{ span: 12 }">
-          <div class="sortInput">
-            <a-radio-group @change="changeColumnNumber" :defaultValue="defaultColumnNumber" >
-              <a-radio :value="1">单列</a-radio>
-              <a-radio :value="2">双列</a-radio>
-            </a-radio-group>
           </div>
         </a-form-item>
       </a-form>
@@ -496,74 +499,93 @@
     .frameTemplateWrapper{
       padding: 30px;
       overflow: auto;
-      .topArea{
-        width: 100%;
-        min-width: 950px;
-        overflow-x: auto;
-        .funBtnGroup{
-          width: 135px;
-          float: left;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          .mergeActive{
-            color: #1690FF!important;
-          }
-          .deleteActive{
-            color: #E46948!important;
-          }
-          .multipleChoiceActive, .CRDChoiceActive, .adjustActive{
-            color: #1890ff!important;
-          }
-          .btnItem{
-            .wh(54px, 54px);
-            border: 1px solid #E3EDF0;
-            box-shadow: 0 3px 5px 1px rgba(35,94,157,0.04);
-            border-radius: 4px;
-            .fj(space-around);
-            flex-direction: column;
-            color: #999;
-            margin-bottom: 11px;
-            .iconfont{
-              font-size: 20px;
-              .wh(20px, 20px)
-            }
-            p{
-              font-size: 10px;
-            }
-          }
+      white-space: nowrap;
+      display: flex;
+      align-items: flex-start;
+      .funBtnGroup{
+        flex: 135px 0 0;
+        display: flex;
+        float: left;
+        flex-direction: column;
+        align-items: center;
+        .mergeActive{
+          color: #1690FF!important;
         }
-        .handleArea{
-          box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
-          overflow: hidden;
-          position: relative;
-          &:after{
-            content: '';
-            .wh(100%, 100%);
-            z-index: 1;
-            .allcover();
+        .deleteActive{
+          color: #E46948!important;
+        }
+        .multipleChoiceActive, .CRDChoiceActive, .adjustActive{
+          color: #1890ff!important;
+        }
+        .btnItem{
+          .wh(54px, 54px);
+          border: 1px solid #E3EDF0;
+          box-shadow: 0 3px 5px 1px rgba(35,94,157,0.04);
+          border-radius: 4px;
+          .fj(space-around);
+          flex-direction: column;
+          color: #999;
+          margin-bottom: 11px;
+          .iconfont{
+            font-size: 20px;
+            .wh(20px, 20px)
+          }
+          p{
+            font-size: 10px;
           }
         }
       }
-      .tableArea{
-        .wh(494px, 729px);
+      .handleArea{
         box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
-        overflow: auto;
-        margin: 30px 0 10px 135px;
-        .sort{
-          &:after{ // 点击焦点阔山到整个单元格
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
+        overflow: hidden;
+        position: relative;
+        &:after{
+          content: '';
+          .wh(100%, 100%);
+          z-index: 1;
+          .allcover();
+        }
+      }
+      .right{
+        flex: 524px 0 0;
+        margin-left: 50px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        flex-direction: column;
+        .rightForm{
+          flex: 60px 0 0;
+          width: 100%;
+          display: flex;
+          justify-content: flex-start;
+          .labelText{
+            margin-right: 10px;
+            >span{
+              color: red;
+              margin-right: 3px;
+            }
           }
         }
-        .activeBtn{
-          color: #fff;
-          background-color: #40a9ff;
-          border-color: #40a9ff;
+        .tableArea{
+          flex: 729px 0 0;
+          width: 494px;
+          box-shadow: 0 0 4px 0 rgba(0,0,0,0.10);
+          overflow: auto;
+          .sort{
+            &:after{ // 点击焦点阔山到整个单元格
+              content: '';
+              position: absolute;
+              left: 0;
+              right: 0;
+              top: 0;
+              bottom: 0;
+            }
+          }
+          .activeBtn{
+            color: #fff;
+            background-color: #40a9ff;
+            border-color: #40a9ff;
+          }
         }
       }
     }
