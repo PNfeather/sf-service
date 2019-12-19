@@ -115,12 +115,7 @@
         };
       },
       resetImg () { // 重置图片的调整
-        Object.assign(this.attribute, {
-          width: this.templateWidth,
-          height: this.templateHeight,
-          left: 0,
-          top: 0
-        });
+        this.getWH(this.$CJIMGURL + this.currentChooseImg.url + this.$OSSIMGADJUST);
         this.$nextTick(() => {
           this.$refs.imgFrame.resetFrame();
           this.$refs.imgRotate.resetRotate();

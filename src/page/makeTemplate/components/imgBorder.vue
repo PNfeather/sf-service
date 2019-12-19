@@ -75,12 +75,12 @@
       }
     },
     mounted () {
-      this.currentAttribute = {...this.attribute};
+      this.resetFrame();
     },
     watch: {
       attribute: {
-        handler (val) {
-          this.currentAttribute = {...val};
+        handler () {
+          this.resetFrame();
         },
         deep: true
       }
@@ -91,8 +91,17 @@
         this.$store.dispatch('changeCurrentImageAdjustRotate', 0);
       },
       resetFrame () { // 重置截图区域
-        for (let key in this.currentAttribute) {
-          this.$set(this.currentAttribute, key, this.attribute[key]);
+        for (let key in this.attribute) {
+          switch (key) {
+            case 'left':
+            case 'top':
+              this.$set(this.currentAttribute, key, 0);
+               break;
+            case 'width':
+            case 'height':
+              this.$set(this.currentAttribute, key, this.attribute[key]);
+              break;
+          }
         }
       },
       getRotateCenter () { // 点击开始定位转动中心，在转动过中定位圆心会闪动

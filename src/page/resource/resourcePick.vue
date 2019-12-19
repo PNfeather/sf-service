@@ -180,6 +180,9 @@
         }
       },
       sureChoice () {
+        if (!this.selectedList.length) {
+          return this.$message.warn('请选择资源');
+        }
         this.dataType === 'fullData' ? this.$store.dispatch('changeResourceChoiceList', this.fullDataList) : this.$store.dispatch('changeResourceChoiceList', this.selectedList);
         this.$router.go(-1);
       },
