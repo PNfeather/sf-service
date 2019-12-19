@@ -161,7 +161,6 @@
         let ch = this.orangeAttribute.height + (mn ? (ct >= -1 ? -my : 0) : my); // 当前height
         cw < 0 && (cw = 0); // 宽度动不能小于0
         ch < 0 && (ch = 0); // 高度动不能小于0
-        console.log(cw);
         if (im) {
           moveArr.push(...[{'left': cl}, {'top': ct}]);
         } else {

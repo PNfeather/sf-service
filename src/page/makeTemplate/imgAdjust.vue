@@ -128,7 +128,7 @@
       },
       changeImg (type) {
         if (type === 'fromSource') {
-          this.$router.push({path: 'resourcePick', query: { pageType: 'resourceChoiceList', fromName: '图片调整', choiceType: 'radio' }});
+          this.$router.push({path: 'resourcePick', query: { pageType: 'resourceChoiceList', fromName: '图片调整', choiceType: 'radio', dataType: 'fullData' }});
         }
       },
       customRequest (data) { // 自定义上传事件
@@ -232,7 +232,7 @@
         height: 80px;
         left: 30px;
         top: 80px;
-        z-index: 99999;
+        z-index: 999;
       }
       .imgWrapper{
         position: relative;

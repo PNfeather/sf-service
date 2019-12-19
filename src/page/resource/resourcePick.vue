@@ -57,7 +57,6 @@
 
 <script type='text/babel'>
   import { reviewBook, getBookList } from '@/api/tBook';
-  import { postWorkTemplate } from '@/api/works';
   import timeLimit from '@/tools/timeLimit';
   import titleBack from '@C/titleBack.vue';
   export default {
@@ -65,12 +64,14 @@
     data () {
       let query = this.$route.query;
       return {
-        fromName: query.fromName,
+        fromName: query.fromName, // 页面来源
         pageType: query.pageType || 'resourceChoiceList', // resourceChoiceList图文资源库选择页，templateChoiceList模板选择页
-        choiceType: query.choiceType,
+        choiceType: query.choiceType, // 单选或多选判断
+        dataType: query.dataType, // 选择所需要传数据方式
         currentBook: null,
         resourceList: [], // 资源列表
         selectedList: [], // 已选择模板数组
+        fullDataList: [], // 全数据需求存储
         templateName: '',
         pageSizeOptions: ['5', '10', '20', '30', '40', '50'],
         templateChoiceList: [], // 模板选择列表
@@ -163,20 +164,23 @@
         });
       },
       choiceTemplate (item) {
+        let isFull = (this.dataType === 'fullData');
         if (this.choiceType === 'radio') {
           this.selectedList = [item.id];
+          isFull && (this.fullDataList = [item]);
         } else {
           let index = this.selectedList.indexOf(item.id);
           if (index > -1) {
             this.selectedList.splice(index, 1);
+            isFull && this.fullDataList.splice(index, 1);
           } else {
             this.selectedList.push(item.id);
+            isFull && this.fullDataList.push(item);
           }
         }
       },
       sureChoice () {
-        console.log(this.selectedList);
-        this.$store.dispatch('changeResourceChoiceList', this.selectedList);
+        this.dataType === 'fullData' ? this.$store.dispatch('changeResourceChoiceList', this.fullDataList) : this.$store.dispatch('changeResourceChoiceList', this.selectedList);
         this.$router.go(-1);
       },
       onShowSizeChange (current, pageSize) {
