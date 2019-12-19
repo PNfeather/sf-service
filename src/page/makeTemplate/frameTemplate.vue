@@ -1,7 +1,7 @@
 <template>
   <div name='frameTemplate' class="fillcontain">
     <headTop></headTop>
-    <makeBody :isStepOne="false" @last="lastStep" @finish="openSurePageModal" :showLastBtn="!query.templatePageId">
+    <makeBody :isStepOne="false" @last="lastStep" @finish="openSurePageModal">
       <div class="fillcontain" style="overflow: auto">
         <div class="frameTemplateWrapper">
           <div class="topArea">

@@ -1,24 +1,28 @@
 <template>
   <div name='imgAdjust' class='fillcontain'>
     <headTop></headTop>
-    <makeBody @next='submit'>
-      <div class='imgArea' :style="{minWidth: templateWidth + 60 + 'px'}" @mousemove='change' @mouseup='end'>
-        <div class='imgWrapper' ref='imgWrapper' :style="{transform: 'scale(' + scale +  ',' + scale + ')', width: templateWidth + 'px', height: templateHeight + 'px'}">
-          <div v-show="!startCreate">
+    <makeBody @finish='submit'>
+      <section class='imgArea' :style="{minWidth: templateWidth + 250 + 'px'}" @mousemove='change' @mouseup='end'>
+        <article class="changeImgBtn">
+          <a-button class="btn" @click="changeImg('fromSource')">从资源库替换</a-button>
+          <a-button class="btn" @click="changeImg('fromLocal')">从本地替换</a-button>
+        </article>
+        <article class='imgWrapper' ref='imgWrapper' :style="{transform: 'scale(' + scale +  ',' + scale + ')', width: templateWidth + 'px', minWidth: templateWidth + 'px', height: templateHeight + 'px'}">
+          <section v-show="!startCreate">
             <div class='bt' :style="{width: templateWidth + 4 + 'px'}"></div>
             <div class='bb' :style="{width: templateWidth + 4 + 'px'}"></div>
             <div class='bl' :style="{height: templateHeight + 4 + 'px'}"></div>
             <div class='br' :style="{height: templateHeight + 4 + 'px'}"></div>
-          </div>
-          <div class="firstCanvas" v-show="!firstCanvasFinished">
+          </section>
+          <section class="firstCanvas" v-show="!firstCanvasFinished">
             <imgBorder :attribute='attribute' onlyRotate :imgUrl="`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`"></imgBorder>
             <imgBorder ref="imgFrame" :attribute='attribute' onlyFrame :imgUrl="`${$CJIMGURL + currentChooseImg.url + $OSSIMGADJUST}`"></imgBorder>
-          </div>
-          <div class="secondCanvas" :style="{'left': attribute.left + 'px', 'top': attribute.top + 'px', 'width': attribute.width + 'px', 'height': attribute.height + 'px'}" v-show="firstCanvasFinished">
+          </section>
+          <section class="secondCanvas" :style="{'left': attribute.left + 'px', 'top': attribute.top + 'px', 'width': attribute.width + 'px', 'height': attribute.height + 'px'}" v-show="firstCanvasFinished">
             <img :src="firstUrl" alt="">
-          </div>
-        </div>
-      </div>
+          </section>
+        </article>
+      </section>
     </makeBody>
     <fc-loading :loading-modal.sync='loadingModal' text='图片生成中'></fc-loading>
   </div>
@@ -96,6 +100,9 @@
           posCenter(imgWHPer > wrapperWHPer);
         };
       },
+      changeImg (type) {
+        console.log(type);
+      },
       change (e) {
         this.$refs.imgFrame.change(e);
         this.$refs.imgFrame.rotateChange(e);
@@ -160,8 +167,20 @@
   [name = 'imgAdjust']{
     .imgArea{
       overflow: auto;
-      padding: 80px 30px;
-      .fac();
+      display: flex;
+      justify-content: flex-start;
+      padding: 30px 50px 30px 200px;
+      position: relative;
+      .changeImgBtn{
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 120px;
+        height: 80px;
+        left: 30px;
+        top: 80px;
+      }
       .imgWrapper{
         position: relative;
         .secondCanvas{
