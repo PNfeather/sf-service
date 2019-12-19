@@ -1,7 +1,7 @@
 <template>
   <div name='resourcePick' class="fillcontain">
     <div class="title">
-      <titleBack :title="backTitle"></titleBack>
+      <titleBack :title="backTitle" customBack @back="back"></titleBack>
     </div>
     <div class="template fillcontain">
       <section class="functional">
@@ -65,8 +65,9 @@
     data () {
       let query = this.$route.query;
       return {
+        fromName: query.fromName,
         pageType: query.pageType || 'resourceChoiceList', // resourceChoiceList图文资源库选择页，templateChoiceList模板选择页
-        workId: query.workId, // 根据不同情况获取当前id
+        choiceType: query.choiceType,
         currentBook: null,
         resourceList: [], // 资源列表
         selectedList: [], // 已选择模板数组
@@ -79,12 +80,10 @@
         count: 0,
         pageTypeConfig: {
           resourceChoiceList: { // resourceChoiceList图文资源库选择页
-            backTitle: '返回模板列表',
-            backMethod: 'goMissionTemplate',
+            backMethod: 'giveUp',
             pageInitMethod: 'getSourceList'
           },
           templateChoiceList: { // templateChoiceList模板选择页
-            backTitle: '返回资源库',
             title: 'currentBookTitle',
             backMethod: 'goResourceChoiceList',
             pageInitMethod: 'getTemplatePage'
@@ -106,7 +105,7 @@
         return this.currentBook.name;
       },
       backTitle () {
-        return this.currentPageConfig.backTitle;
+        return (this.pageType === 'resourceChoiceList' ? ('返回' + this.fromName) : '返回资源列表');
       },
       s2 () { // resourceChoiceList图文资源库选择页
         return (this.pageType === 'resourceChoiceList');
@@ -127,8 +126,8 @@
       back () {
         this[this.currentPageConfig.backMethod]();
       },
-      goMissionTemplate () { // 页面切换到任务模板
-        this.pageType = 'missionTemplate';
+      giveUp () { // 放弃选择资源
+        this.$router.go(-1);
       },
       goResourceChoiceList () { // 页面切换到资源列表
         this.pageType = 'resourceChoiceList';
@@ -164,22 +163,21 @@
         });
       },
       choiceTemplate (item) {
-        let index = this.selectedList.indexOf(item.id);
-        if (index > -1) {
-          this.selectedList.splice(index, 1);
+        if (this.choiceType === 'radio') {
+          this.selectedList = [item.id];
         } else {
-          this.selectedList.push(item.id);
+          let index = this.selectedList.indexOf(item.id);
+          if (index > -1) {
+            this.selectedList.splice(index, 1);
+          } else {
+            this.selectedList.push(item.id);
+          }
         }
       },
       sureChoice () {
-        postWorkTemplate(this.workId, this.selectedList).then(res => {
-          let data = res.data;
-          if (data.code == 0) {
-            this.pageType = 'missionTemplate';
-          } else {
-            this.$message.error(data.message);
-          }
-        });
+        console.log(this.selectedList);
+        this.$store.dispatch('changeResourceChoiceList', this.selectedList);
+        this.$router.go(-1);
       },
       onShowSizeChange (current, pageSize) {
         this.currentPage = current;

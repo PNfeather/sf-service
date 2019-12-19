@@ -1,6 +1,7 @@
 import storage from '@/tools/storage';
 const template = {
   state: {
+    resourceChoiceList: [],
     currentChooseImg: storage.get('currentChooseImg') || {},
     currentImageAdjustRotate: 0, // 图片调整时，当前旋转角度
     currentEditTemplate: storage.get('currentEditTemplate') || {},
@@ -16,6 +17,9 @@ const template = {
   },
 
   mutations: {
+    SET_RESOURCECHOICELIST: (state, data) => {
+      state.resourceChoiceList = data;
+    },
     SET_CURRENTCHOOSEIMG: (state, data) => {
       state.currentChooseImg = data;
     },
@@ -40,6 +44,9 @@ const template = {
   },
 
   actions: {
+    changeResourceChoiceList ({ commit }, data) {
+      commit('SET_RESOURCECHOICELIST', data);
+    },
     passChooseImg ({ commit }, data) {
       storage.set('currentChooseImg', data);
       commit('SET_CURRENTCHOOSEIMG', data);

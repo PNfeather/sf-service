@@ -12,15 +12,15 @@
     <article class="frameArea" :class="{'noBorder': startCreate}" :style="{'left': currentAttribute.left + 'px', 'top': currentAttribute.top + 'px', 'width': currentAttribute.width + 'px', 'height': currentAttribute.height + 'px', transform: 'scale(' + scale +  ',' + scale + ')'}" v-if="onlyFrame" ref="imgWrapper">
       <img class="inImg" crossOrigin="anonymous" :style="{'left': -currentAttribute.left - 1 + 'px', 'top': -currentAttribute.top - 1 + 'px', 'width': attribute.width + 'px', 'height': attribute.height + 'px',transform: 'rotateZ(' + currentImageAdjustRotate + 'deg)'}" :src='imgUrl' alt="">
       <div v-show="!startCreate">
-        <div class="top" @mousedown="start('move', $event)" @mousemove="change" @mouseup="end"></div>
-        <div class="w" @mousedown="start('w', $event)" @mousemove="change" @mouseup="end"></div>
-        <div class="wn" @mousedown="start('wn', $event)" @mousemove="change" @mouseup="end"></div>
-        <div class="n" @mousedown="start('n', $event)" @mousemove="change" @mouseup="end"></div>
-        <div class="en" @mousedown="start('en', $event)" @mousemove="change" @mouseup="end"></div>
-        <div class="e" @mousedown="start('e', $event)" @mousemove="change" @mouseup="end"></div>
-        <div class="es" @mousedown="start('es', $event)" @mousemove="change" @mouseup="end"></div>
-        <div class="s" @mousedown="start('s', $event)" @mousemove="change" @mouseup="end"></div>
-        <div class="ws" @mousedown="start('ws', $event)" @mousemove="change" @mouseup="end"></div>
+        <div class="top" @mousedown="start('move', $event)"></div>
+        <div class="w" @mousedown="start('w', $event)"></div>
+        <div class="wn" @mousedown="start('wn', $event)"></div>
+        <div class="n" @mousedown="start('n', $event)"></div>
+        <div class="en" @mousedown="start('en', $event)"></div>
+        <div class="e" @mousedown="start('e', $event)"></div>
+        <div class="es" @mousedown="start('es', $event)"></div>
+        <div class="s" @mousedown="start('s', $event)"></div>
+        <div class="ws" @mousedown="start('ws', $event)"></div>
       </div>
     </article>
   </section>
@@ -91,7 +91,6 @@
         this.$store.dispatch('changeCurrentImageAdjustRotate', 0);
       },
       resetFrame () { // 重置截图区域
-        console.log(this.attribute);
         for (let key in this.currentAttribute) {
           this.$set(this.currentAttribute, key, this.attribute[key]);
         }
@@ -153,21 +152,23 @@
         let mn = !im && this.changeType.indexOf('n') > -1; // 上边动
         let me = !im && this.changeType.indexOf('e') > -1; // 右边动
         let ms = !im && this.changeType.indexOf('s') > -1; // 下边动
-        let cw = this.orangeAttribute.width + (mw ? (-mx) : mx); // 当前width
-        let ch = this.orangeAttribute.height + (mn ? (-my) : my); // 当前height
         let r = this.orangeAttribute.width + this.orangeAttribute.left; // 最初右边位置
         let b = this.orangeAttribute.height + this.orangeAttribute.top; // 最初底边位置
+        mw && ((cl > r && (cl = r)) || (cl < -1 && (cl = -1))); // 左边动不能超过右边,不能小于-1,border1像素
+        mn && ((ct > b && (ct = b)) || (ct < -1 && (ct = -1))); // 上边动不能超过下边,不能小于-1
+
+        let cw = this.orangeAttribute.width + (mw ? (cl >= -1 ? -mx : 0) : mx); // 当前width
+        let ch = this.orangeAttribute.height + (mn ? (ct >= -1 ? -my : 0) : my); // 当前height
         cw < 0 && (cw = 0); // 宽度动不能小于0
         ch < 0 && (ch = 0); // 高度动不能小于0
-        mw && cl > r && (cl = r); // 左边动不能超过右边
-        mn && ct > b && (ct = b); // 上边动不能超过下边
+        console.log(cw);
         if (im) {
           moveArr.push(...[{'left': cl}, {'top': ct}]);
         } else {
           mw && moveArr.push(...[{'left': cl}, {'width': cw}]);
           mn && moveArr.push(...[{'top': ct}, {'height': ch}]);
-          me && moveArr.push(...[{'width': cw}]);
-          ms && moveArr.push(...[{'height': ch}]);
+          me && cw + cl <= this.attribute.width && moveArr.push(...[{'width': cw}]); // 右边不能超出限制框右边
+          ms && ch + ct <= this.attribute.height && moveArr.push(...[{'height': ch}]); // 下边不能超出限制框下
         }
         this.changeDom([...moveArr]);
       },

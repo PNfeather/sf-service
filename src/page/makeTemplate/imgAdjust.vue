@@ -127,7 +127,9 @@
         });
       },
       changeImg (type) {
-        console.log(type);
+        if (type === 'fromSource') {
+          this.$router.push({path: 'resourcePick', query: { pageType: 'resourceChoiceList', fromName: '图片调整', choiceType: 'radio' }});
+        }
       },
       customRequest (data) { // 自定义上传事件
         const {file} = data;
@@ -141,11 +143,11 @@
         });
       },
       change (e) {
-        this.$refs.imgRotate.change(e);
+        this.$refs.imgFrame.change(e);
         this.$refs.imgRotate.rotateChange(e);
       },
       end (e) {
-        this.$refs.imgRotate.end(e);
+        this.$refs.imgFrame.end(e);
         this.$refs.imgRotate.rotateEnd(e);
       },
       submit () {
