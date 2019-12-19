@@ -15,6 +15,8 @@ const missionList = r => require.ensure([], () => r(require('@/page/missionList/
 const missionDetail = r => require.ensure([], () => r(require('@/page/missionDetail/missionDetail')), 'missionDetail');
 // 作业制作初始页
 const taskStart = r => require.ensure([], () => r(require('@/page/taskStart/taskStart')), 'taskStart');
+// 资源选择
+const resourcePick = r => require.ensure([], () => r(require('@/page/resource/resourcePick')), 'resourcePick');
 // 资源库列表
 const resource = r => require.ensure([], () => r(require('@/page/resource/resource')), 'resource');
 // 新增资源
@@ -62,6 +64,9 @@ const routes = [
       }, {
         path: '/taskStart',
         component: taskStart
+      }, {
+        path: '/resourcePick',
+        component: resourcePick
       }, {
         path: '/resource',
         component: resource,
