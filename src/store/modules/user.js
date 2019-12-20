@@ -9,7 +9,22 @@ const user = {
     userInfo: storage.get('userInfo') || {},
     serviceList: storage.get('serviceList') || [],
     schoolList: storage.get('schoolList') || [],
-    gradeList: storage.get('gradeList') || []
+    gradeList: storage.get('gradeList') || [],
+    subjectList: [
+      {name: '全部', id: ''},
+      {name: '语文', id: '0'},
+      {name: '数学', id: '1'},
+      {name: '英语', id: '2'},
+      {name: '政治思品', id: '3'},
+      {name: '物理', id: '4'},
+      {name: '化学', id: '5'},
+      {name: '历史', id: '6'},
+      {name: '地理', id: '7'},
+      {name: '生物', id: '8'},
+      {name: '科学', id: '9'},
+      {name: '信息技术', id: '10'},
+      {name: '其他', id: '11'}
+    ]
   },
 
   mutations: {

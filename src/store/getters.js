@@ -3,6 +3,7 @@ const getters = {
   serviceList: state => state.user.serviceList,
   schoolList: state => state.user.schoolList,
   gradeList: state => state.user.gradeList,
+  subjectList: state => state.user.subjectList,
   resourceChoiceList: state => state.template.resourceChoiceList,
   currentChooseImg: state => state.template.currentChooseImg,
   currentImageAdjustRotate: state => state.template.currentImageAdjustRotate,
