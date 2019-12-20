@@ -217,7 +217,6 @@
         }, 500);
       },
       changeFilter (type, val) {
-        console.log(type, val);
         this[type] = val;
         if (type == 'school' || type == 'grade') { // 选择学校年级，班级联动
           if (this.school && this.grade) {

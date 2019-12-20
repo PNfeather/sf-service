@@ -1,6 +1,18 @@
 <template>
   <div name='resource' class="fillcontain">
     <div class="search">
+      <div class="grade">
+        <span class="label">年级:</span>
+        <a-select :value="grade" :defaultValue="gradeList[0]" style="flex: 120px 0 0; overflow: hidden" @change="(val) => changeFilter('grade', val)">
+          <a-select-option v-for="option in gradeList" :key="option.id">{{option.name}}</a-select-option>
+        </a-select>
+      </div>
+      <div class="subject">
+        <span class="label">学科:</span>
+        <a-select :value="subjectId" :defaultValue="subjectList[0]" style="flex: 120px 0 0; overflow: hidden"  @change="(val) => changeFilter('subjectId', val)">
+          <a-select-option v-for="option in subjectList" :key="option.id">{{option.name}}</a-select-option>
+        </a-select>
+      </div>
       <div class="searchInput">
         <a-input v-model="templateName" class="input" placeholder="请输入资源名称"/>
         <a-button type="primary" class="getList" @click="search">搜索</a-button>
@@ -44,13 +56,18 @@
     data () {
       return {
         templateName: '',
+        grade: '', // 年级
+        subjectId: '', // 学科id
+        subject: '', // 学科
         tableData: [],
         columns: [
-          {className: 'tablePadding', title: '资源名称', dataIndex: 'name', width: '34%'},
-          {className: 'tablePadding', title: '创建人', dataIndex: 'creatorName', width: '20%'},
-          {className: 'tablePadding', title: '最后修改时间', dataIndex: 'updatedAt', width: '18%'},
-          {className: 'tablePadding', title: '状态', dataIndex: 'statusName', width: '15%'},
-          {className: 'tablePadding', title: '操作', dataIndex: 'deal', width: '13%', scopedSlots: { customRender: 'operation' }}
+          {className: 'tablePadding', title: '资源名称', dataIndex: 'name', width: '20%'},
+          {className: 'tablePadding', title: '年级', dataIndex: 'gradeName', width: '10%'},
+          {className: 'tablePadding', title: '学科', dataIndex: 'subject', width: '10%'},
+          {className: 'tablePadding', title: '创建人', dataIndex: 'creatorName', width: '18%'},
+          {className: 'tablePadding', title: '最后修改时间', dataIndex: 'updatedAt', width: '14%'},
+          {className: 'tablePadding', title: '状态', dataIndex: 'statusName', width: '10%'},
+          {className: 'tablePadding', title: '操作', dataIndex: 'deal', width: '18%', scopedSlots: { customRender: 'operation' }}
         ],
         pageSizeOptions: ['5', '10', '20', '30', '40', '50'],
         skip: 0,
@@ -70,8 +87,23 @@
     watch: {
     },
     computed: {
+      gradeList () {
+        return [{id: '', name: '全部'}, ...this.$store.getters.gradeList];
+      },
+      subjectList () {
+        return [...this.$store.getters.subjectList];
+      }
     },
     methods: {
+      changeFilter (type, val) {
+        this[type] = val;
+        if (type == 'subjectId') {
+          this.subjectList.forEach(item => {
+            item.id == val && (this.subject = item.name);
+          });
+        }
+        this.search();
+      },
       search () {
         this.skip = 0;
         this.currentPage = 1;
@@ -82,7 +114,9 @@
         getBookList({
           limit: this.limit,
           skip: this.skip,
-          templateBookName: this.templateName
+          templateBookName: this.templateName,
+          subject: this.subject,
+          gradeId: this.grade
         }).then(res => {
           let data = res.data;
           this.count = data.total;
@@ -150,6 +184,18 @@
       flex: 60px 0 0;
       padding: 0 30px 0 10px;
       .fj(flex-start);
+      .grade, .subject{
+        flex: 180px 0 0;
+        .fj();
+        .label{
+          flex: 1;
+          text-align: right;
+          margin-right: 10px;
+        }
+        .ant-select{
+          flex: 1.2rem 0 0;
+        }
+      }
       .searchInput{
         flex: 1;
         .fj(flex-start);
