@@ -23,10 +23,8 @@
                 :wrapper-col="{ span: 12 }">
                 <div class="sortInput">
                   <span class="labelText"><span>*</span>题目布局</span>
-                  <a-radio-group v-if="!query.templatePageId || defaultColumnNumber" @change="changeColumnNumber" :defaultValue="defaultColumnNumber" >
-                    <a-radio :value="1">单列</a-radio>
-                    <a-radio :value="2">双列</a-radio>
-                  </a-radio-group>
+                  <a-radio :value="1" :checked="columnNumber == 1" @click="changeColumnNumber">单列</a-radio>
+                  <a-radio :value="2" :checked="columnNumber == 2"  @click="changeColumnNumber">双列</a-radio>
                 </div>
               </a-form-item>
             </a-form>
@@ -167,8 +165,7 @@
         isMultipleChoice: false, // 复选开关
         pickCRD: false, // 识别区选中开关
         drawFrameInitialIdentify: 1,
-        columnNumber: '',
-        defaultColumnNumber: ''
+        columnNumber: ''
       };
     },
     created () {},
@@ -360,7 +357,7 @@
         }
       },
       outputColumnNumber (data) {
-        this.columnNumber = this.defaultColumnNumber = data;
+        this.columnNumber = data;
       },
       changeColumnNumber (e) {
         this.columnNumber = e.target.value;
