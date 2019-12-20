@@ -130,7 +130,7 @@
       },
       changeImg (type) {
         if (type === 'fromSource') {
-          this.$router.push({path: 'resourcePick', query: { pageType: 'resourceChoiceList', fromName: '图片调整', choiceType: 'radio', dataType: 'fullData', backNum: '2' }});
+          this.$router.push({path: 'resourcePick', query: { fromName: '图片调整', choiceType: 'radio', dataType: 'fullData', backNum: '2' }});
         }
       },
       customRequest (data) { // 自定义上传事件

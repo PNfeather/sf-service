@@ -97,8 +97,8 @@
               this.detailName = time + reData.name;
               this.assignTeacherName = reData.assignTeacherName;
               this.$emit('input', this.detailName);
-              this.imgList = [...reData.attachments];
-              this.voiceMessages = [...reData.voiceMessages.map((item) => {
+              // this.imgList = [...reData.attachments];
+              this.voiceMessages = [...reData.voiceRemarks.map((item) => {
                 item.audioPlaying = false;
                 return item;
               })];
@@ -131,9 +131,9 @@
       },
       playAudio (item, index) {
         let audio = this.$refs['voice' + index][0];
-        audio.currentTime = 0;
         if (audio.paused) {
           this.$set(item, 'audioPlaying', true);
+          this.pause();
           audio.play(); // audio.play();// 这个就是播放
         } else {
           this.pause();
@@ -142,6 +142,7 @@
       pause () {
         for (let i = 0; i < this.voiceMessages.length; i++) {
           let audio = this.$refs['voice' + i][0];
+          audio.currentTime = 0;
           this.$set(this.voiceMessages[i], 'audioPlaying', false);
           audio.pause(); // 暂停播放
         }

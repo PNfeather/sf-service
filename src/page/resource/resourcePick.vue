@@ -68,7 +68,7 @@
         pageType: query.pageType || 'resourceChoiceList', // resourceChoiceList图文资源库选择页，templateChoiceList模板选择页
         choiceType: query.choiceType, // 单选或多选判断
         dataType: query.dataType, // 选择所需要传数据方式
-        backNum: query.backNum,
+        backNum: query.backNum, // 选择后页面返回页数，默认返回上一页
         currentBook: null,
         resourceList: [], // 资源列表
         selectedList: [], // 已选择模板数组

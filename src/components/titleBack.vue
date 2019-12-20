@@ -3,6 +3,12 @@
     <div class="backBtn" @click="back">
       <a-icon class="icon" type="left" />{{title}}
     </div>
+    <div class="center">
+      <slot name="center"></slot>
+    </div>
+    <div class="right">
+      <slot name="right"></slot>
+    </div>
   </div>
 </template>
 
@@ -43,11 +49,17 @@
     text-align: center;
     .backBtn{
       height: 100%;
+      flex: 1;
       .fj(flex-start);
+      .ellipsis();
       .icon{
         font-size: 20px;
         margin-right: 10px;
       }
+    }
+    .center, .right{
+      flex: 1;
+      height: 100%;
     }
   }
 </style>
