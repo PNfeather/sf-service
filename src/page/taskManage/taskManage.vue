@@ -1,15 +1,33 @@
 <template>
   <div name='missionList' class="fillcontain">
     <div class="search">
+      <div class="school">
+        <span class="label">学校:</span>
+        <a-select :value="school" :defaultValue="schoolList[0]" style="flex: 120px 0 0; overflow: hidden" @change="(val) => changeFilter('school', val)">
+          <a-select-option v-for="option in schoolList" :key="option.id">{{option.name}}</a-select-option>
+        </a-select>
+      </div>
+      <div class="grade">
+        <span class="label">年级:</span>
+        <a-select :value="grade" :defaultValue="gradeList[0]" style="flex: 120px 0 0; overflow: hidden" @change="(val) => changeFilter('grade', val)">
+          <a-select-option v-for="option in gradeList" :key="option.id">{{option.name}}</a-select-option>
+        </a-select>
+      </div>
+      <div class="className">
+        <span class="label">班级:</span>
+        <a-select :value="classId" :defaultValue="classesList[0]" style="flex: 120px 0 0; overflow: hidden" @change="(val) => changeFilter('classId', val)">
+          <a-select-option v-for="option in classesList" :key="option.id">{{option.name}}</a-select-option>
+        </a-select>
+      </div>
+      <div class="subject">
+        <span class="label">学科:</span>
+        <a-select :value="subjectId" :defaultValue="subjectList[0]" style="flex: 120px 0 0; overflow: hidden"  @change="(val) => changeFilter('subjectId', val)">
+          <a-select-option v-for="option in subjectList" :key="option.id">{{option.name}}</a-select-option>
+        </a-select>
+      </div>
       <div class="teacher">
         <span class="label">布置教师:</span>
         <a-input v-model="teacherInfo" class="input" placeholder="请输入教师名称"/>
-      </div>
-      <div class="service">
-        <span class="label">操作客服:</span>
-        <a-select :value="serviceId" :defaultValue="serviceList[0]" style="flex: 120px 0 0; overflow: hidden" @change="changeService">
-          <a-select-option v-for="option in serviceList" :key="option.id">{{option.name}}</a-select-option>
-        </a-select>
       </div>
       <a-button type="primary" class="check" @click="check">查询</a-button>
     </div>
@@ -44,20 +62,26 @@
 <script type='text/babel'>
   import {worksList, deleteWork} from '@/api/works';
   import format from '@/tools/format';
+  import {classesList} from '@/api/baseData';
   export default {
     name: 'missionList',
     data () {
       return {
-        serviceId: '',
         teacherInfo: '',
-        service: '',
+        school: '', // 学校
+        grade: '', // 年级
+        classId: '', // 班级
+        classesList: [{id: '', name: '全部'}], // 班级列表
+        subjectId: '', // 学科id
+        subject: '', // 学科
         tableData: [],
         columns: [
           {className: 'tablePadding', title: '作业名称', dataIndex: 'detailName', width: '18.7%'},
           {className: 'tablePadding', title: '布置教师', dataIndex: 'teacher', width: '19%'},
-          {className: 'tablePadding', title: '班级', dataIndex: 'detailClassName', width: '23.5%'},
+          {className: 'tablePadding', title: '学校', dataIndex: 'schoolName', width: '10%'},
+          {className: 'tablePadding', title: '班级', dataIndex: 'className', width: '10%'},
+          {className: 'tablePadding', title: '学科', dataIndex: 'subject', width: '8%'},
           {className: 'tablePadding', title: '布置时间', dataIndex: 'assignTime', width: '14.6%'},
-          {className: 'tablePadding', title: '操作客服', dataIndex: 'serviceName', width: '11.5%'},
           {className: 'tablePadding', title: '操作', dataIndex: 'deal', width: '12.7%', scopedSlots: { customRender: 'operation' }}
         ],
         pageSizeOptions: ['5', '10', '20', '30', '40', '50'],
@@ -72,22 +96,59 @@
       this.getList();
     },
     computed: {
-      serviceList () {
-        return [{id: '', name: '全部'}, ...this.$store.getters.serviceList];
+      schoolList () {
+        return [{id: '', name: '全部'}, ...this.$store.getters.schoolList];
+      },
+      gradeList () {
+        return [{id: '', name: '全部'}, ...this.$store.getters.gradeList];
+      },
+      subjectList () {
+        return [...this.$store.getters.subjectList];
       }
     },
     activated () {
       this.getList();
     },
     methods: {
+      changeFilter (type, val) {
+        this[type] = val;
+        if (type == 'school' || type == 'grade') { // 选择学校年级，班级联动
+          if (this.school && this.grade) {
+            classesList(this.school, this.grade).then(res => {
+              let data = res.data;
+              if (data.code == 0) {
+                let reData = data.data;
+                this.classesList.splice(1, this.classesList.length); // 保留全部选项
+                this.classesList.push(...reData);
+              } else {
+                this.$message.error(data.msg);
+              }
+            }).catch((err) => {
+              this.$message.error(err);
+            });
+          } else {
+            this.classesList.splice(1, this.classesList.length); // 保留'全部'选项
+            this.classId = ''; // 清空已选择的班级id
+          }
+        }
+        if (type == 'subjectId') {
+          this.subjectList.forEach(item => {
+            item.id == val && (this.subject = item.name);
+          });
+        }
+        this.check();
+      },
       getList () {
         if (this.getListTimer) return;
         worksList({
           limit: this.limit,
           skip: this.skip,
           teacherInfo: this.teacherInfo,
-          serviceId: this.serviceId,
-          queryDelete: true
+          queryDelete: true,
+          classId: this.classId,
+          gradeId: this.grade,
+          schoolId: this.school,
+          subject: this.subject
         }).then(res => {
           let data = res.data;
           this.count = data.total;
@@ -99,7 +160,6 @@
               }
               item.assignTime = time;
               item.detailName = time.split(' ')[0] + item.name;
-              item.detailClassName = item.schoolName + item.className;
               item.teacher = item.assignTeacherName + (item.assignTeacherMobile ? '(' + item.assignTeacherMobile + ')' : '');
               return item;
             });
@@ -112,10 +172,6 @@
       check () {
         this.skip = 0;
         this.currentPage = 1;
-        this.getList();
-      },
-      changeService (value) {
-        this.serviceId = value;
         this.getList();
       },
       deleteTask (workId) {
@@ -158,7 +214,20 @@
       flex: 60px 0 0;
       padding: 0 30px 0 30px;
       .fj(flex-start);
+      .school, .grade, .className, .subject{
+        flex: 180px 0 0;
+        .fj();
+        .label{
+          flex: 1;
+          text-align: right;
+          margin-right: 10px;
+        }
+        .ant-select{
+          flex: 1.2rem 0 0;
+        }
+      }
       .teacher{
+        margin-left: 10px;
         width: 246px;
         .input{
           width: 176px;
