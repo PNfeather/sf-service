@@ -1,7 +1,7 @@
 <template>
   <div name='frameTemplate' class="fillcontain">
     <headTop></headTop>
-    <makeBody :isStepOne="false" @last="lastStep" @finish="openSurePageModal">
+    <makeBody :isStepOne="false" @back="back" @finish="openSurePageModal">
       <div class="fillcontain" style="overflow: auto">
         <div class="frameTemplateWrapper">
           <section class="funBtnGroup">
@@ -63,11 +63,10 @@
       v-model="backModal"
       centered
       width="450px"
-      @ok="sureBack"
-      okText="返回"
+      @ok="sureGo"
       class="frameTemplateModal">
       <div class="frameTemplateModalWrapper">
-        当前页面数据将会清空，是否返回上一步?
+        {{backModalText}}
       </div>
     </a-modal>
     <a-modal
@@ -165,15 +164,14 @@
         isMultipleChoice: false, // 复选开关
         pickCRD: false, // 识别区选中开关
         drawFrameInitialIdentify: 1,
-        columnNumber: ''
+        columnNumber: '',
+        backType: 'back',
+        backModalText: ''
       };
     },
-    created () {},
     beforeRouteLeave (to, from, next) { // 路由离开前清空选中List
       this.$store.dispatch('changeCheckedQuestionList', []);
       next();
-    },
-    mounted () {
     },
     computed: {
       rowClassName () {
@@ -246,9 +244,26 @@
       }
     },
     methods: {
+      back () {
+        this.backType = 'back';
+        if (this.questionList.length) {
+          this.backModalText = '退出将不会保存当前页面，是否确认';
+          this.backModal = true;
+        } else {
+          this.sureGo();
+        }
+      },
       adjust () {
-        this.$store.dispatch('passChooseImg', JSON.stringify(this.currentEditTemplate));
-        this.$router.push({path: 'imgAdjust', query: this.query});
+        if (this.query.templatePageId) {
+          return this.$message.warn('已完成或已发布模板不可图片调整');
+        }
+        this.backType = 'goAdjust';
+        if (this.questionList.length) {
+          this.backModalText = '调整图片将清空当前页面数据，是否确认？';
+          this.backModal = true;
+        } else {
+          this.sureGo();
+        }
       },
       checkQuestion (sort) {
         let checkedList = [];
@@ -365,15 +380,13 @@
       openSurePageModal () {
         this.visible = true;
       },
-      lastStep () {
-        if (this.questionList.length) {
-          this.backModal = true;
-        } else {
-          this.sureBack();
+      sureGo () {
+        if (this.backType === 'back') {
+          this.$router.go(-1);
+        } else if (this.backType === 'goAdjust') {
+          this.$store.dispatch('passChooseImg', JSON.stringify(this.currentEditTemplate));
+          this.$router.push({path: 'imgAdjust', query: this.query});
         }
-      },
-      sureBack () {
-        this.$router.replace({path: 'imgAdjust', query: this.query});
       },
       updataTemplate (params) {
         let data = {id: this.query.templatePageId, ...params};

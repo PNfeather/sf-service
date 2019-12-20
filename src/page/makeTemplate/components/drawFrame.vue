@@ -123,42 +123,52 @@
           this.$emit('pickCRDMethod');
         });
       },
+      putData (data) { // 数据导入方法
+        const arr = data.questionSigns;
+        const ft = this.$refs.bg.getBoundingClientRect().top;
+        const fl = this.$refs.bg.getBoundingClientRect().left;
+        let exitHeaderCatch = {}; // 已存在序号缓存
+        let isMergeSort = {}; // 当前序号是否是存在合并项序号数组
+        this.$emit('outputColumnNumber', data.columnNumber);
+        this.getMarkArea(data.markerArea);
+        if (arr && arr.length) {
+          arr.forEach((item) => {
+            item.left = item.leftPoint / this.imgScale;
+            item.top = item.topPoint / this.imgScale;
+            item.height = item.height / this.imgScale;
+            item.width = item.width / this.imgScale;
+            const {serialNumber, score, width, height, top, left} = item;
+            let cell = {serialNumber, score};
+            if (exitHeaderCatch[item.serialNumber]) {
+              isMergeSort[item.serialNumber] = true;
+            } else {
+              exitHeaderCatch[item.serialNumber] = true;
+            }
+            cell.attribute = {width, height, top, left};
+            cell.attribute.startX = fl + item.left;
+            cell.attribute.startY = ft + item.top; // 拱捕获使用
+            cell.identify = this.identify++;
+            (item.serialNumber + 1 > this.serialNumber) && (this.serialNumber = item.serialNumber + 1); // 循环玩当序号排列为已存在的最大序号加1，id一次排过来
+            this.$store.dispatch('changeIsMergeSort', isMergeSort);
+            this.moveDivList.push(cell);
+          });
+        }
+      },
       pageInit () {
+        let resourceChoiceList = [...this.$store.getters.resourceChoiceList];
         let templatePageId = this.$route.query.templatePageId;
-        if (templatePageId) { // 存在模板id调接口获取模板数据，否则是新建模板
+        if (resourceChoiceList.length) { // 资源库直接导入
+          const template = resourceChoiceList[0];
+          let currentEditTemplate = JSON.parse(this.$store.getters.currentEditTemplate);
+          let c = Object.assign({}, currentEditTemplate, {url: template.url});
+          this.$store.dispatch('passTemplate', JSON.stringify(c)); // 将正在编辑的图片替换
+          this.putData(template); // 题目数据框替换
+          this.$store.dispatch('changeResourceChoiceList', []); // 导入后清空vuex缓存数据
+        } else if (templatePageId) { // 存在模板id调接口获取模板数据，否则是新建模板
           getTemplatePage({id: templatePageId}).then(res => {
             const data = res.data;
             if (data.code == 0) {
-              const reData = data.data;
-              const arr = reData.questionSigns;
-              const ft = this.$refs.bg.getBoundingClientRect().top;
-              const fl = this.$refs.bg.getBoundingClientRect().left;
-              let exitHeaderCatch = {}; // 已存在序号缓存
-              let isMergeSort = {}; // 当前序号是否是存在合并项序号数组
-              this.$emit('outputColumnNumber', reData.columnNumber);
-              this.getMarkArea(reData.markerArea);
-              if (arr && arr.length) {
-                arr.forEach((item) => {
-                  item.left = item.leftPoint / this.imgScale;
-                  item.top = item.topPoint / this.imgScale;
-                  item.height = item.height / this.imgScale;
-                  item.width = item.width / this.imgScale;
-                  const {serialNumber, score, width, height, top, left} = item;
-                  let cell = {serialNumber, score};
-                  if (exitHeaderCatch[item.serialNumber]) {
-                    isMergeSort[item.serialNumber] = true;
-                  } else {
-                    exitHeaderCatch[item.serialNumber] = true;
-                  }
-                  cell.attribute = {width, height, top, left};
-                  cell.attribute.startX = fl + item.left;
-                  cell.attribute.startY = ft + item.top; // 拱捕获使用
-                  cell.identify = this.identify++;
-                  (item.serialNumber + 1 > this.serialNumber) && (this.serialNumber = item.serialNumber + 1); // 循环玩当序号排列为已存在的最大序号加1，id一次排过来
-                  this.$store.dispatch('changeIsMergeSort', isMergeSort);
-                  this.moveDivList.push(cell);
-                });
-              }
+              this.putData(data.data);
             } else {
               this.$message.error(data.message);
             }

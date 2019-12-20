@@ -6,7 +6,7 @@
           <a-icon class="icon" type="left" />返回模板列表
         </div>
         <div class="btnGroup">
-          <a-button v-show="isStepOne" class="btn" type="primary" @click="back">取消</a-button>
+          <a-button v-show="isStepOne" class="btn" type="primary" @click="goBack">取消</a-button>
           <a-button class="btn" type="primary" @click="finish">完成</a-button>
         </div>
       </div>
@@ -36,6 +36,9 @@
     watch: {},
     methods: {
       back () {
+        this.$emit('back');
+      },
+      goBack () {
         this.$router.go(-1);
       },
       finish () {

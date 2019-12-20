@@ -68,6 +68,7 @@
         pageType: query.pageType || 'resourceChoiceList', // resourceChoiceList图文资源库选择页，templateChoiceList模板选择页
         choiceType: query.choiceType, // 单选或多选判断
         dataType: query.dataType, // 选择所需要传数据方式
+        backNum: query.backNum,
         currentBook: null,
         resourceList: [], // 资源列表
         selectedList: [], // 已选择模板数组
@@ -184,7 +185,7 @@
           return this.$message.warn('请选择资源');
         }
         this.dataType === 'fullData' ? this.$store.dispatch('changeResourceChoiceList', this.fullDataList) : this.$store.dispatch('changeResourceChoiceList', this.selectedList);
-        this.$router.go(-1);
+        this.$router.go(this.backNum ? -this.backNum : -1);
       },
       onShowSizeChange (current, pageSize) {
         this.currentPage = current;
