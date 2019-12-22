@@ -65,7 +65,7 @@
 </template>
 
 <script type='text/babel'>
-  import {worksList, getWork} from '@/api/works';
+  import {taskList, getWork} from '@/api/works';
   import format from '@/tools/format';
   import {classesList} from '@/api/baseData';
   export default {
@@ -178,7 +178,7 @@
     methods: {
       getList () {
         if (this.getListTimer) return;
-        worksList({
+        taskList({
           limit: this.limit,
           skip: this.skip,
           serviceId: this.serviceId,

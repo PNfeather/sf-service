@@ -60,7 +60,7 @@
 </template>
 
 <script type='text/babel'>
-  import {worksList, deleteWork} from '@/api/works';
+  import {workList, deleteWork} from '@/api/works';
   import format from '@/tools/format';
   import {classesList} from '@/api/baseData';
   export default {
@@ -140,7 +140,7 @@
       },
       getList () {
         if (this.getListTimer) return;
-        worksList({
+        workList({
           limit: this.limit,
           skip: this.skip,
           teacherInfo: this.teacherInfo,

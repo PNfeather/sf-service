@@ -1,7 +1,9 @@
 import {Http} from '@/plugins/http';
 
+// 任务列表
+export const taskList = (data) => Http.post('/service/works/tasks', data);
 // 作业列表
-export const worksList = (data) => Http.post('/service/works/list', data);
+export const workList = (data) => Http.post('/service/works/works', data);
 // 删除作业
 export const deleteWork = (id) => Http.delete('/service/works/' + id);
 // 制作作业
