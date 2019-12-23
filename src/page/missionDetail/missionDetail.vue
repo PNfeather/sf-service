@@ -53,7 +53,7 @@
           postWorkTemplate(this.workId, resourceChoiceList).then(res => {
             let data = res.data;
             if (data.code == 0) {
-              this.$message.success('导入成功');
+              this.$refs.missionContent.pageInit();
             } else {
               this.$message.error(data.message);
             }
