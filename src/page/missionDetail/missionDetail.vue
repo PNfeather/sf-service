@@ -6,14 +6,14 @@
           {{title}}
         </div>
         <div slot="right" class="right-btn-group fillcontain">
-          <a-button type="primary" class="funBtn" @click="goResourceChoiceList">资源库导入</a-button>
+          <a-button type="primary" class="funBtn" @click="goResourceChoiceList">资源库</a-button>
           <a-upload
             name="file"
             accept="image/*"
             class="taskStart-upload"
             :showUploadList='false'
             :customRequest="customRequest">
-            <a-button type="primary" class="funBtn" @click="changeImg">从本地替换</a-button>
+            <a-button type="primary" class="funBtn" @click="changeImg">本地导入</a-button>
           </a-upload>
         </div>
       </titleBack>
@@ -32,7 +32,8 @@
   import missionContent from '@C/missionContent.vue';
   import {fileUpload} from '@/api/fileUpload';
   import getBase64 from '@/tools/getBase64';
-  import {uploadImgTemplate, deleteTemplateImg} from '@/api/uploadImgTemplate';
+  import {uploadImgTemplate} from '@/api/uploadImgTemplate';
+  import {postWorkTemplate} from '@/api/works';
   export default {
     name: 'missionDetail',
     data () {
@@ -49,7 +50,14 @@
       pageInit () {
         let resourceChoiceList = [...this.$store.getters.resourceChoiceList];
         if (resourceChoiceList.length) {
-          console.log('从资源库载入了模板，id为', resourceChoiceList);
+          postWorkTemplate(this.workId, resourceChoiceList).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              this.$message.success('导入成功');
+            } else {
+              this.$message.error(data.message);
+            }
+          });
           this.$store.dispatch('changeResourceChoiceList', []); // 导入后清空vuex缓存数据
         }
       },
@@ -61,36 +69,6 @@
       },
       changeImg () {
         console.log('点击上传');
-      },
-      deleteTemplate (item, index) {
-        // if (item.importStatus) {
-        //   detailWrokTemplate(this.workId, item.id).then(res => {
-        //     let data = res.data;
-        //     if (data.code == 0) {
-        //       this.templateList.splice(index, 1);
-        //     } else {
-        //       this.$message.error(data.message);
-        //     }
-        //   });
-        // } else if (item.finished) {
-        //   deleteTemplatePage({id: item.id}).then(res => {
-        //     let data = res.data;
-        //     if (data.code == 0) {
-        //       this.templateList.splice(index, 1);
-        //     } else {
-        //       this.$message.error(data.message);
-        //     }
-        //   });
-        // } else {
-        //   deleteTemplateImg({id: item.id}).then(res => {
-        //     let data = res.data;
-        //     if (data.code == 0) {
-        //       this.templateList.splice(index, 1);
-        //     } else {
-        //       this.$message.error(data.message);
-        //     }
-        //   });
-        // }
       },
       customRequest (data) { // 自定义上传事件
         const {file} = data;

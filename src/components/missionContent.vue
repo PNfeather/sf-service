@@ -16,14 +16,15 @@
         <section class="workItem" v-for="(item, index) in workList" :key="item.id || index">
           <div class="sectionTitle">·{{item.type == 1 ? item.remark : '拍照作业'}}</div>
           <section class="works">
-            <div class="work" :style="{height: work.type == 1 ? '274px' : '224px'}" v-for="(work, workIndex) in (item.type == 1 ? item.templatePages : item.customPages)" :key="work.id || workIndex">
-              <div class="delete" @click.stop="deleteTemplate(item, index)">
+            <div class="work" :style="{height: item.type == 1 ? '274px' : '224px'}" v-for="(work, workIndex) in (item.type == 1 ? item.templatePages : ([...item.templatePages, ...item.templateImages]))" :key="work.id || workIndex">
+              <div v-if="item.type == 2" class="delete" @click.stop="deleteTemplate(item, index)">
                 <i class="iconfont iconClose"></i>
               </div>
+              <div class="shade" v-if="item.type == 1"></div>
               <div class="img">
                 <img crossOrigin="anonymous" v-imgLazy='`${$CJIMGURL + work.url + $OSSIMGADJUSTMINI}`' alt="">
               </div>
-              <p v-show="work.type == 1"><span>第{{work.pageNo}}</span>页</p>
+              <p v-if="item.type == 1"><span>第{{work.pageNo}}</span>页</p>
             </div>
           </section>
         </section>
@@ -96,6 +97,7 @@
               this.detailName = time + reData.name;
               this.assignTeacherName = reData.assignTeacherName;
               this.className = reData.className;
+              this.schoolName = reData.schoolName;
               this.workList = [...reData.workItems];
               this.$emit('input', this.detailName);
               this.voiceMessages = [...reData.voiceRemarks.map((item) => {
@@ -181,6 +183,13 @@
               border-radius: 4px;
               overflow: hidden;
               position: relative;
+              .shade{
+                .wh(100%, 224px);
+                position: absolute;
+                left: 0;
+                top: 0;
+                background: rgba(0, 0, 0, 0.3);
+              }
               .delete{
                 position: absolute;
                 top: 5px;
