@@ -19,7 +19,7 @@
       </titleBack>
     </div>
     <div class="detail">
-      <missionContent :workId="workId" v-model="title"></missionContent>
+      <missionContent ref="missionContent" :workId="workId" v-model="title"></missionContent>
     </div>
     <div class="submitBtn">
       <a-button type="primary" class="submit" @click="goStart">开始制作</a-button>
@@ -30,6 +30,9 @@
 <script type='text/babel'>
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
+  import {fileUpload} from '@/api/fileUpload';
+  import getBase64 from '@/tools/getBase64';
+  import {uploadImgTemplate, deleteTemplateImg} from '@/api/uploadImgTemplate';
   export default {
     name: 'missionDetail',
     data () {
@@ -59,17 +62,68 @@
       changeImg () {
         console.log('点击上传');
       },
+      deleteTemplate (item, index) {
+        // if (item.importStatus) {
+        //   detailWrokTemplate(this.workId, item.id).then(res => {
+        //     let data = res.data;
+        //     if (data.code == 0) {
+        //       this.templateList.splice(index, 1);
+        //     } else {
+        //       this.$message.error(data.message);
+        //     }
+        //   });
+        // } else if (item.finished) {
+        //   deleteTemplatePage({id: item.id}).then(res => {
+        //     let data = res.data;
+        //     if (data.code == 0) {
+        //       this.templateList.splice(index, 1);
+        //     } else {
+        //       this.$message.error(data.message);
+        //     }
+        //   });
+        // } else {
+        //   deleteTemplateImg({id: item.id}).then(res => {
+        //     let data = res.data;
+        //     if (data.code == 0) {
+        //       this.templateList.splice(index, 1);
+        //     } else {
+        //       this.$message.error(data.message);
+        //     }
+        //   });
+        // }
+      },
       customRequest (data) { // 自定义上传事件
-        console.log(data);
-        // const {file} = data;
-        // fileUpload({'file': file}).then(res => {
-        //   if (res.data.code == 0) {
-        //     this.pageImgUrl = res.data.data.url;
-        //     this.resetImg();
-        //   } else {
-        //     this.$message.error(res.data.message);
-        //   }
-        // });
+        const {file} = data;
+        getBase64(file, (imageUrl) => { // 获取图片宽高
+          let img = document.createElement('img');
+          img.src = imageUrl;
+          img.onload = () => {
+            fileUpload({'file': file}).then(res => {
+              if (res.data.code == 0) {
+                let imgUrl = res.data.data.url;
+                let params = {
+                  workId: this.workId,
+                  'templateFiles': [{
+                    url: imgUrl,
+                    width: img.width,
+                    height: img.height
+                  }]
+                };
+                uploadImgTemplate(params).then(res => {
+                  let data = res.data;
+                  if (data.code == 0) {
+                    // let reData = data.data;
+                    this.$refs.missionContent.pageInit();
+                  } else {
+                    this.$message.error(data.message);
+                  }
+                });
+              } else {
+                this.$message.error(res.data.message);
+              }
+            });
+          };
+        });
       }
     },
     components: {
