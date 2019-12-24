@@ -27,6 +27,10 @@ const taskManage = r => require.ensure([], () => r(require('@/page/taskManage/ta
 const imgAdjust = r => require.ensure([], () => r(require('@/page/makeTemplate/imgAdjust')), 'imgAdjust');
 // 模板制作-框定题目区
 const frameTemplate = r => require.ensure([], () => r(require('@/page/makeTemplate/frameTemplate')), 'frameTemplate');
+// 用户反馈
+const tickling = r => require.ensure([], () => r(require('@/page/tickling/tickling')), 'tickling');
+// 反馈详情
+const ticklingDetail = r => require.ensure([], () => r(require('@/page/tickling/ticklingDetail')), 'ticklingDetail');
 
 const routes = [
   {
@@ -82,6 +86,15 @@ const routes = [
         meta: {
           keepAlive: true
         }
+      }, {
+        path: '/tickling',
+        component: tickling,
+        meta: {
+          keepAlive: true
+        }
+      }, {
+        path: '/ticklingDetail',
+        component: ticklingDetail
       }
     ]
   }

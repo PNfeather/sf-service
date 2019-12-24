@@ -20,6 +20,10 @@
               <i class="iconfont iconTaskManage"></i>
               <span>作业管理</span>
             </a-menu-item>
+            <a-menu-item key="tickling">
+              <i class="iconfont iconTickling"></i>
+              <span>用户反馈</span>
+            </a-menu-item>
           </a-menu>
         </a-layout-sider>
         <a-layout-content class="layout-content">
