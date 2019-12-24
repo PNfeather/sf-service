@@ -444,6 +444,9 @@
         let params = {
           markerArea: this.computeMarkerArea(),
           columnNumber: this.columnNumber,
+          url: this.currentEditTemplate.url,
+          width: this.currentEditTemplate.width,
+          height: this.currentEditTemplate.height,
           'questionSigns': [...questionSigns.map((item) => {
             item.height = item.height * this.imgScale;
             item.left = item.left * this.imgScale;

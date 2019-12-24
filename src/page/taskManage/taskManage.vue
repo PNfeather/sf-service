@@ -81,7 +81,7 @@
           {className: 'tablePadding', title: '班级', dataIndex: 'className', width: '10%'},
           {className: 'tablePadding', title: '学科', dataIndex: 'subject', width: '8%'},
           {className: 'tablePadding', title: '提交人数', dataIndex: 'submitStatistics', width: '10%'},
-          {className: 'tablePadding', title: '状态', dataIndex: 'statusName', width: '8%'},
+          {className: 'tablePadding', title: '状态', dataIndex: 'statusName', width: '10%'},
           {className: 'tablePadding', title: '操作', dataIndex: 'deal', width: '20%', scopedSlots: { customRender: 'operation' }}
         ],
         pageSizeOptions: ['5', '10', '20', '30', '40', '50'],

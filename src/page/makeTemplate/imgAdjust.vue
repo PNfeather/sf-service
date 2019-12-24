@@ -71,7 +71,7 @@
       this.$nextTick(() => {
         this.getWH(this.$CJIMGURL + this.pageImgUrl + this.$OSSIMGADJUST, () => {
           this.$nextTick(() => {
-            if (this.query.autoFrame) {
+            if (this.query.autoFrame) { // 自动调整图片
               delete this.query.autoFrame;
               this.submit();
             }

@@ -19,10 +19,10 @@
       </titleBack>
     </div>
     <div class="detail">
-      <missionContent ref="missionContent" :workId="workId" v-model="title"></missionContent>
+      <missionContent ref="missionContent" @changeSubmit="changeSubmit" :workId="workId" v-model="title"></missionContent>
     </div>
     <div class="submitBtn" v-if="!isCheck">
-      <a-button type="primary" class="submit" @click="goStart">开始制作</a-button>
+      <a-button :disabled="submitDisable" type="primary" class="submit" @click="submitWork">发布</a-button>
     </div>
   </div>
 </template>
@@ -33,7 +33,7 @@
   import {fileUpload} from '@/api/fileUpload';
   import getBase64 from '@/tools/getBase64';
   import {uploadImgTemplate} from '@/api/uploadImgTemplate';
-  import {postWorkTemplate} from '@/api/works';
+  import {postWorkTemplate, putWork} from '@/api/works';
   export default {
     name: 'missionDetail',
     data () {
@@ -41,13 +41,17 @@
       return {
         workId: query.workId,
         isCheck: query.pageType === 'check', // 查看作业
-        title: ''
+        title: '',
+        submitDisable: true
       };
     },
     created () {
       this.pageInit();
     },
     methods: {
+      changeSubmit () {
+        this.submitDisable = false;
+      },
       pageInit () {
         let resourceChoiceList = [...this.$store.getters.resourceChoiceList];
         if (resourceChoiceList.length) {
@@ -62,8 +66,16 @@
           this.$store.dispatch('changeResourceChoiceList', []); // 导入后清空vuex缓存数据
         }
       },
-      goStart () {
-        this.$router.push({path: 'taskStart', query: {workId: this.workId, pageType: 'missionTemplate', title: this.title}});
+      submitWork () {
+        putWork(this.workId).then(res => {
+          let data = res.data;
+          if (data.code == 0) {
+            this.$message.success('作业发布成功');
+            this.$router.go(-1);
+          } else {
+            this.$message.error(data.message);
+          }
+        });
       },
       goResourceChoiceList () {
         this.$router.push({path: 'resourcePick', query: { fromName: '作业制作', choiceType: 'radio' }});

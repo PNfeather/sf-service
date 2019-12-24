@@ -16,12 +16,12 @@
         <section class="workItem" v-for="(item, index) in workList" :key="item.id || index">
           <div class="sectionTitle">·{{item.type == 1 ? item.remark : '拍照作业'}}</div>
           <section class="works">
-            <div class="work" :style="{height: item.type == 1 ? '274px' : '224px'}" v-for="(work, workIndex) in (item.type == 1 ? item.templatePages : ([...item.templatePages, ...item.templateImages]))" :key="work.id || workIndex">
+            <div class="work" :style="{height: item.type == 1 ? '274px' : '224px'}" v-for="(work, workIndex) in (item.type == 1 ? item.templatePages : item.combineTemplate)" :key="work.id || workIndex">
               <div v-if="item.type == 2 && work.fromStatus != 1" class="delete" @click.stop="deleteTemplate(work)">
                 <i class="iconfont iconClose"></i>
               </div>
               <div class="shade" v-if="item.type == 1"></div>
-              <div class="img" @click="goMake(work)">
+              <div class="img" @click="goMake(work, item.type)">
                 <img crossOrigin="anonymous" v-imgLazy='`${$CJIMGURL + work.url + $OSSIMGADJUSTMINI}`' alt="">
               </div>
               <p v-if="item.type == 1"><span>第{{work.pageNo}}</span>页</p>
@@ -73,7 +73,8 @@
         className: '',
         txtMessage: '',
         voiceMessages: [],
-        workList: []
+        workList: [],
+        maxSerialNumber: 1
       };
     },
     created () {
@@ -101,24 +102,23 @@
           });
         }
       },
-      goMake (item) {
-        console.log(item);
-        // let query;
-        // let defaultTemplateSortNum;
-        // if (item.finished) { // 已完成模板
-        //   defaultTemplateSortNum = item.serialNumber; // 点击已完成末班，默认序号为当前模板序号
-        //   this.$store.dispatch('passTemplate', JSON.stringify(item));
-        //   query = {templatePageId: item.id}; // 模板页ID（存在则在模板制作时需要初始渲染，最后是更新）
-        //   this.$router.push({path: 'frameTemplate', query: query});
-        // } else { // 导入图片模板
-        //   defaultTemplateSortNum = this.computeMaxFinishedSortNum(); // 点击未完成模板，默认序号为已完成模板最大序号加1
-        //   this.$store.dispatch('passChooseImg', JSON.stringify(item));
-        //   query = {templateImageId: item.id, autoFrame: 'true'}; // 模板图片ID
-        //   this.s1 && Object.assign(query, {workId: this.workId, pageType: 'missionTemplate'}); // 作业进来传作业ID
-        //   this.s4 && Object.assign(query, {templateBookId: item.templateBookId, pageType: 'resourceMakeStart'}); // 资源进来传模板书ID
-        //   this.$router.push({path: 'imgAdjust', query: query});
-        // }
-        // this.$store.dispatch('changeDefaultTemplateSortNum', defaultTemplateSortNum);
+      goMake (item, type) {
+        if (type == 1) {
+          return this.$message.warn('教师导入模板不可编辑');
+        }
+        let query;
+        let defaultTemplateSortNum = item.serialNumber || (this.maxSerialNumber + 1); // 若当前模板自带序号，模板制作序号为本身序号，否则最大序号+1
+        if (item.finished) { // 已完成模板
+          this.$store.dispatch('passTemplate', JSON.stringify(item));
+          query = {templatePageId: item.id}; // 模板页ID（存在则在模板制作时需要初始渲染，最后是更新）
+          this.$router.push({path: 'frameTemplate', query: query});
+        } else { // 导入图片模板
+          this.$store.dispatch('passChooseImg', JSON.stringify(item));
+          query = {templateImageId: item.id, autoFrame: 'true'}; // 模板图片ID
+          Object.assign(query, {workId: this.workId, pageType: 'missionTemplate'}); // 作业进来传作业ID,pageType当前是作业制作而非资源制作
+          this.$router.push({path: 'imgAdjust', query: query});
+        }
+        this.$store.dispatch('changeDefaultTemplateSortNum', defaultTemplateSortNum);
       },
       pageInit () {
         debounce(() => {
@@ -139,15 +139,26 @@
               this.assignTeacherName = reData.assignTeacherName;
               this.className = reData.className;
               this.schoolName = reData.schoolName;
-              this.workList = [...reData.workItems.map(item => {
-                if (item.type == 2) {
-                  item.templatePages.map(child => {
-                    child.finished = true;
-                    return child;
+              this.workList = [...reData.workItems.map(item => { // 对模板进行排序，并找出最大序号存储
+                if (item.type == 1) {
+                  item.templatePages.sort((a, b) => a.serialNumber - b.serialNumber).forEach(c => {
+                    c.serialNumber > this.maxSerialNumber && (this.maxSerialNumber = c.serialNumber);
                   });
+                } else if (item.type == 2) {
+                  item.combineTemplate = [...item.templatePages.map(c => {
+                    c.finished = true;
+                    return c;
+                  }), ...item.templateImages].sort((a, b) => a.serialNumber - b.serialNumber);
+                  item.combineTemplate.forEach(c => {
+                    c.serialNumber > this.maxSerialNumber && (this.maxSerialNumber = c.serialNumber);
+                  });
+                  if (!item.templateImages.length) {
+                    this.$emit('changeSubmit');
+                  }
                 }
                 return item;
               })];
+              console.log(this.maxSerialNumber);
               this.$emit('input', this.detailName);
               this.voiceMessages = [...reData.voiceRemarks.map((item) => {
                 item.audioPlaying = false;
@@ -238,7 +249,7 @@
                 position: absolute;
                 left: 0;
                 top: 0;
-                background: rgba(0, 0, 0, 0.3);
+                background: rgba(0, 0, 0, 0.6);
               }
               .delete{
                 position: absolute;
