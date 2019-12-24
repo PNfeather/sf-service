@@ -183,6 +183,7 @@
     .search{
       flex: 60px 0 0;
       padding: 0 30px 0 10px;
+      overflow-x: auto;
       .fj(flex-start);
       .grade, .subject{
         flex: 180px 0 0;

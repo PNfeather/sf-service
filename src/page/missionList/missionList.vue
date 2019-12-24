@@ -290,6 +290,7 @@
     .search{
       flex: 60px 0 0;
       padding: 0 30px 0 10px;
+      overflow-x: auto;
       .fj(flex-start);
       .service{
         flex: 210px 0 0!important;

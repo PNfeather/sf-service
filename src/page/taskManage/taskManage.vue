@@ -39,10 +39,6 @@
         <div class='editable-row-operations'>
           <a :style="{color: record.submitNum > 0 ? '#1890ff' : '#ccc'}">提交情况</a>
           <a style="margin-left: 10px" @click="checkWork(record.id)">查看作业</a>
-          <!--<a-popconfirm v-show="record.status != 2" placement="topRight" title="你确定要删除该作业?" @confirm="deleteTask(record.id)" >-->
-            <!--<a style="text-decoration: underline; color: #E98469;">删除</a>-->
-          <!--</a-popconfirm>-->
-          <!--<p v-show="record.status == 2" style="color: #999; margin: 0">已删除</p>-->
         </div>
       </template>
     </a-table>
@@ -62,7 +58,7 @@
 </template>
 
 <script type='text/babel'>
-  import {workList, deleteWork} from '@/api/works';
+  import {workList} from '@/api/works';
   import format from '@/tools/format';
   import {classesList} from '@/api/baseData';
   import timeLimit from '@/tools/timeLimit';
@@ -188,14 +184,6 @@
         this.currentPage = 1;
         this.getList();
       },
-      deleteTask (workId) {
-        deleteWork(workId).then((res) => {
-          if (res.data.code == 0) {
-            this.$message.warn('作业删除');
-            this.getList();
-          }
-        });
-      },
       onShowSizeChange (current, pageSize) {
         this.currentPage = current;
         this.limit = pageSize;
@@ -227,6 +215,7 @@
     .search{
       flex: 60px 0 0;
       padding: 0 30px 0 30px;
+      overflow-x: auto;
       .fj(flex-start);
       .school, .grade, .className, .subject{
         flex: 180px 0 0;
