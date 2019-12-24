@@ -37,10 +37,12 @@
       </template>
       <template slot="operation" slot-scope="text, record, index">
         <div class='editable-row-operations'>
-          <a-popconfirm v-show="record.status != 2" placement="topRight" title="你确定要删除该作业?" @confirm="deleteTask(record.id)" >
-            <a style="text-decoration: underline; color: #E98469;">删除</a>
-          </a-popconfirm>
-          <p v-show="record.status == 2" style="color: #999; margin: 0">已删除</p>
+          <a :style="{color: record.submitNum > 0 ? '#1890ff' : '#ccc'}">提交情况</a>
+          <a style="margin-left: 10px" @click="checkWork(record.id)">查看作业</a>
+          <!--<a-popconfirm v-show="record.status != 2" placement="topRight" title="你确定要删除该作业?" @confirm="deleteTask(record.id)" >-->
+            <!--<a style="text-decoration: underline; color: #E98469;">删除</a>-->
+          <!--</a-popconfirm>-->
+          <!--<p v-show="record.status == 2" style="color: #999; margin: 0">已删除</p>-->
         </div>
       </template>
     </a-table>
@@ -63,6 +65,7 @@
   import {workList, deleteWork} from '@/api/works';
   import format from '@/tools/format';
   import {classesList} from '@/api/baseData';
+  import timeLimit from '@/tools/timeLimit';
   export default {
     name: 'missionList',
     data () {
@@ -76,20 +79,20 @@
         subject: '', // 学科
         tableData: [],
         columns: [
-          {className: 'tablePadding', title: '作业名称', dataIndex: 'detailName', width: '18.7%'},
-          {className: 'tablePadding', title: '布置教师', dataIndex: 'teacher', width: '19%'},
+          {className: 'tablePadding', title: '作业名称', dataIndex: 'detailName', width: '15%'},
+          {className: 'tablePadding', title: '布置教师', dataIndex: 'teacher', width: '18%'},
           {className: 'tablePadding', title: '学校', dataIndex: 'schoolName', width: '10%'},
           {className: 'tablePadding', title: '班级', dataIndex: 'className', width: '10%'},
           {className: 'tablePadding', title: '学科', dataIndex: 'subject', width: '8%'},
-          {className: 'tablePadding', title: '布置时间', dataIndex: 'assignTime', width: '14.6%'},
-          {className: 'tablePadding', title: '操作', dataIndex: 'deal', width: '12.7%', scopedSlots: { customRender: 'operation' }}
+          {className: 'tablePadding', title: '提交人数', dataIndex: 'submitStatistics', width: '10%'},
+          {className: 'tablePadding', title: '状态', dataIndex: 'statusName', width: '8%'},
+          {className: 'tablePadding', title: '操作', dataIndex: 'deal', width: '20%', scopedSlots: { customRender: 'operation' }}
         ],
         pageSizeOptions: ['5', '10', '20', '30', '40', '50'],
         skip: 0,
         limit: 10,
         currentPage: 1,
-        count: 0,
-        getListTimer: 0
+        count: 0
       };
     },
     created () {
@@ -138,36 +141,47 @@
         }
         this.check();
       },
+      checkWork (id) {
+        this.$router.push({path: '/missionDetail', query: {workId: id, pageType: 'check'}});
+      },
       getList () {
-        if (this.getListTimer) return;
-        workList({
-          limit: this.limit,
-          skip: this.skip,
-          teacherInfo: this.teacherInfo,
-          queryDelete: true,
-          classId: this.classId,
-          gradeId: this.grade,
-          schoolId: this.school,
-          subject: this.subject
-        }).then(res => {
-          let data = res.data;
-          this.count = data.total;
-          if (data.code == 0) {
-            this.tableData = data.data.map((item) => {
-              let time = format(new Date(item.assignTime), 'MM月DD日 HH:mm');
-              if (time[0] == 0) {
-                time = time.substr(1);
-              }
-              item.assignTime = time;
-              item.detailName = time.split(' ')[0] + item.name;
-              item.teacher = item.assignTeacherName + (item.assignTeacherMobile ? '(' + item.assignTeacherMobile + ')' : '');
-              return item;
-            });
-          }
+        timeLimit(() => {
+          workList({
+            limit: this.limit,
+            skip: this.skip,
+            teacherInfo: this.teacherInfo,
+            queryDelete: true,
+            classId: this.classId,
+            gradeId: this.grade,
+            schoolId: this.school,
+            subject: this.subject
+          }).then(res => {
+            let data = res.data;
+            this.count = data.total;
+            if (data.code == 0) {
+              this.tableData = data.data.map((item) => {
+                let time = format(new Date(item.assignTime), 'MM月DD日 HH:mm');
+                if (time[0] == 0) {
+                  time = time.substr(1);
+                }
+                item.assignTime = time;
+                item.detailName = time.split(' ')[0] + item.name;
+                item.teacher = item.assignTeacherName + (item.assignTeacherMobile ? '(' + item.assignTeacherMobile + ')' : '');
+                if (item.workStatus == 3) {
+                  item.statusName = '批改完成';
+                } else {
+                  if (item.submitNum > 0) {
+                    item.statusName = '正在批改';
+                  } else {
+                    item.statusName = '收作业中';
+                  }
+                }
+                item.submitStatistics = item.submitNum + '/' + item.totalNum;
+                return item;
+              });
+            }
+          });
         });
-        this.getListTimer = setTimeout(() => {
-          this.getListTimer = null;
-        }, 500);
       },
       check () {
         this.skip = 0;

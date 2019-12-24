@@ -62,7 +62,9 @@
       }
     },
     data () {
+      const {query} = this.$route;
       return {
+        isCheck: query.pageType === 'check', // 查看作业
         detailName: '',
         assignTeacherName: '',
         assignTime: '',

@@ -1,11 +1,11 @@
 <template>
   <div name='missionDetail' class="fillcontain">
     <div class="title">
-      <titleBack title="返回任务列表">
+      <titleBack :title="isCheck ? '返回作业管理' : '返回任务列表'">
         <div slot="center" class="taskName fillcontain">
           {{title}}
         </div>
-        <div slot="right" class="right-btn-group fillcontain">
+        <div slot="right" class="right-btn-group fillcontain" v-if="!isCheck">
           <a-button type="primary" class="funBtn" @click="goResourceChoiceList">资源库</a-button>
           <a-upload
             name="file"
@@ -21,7 +21,7 @@
     <div class="detail">
       <missionContent ref="missionContent" :workId="workId" v-model="title"></missionContent>
     </div>
-    <div class="submitBtn">
+    <div class="submitBtn" v-if="!isCheck">
       <a-button type="primary" class="submit" @click="goStart">开始制作</a-button>
     </div>
   </div>
@@ -37,9 +37,10 @@
   export default {
     name: 'missionDetail',
     data () {
-      let query = this.$route.query;
+      const {query} = this.$route;
       return {
         workId: query.workId,
+        isCheck: query.pageType === 'check', // 查看作业
         title: ''
       };
     },
@@ -68,7 +69,7 @@
         this.$router.push({path: 'resourcePick', query: { fromName: '作业制作', choiceType: 'radio' }});
       },
       changeImg () {
-        console.log('点击上传');
+        // 弹出文件选择框前事件
       },
       customRequest (data) { // 自定义上传事件
         const {file} = data;
