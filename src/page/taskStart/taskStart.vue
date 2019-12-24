@@ -140,7 +140,7 @@
   import {reviewBook, getBookTemplate, releaseBook, getBookList, upadataTemplateSerialNum} from '@/api/tBook';
   import {deleteTemplatePage} from '@/api/tPage';
   import {uploadImgTemplate, deleteTemplateImg} from '@/api/uploadImgTemplate';
-  import {getWorkTemplate, putWork, postWorkTemplate, detailWrokTemplate} from '@/api/works';
+  import {getWorkTemplate, putWork, postWorkTemplate, deleteWrokTemplate} from '@/api/works';
   import timeLimit from '@/tools/timeLimit';
   import titleBack from '@C/titleBack.vue';
   import missionContent from '@C/missionContent.vue';
@@ -579,7 +579,7 @@
       },
       deleteTemplate (item, index) {
         if (item.importStatus) {
-          detailWrokTemplate(this.workId, item.id).then(res => {
+          deleteWrokTemplate(this.workId, item.id).then(res => {
             let data = res.data;
             if (data.code == 0) {
               this.templateList.splice(index, 1);

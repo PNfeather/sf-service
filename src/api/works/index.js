@@ -15,6 +15,6 @@ export const workDetail = (id) => Http.get('/service/works/' + id + '/detail');
 // 获取作业模板
 export const getWorkTemplate = (id) => Http.get('/service/works/' + id + '/template');
 // 资源库导入模板
-export const postWorkTemplate = (id, pageIds) => Http.post('/service/works/' + id + '/template', pageIds);
+export const postWorkTemplate = (id, pageIds) => Http.post('/service/works/' + id + '/template/v2', pageIds);
 // 导入模板删除
-export const detailWrokTemplate = (id, templatePageId) => Http.delete('/service/works/' + id + '/template/' + templatePageId);
+export const deleteWrokTemplate = (id, templatePageId) => Http.delete('/service/works/' + id + '/template/' + templatePageId);

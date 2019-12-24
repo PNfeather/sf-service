@@ -17,11 +17,11 @@
           <div class="sectionTitle">·{{item.type == 1 ? item.remark : '拍照作业'}}</div>
           <section class="works">
             <div class="work" :style="{height: item.type == 1 ? '274px' : '224px'}" v-for="(work, workIndex) in (item.type == 1 ? item.templatePages : ([...item.templatePages, ...item.templateImages]))" :key="work.id || workIndex">
-              <div v-if="item.type == 2" class="delete" @click.stop="deleteTemplate(item, index)">
+              <div v-if="item.type == 2 && work.fromStatus != 1" class="delete" @click.stop="deleteTemplate(work)">
                 <i class="iconfont iconClose"></i>
               </div>
               <div class="shade" v-if="item.type == 1"></div>
-              <div class="img">
+              <div class="img" @click="goMake(work)">
                 <img crossOrigin="anonymous" v-imgLazy='`${$CJIMGURL + work.url + $OSSIMGADJUSTMINI}`' alt="">
               </div>
               <p v-if="item.type == 1"><span>第{{work.pageNo}}</span>页</p>
@@ -47,9 +47,11 @@
 </template>
 
 <script type='text/babel'>
+  import {deleteTemplateImg} from '@/api/uploadImgTemplate';
+  import {deleteTemplatePage} from '@/api/tPage';
   import {workDetail} from '@/api/works';
   import format from '@/tools/format';
-  import timeLimit from '@/tools/timeLimit';
+  import debounce from '@/tools/debounce';
   export default {
     name: 'missionContent',
     props: {
@@ -76,11 +78,48 @@
       this.pageInit();
     },
     methods: {
-      deleteTemplate () {
-        console.log('删除作业');
+      deleteTemplate (item) {
+        if (item.finished) {
+          deleteTemplatePage({id: item.id}).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              this.pageInit();
+            } else {
+              this.$message.error(data.message);
+            }
+          });
+        } else {
+          deleteTemplateImg({id: item.id}).then(res => {
+            let data = res.data;
+            if (data.code == 0) {
+              this.pageInit();
+            } else {
+              this.$message.error(data.message);
+            }
+          });
+        }
+      },
+      goMake (item) {
+        console.log(item);
+        // let query;
+        // let defaultTemplateSortNum;
+        // if (item.finished) { // 已完成模板
+        //   defaultTemplateSortNum = item.serialNumber; // 点击已完成末班，默认序号为当前模板序号
+        //   this.$store.dispatch('passTemplate', JSON.stringify(item));
+        //   query = {templatePageId: item.id}; // 模板页ID（存在则在模板制作时需要初始渲染，最后是更新）
+        //   this.$router.push({path: 'frameTemplate', query: query});
+        // } else { // 导入图片模板
+        //   defaultTemplateSortNum = this.computeMaxFinishedSortNum(); // 点击未完成模板，默认序号为已完成模板最大序号加1
+        //   this.$store.dispatch('passChooseImg', JSON.stringify(item));
+        //   query = {templateImageId: item.id, autoFrame: 'true'}; // 模板图片ID
+        //   this.s1 && Object.assign(query, {workId: this.workId, pageType: 'missionTemplate'}); // 作业进来传作业ID
+        //   this.s4 && Object.assign(query, {templateBookId: item.templateBookId, pageType: 'resourceMakeStart'}); // 资源进来传模板书ID
+        //   this.$router.push({path: 'imgAdjust', query: query});
+        // }
+        // this.$store.dispatch('changeDefaultTemplateSortNum', defaultTemplateSortNum);
       },
       pageInit () {
-        timeLimit(() => {
+        debounce(() => {
           this.audioPlaying = false;
           this.currentTime = 0;
           workDetail(this.workId).then(res => {
@@ -98,7 +137,15 @@
               this.assignTeacherName = reData.assignTeacherName;
               this.className = reData.className;
               this.schoolName = reData.schoolName;
-              this.workList = [...reData.workItems];
+              this.workList = [...reData.workItems.map(item => {
+                if (item.type == 2) {
+                  item.templatePages.map(child => {
+                    child.finished = true;
+                    return child;
+                  });
+                }
+                return item;
+              })];
               this.$emit('input', this.detailName);
               this.voiceMessages = [...reData.voiceRemarks.map((item) => {
                 item.audioPlaying = false;
@@ -174,6 +221,7 @@
           .works{
             width: 100%;
             display: flex;
+            flex-wrap: wrap;
             .work{
               margin:0 18px 20px 0;
               flex: 190px 0 0;
